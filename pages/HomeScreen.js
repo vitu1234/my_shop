@@ -3,6 +3,7 @@ import {Container, Heading, ScrollView, Text} from 'native-base';
 import {View, StyleSheet} from 'react-native';
 import ButtonCategory from '../components/ButtonCategory';
 import {Dimensions} from 'react-native';
+import ProductCard from '../components/ProductCard';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -33,11 +34,48 @@ const product_categories_list = [
     },
 ];
 
+const products_list = [
+    {
+        'product_id': 2,
+        'product_name': 'Men\'s T-Shirt',
+        'product_price': '6000',
+        'img_url': require('../assets/products/tshirt_3.png'),
+    }, {
+        'product_id': 1,
+        'product_name': 'Nike Shoes Men',
+        'product_price': '30000',
+        'img_url': require('../assets/products/shoes_1.png'),
+    },
+
+    {
+        'product_id': 5,
+        'product_name': 'Nike Shoes Universal',
+        'product_price': '36000',
+        'img_url': require('../assets/products/shoes_2.png'),
+    },
+    {
+        'product_id': 3,
+        'product_name': 'Macbook Air 2019',
+        'product_price': '1200000',
+        'img_url': require('../assets/products/macbook_4.png'),
+    },
+    {
+        'product_id': 4,
+        'product_name': 'iPhone X Max',
+        'product_price': '970000',
+        'img_url': require('../assets/products/phone_5.png'),
+    },
+];
+
 function HomeScreen(props) {
     const [categoryActive, setCategoryActive] = useState(-1);
     const btnCategoryAction = (category_id) => {
         console.log('GOES TO ' + category_id + ' CATEGORY');
         setCategoryActive(category_id);
+    };
+
+    const productCardAction = (product) => {
+        console.log(product);
     };
 
     const renderCategoryList = product_categories_list.map((category) => {
@@ -64,6 +102,14 @@ function HomeScreen(props) {
 
 
     });
+    const renderProductList = products_list.map((product) => {
+        return (
+            <ProductCard key={product.product_id} data={{
+                product: product,
+                action: productCardAction,
+            }}/>
+        );
+    });
 
     return (
         <View style={styles.container}>
@@ -77,6 +123,7 @@ function HomeScreen(props) {
                 }}
                 // style={s.container}
                 //pagingEnabled={true}
+                marginTop={5}
                 showsHorizontalScrollIndicator={false}
                 horizontal={true}
                 decelerationRate={0}
@@ -100,6 +147,31 @@ function HomeScreen(props) {
 
                 {renderCategoryList}
             </ScrollView>
+
+            <ScrollView
+                ref={(scrollView) => {
+                    scrollView = scrollView;
+                }}
+                // style={s.container}
+                //pagingEnabled={true}
+                marginTop={5}
+                showsHorizontalScrollIndicator={false}
+                horizontal={true}
+                decelerationRate={0}
+                snapToInterval={width - 60}
+                snapToAlignment={'center'}
+                contentInset={{
+                    top: 0,
+                    left: 30,
+                    bottom: 0,
+                    right: 30,
+                }}>
+
+
+                {renderProductList}
+            </ScrollView>
+
+            <ProductCard/>
         </View>
     );
 }
@@ -107,8 +179,8 @@ function HomeScreen(props) {
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        backgroundColor:'#fff',
-        marginTop:5
+        backgroundColor: '#fff',
+        marginTop: 5,
     },
 });
 
