@@ -75,7 +75,8 @@ function HomeScreen(props) {
     };
 
     const productCardAction = (product) => {
-        console.log(product);
+        // console.log(product);
+        props.navigation.navigate('ProductDetails', {data: product});
     };
 
     const renderCategoryList = product_categories_list.map((category) => {
