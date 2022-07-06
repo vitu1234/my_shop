@@ -4,6 +4,7 @@ import DrawerNavigator from './DrawerNavigator';
 import SettingsScreen from '../pages/SettingsScreen';
 import NavigationContainer from '@react-navigation/native/src/NavigationContainer';
 import ProductDetails from '../pages/ProductDetails';
+import StackNavigationHeader from './StackNavigationHeader';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ function StackNavigator(props) {
                         // backgroundColor: '#f4511e',
 
                     },
+                    headerRight: (props) => <StackNavigationHeader {...props} />,
                 }}/>
             </Stack.Navigator>
         </NavigationContainer>
