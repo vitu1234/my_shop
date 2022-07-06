@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {HStack, View, Text} from 'native-base';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from 'react-native';
+import {CartContext} from '../app_contexts/CartContext';
 
 
 function DrawerNavigationHeader(props) {
-    let cartCount = 1;
+    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+
     return (
 
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
@@ -26,7 +28,7 @@ function DrawerNavigationHeader(props) {
                             size={26}
                             containerStyle={{marginHorizontal: 15, position: 'relative'}}
                         />
-                        {cartCount > 0 ? (
+                        {cartItemsCount > 0 ? (
                             <View
                                 style={{
                                     position: 'absolute',
@@ -46,7 +48,7 @@ function DrawerNavigationHeader(props) {
                                         color: '#FFFFFF',
                                         fontSize: 8,
                                     }}>
-                                    {cartCount}
+                                    {cartItemsCount}
                                 </Text>
                             </View>
                         ) : null}

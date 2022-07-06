@@ -1,9 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Button, Center, HStack, Image, ScrollView, Text, View, VStack} from 'native-base';
 import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from 'react-native';
 import numbro from 'numbro';
 import Icon from 'react-native-vector-icons/AntDesign';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
+import {UserContext} from '../app_contexts/UserContext';
+import {CartContext} from '../app_contexts/CartContext';
 
 
 const {width} = Dimensions.get('window');
@@ -13,6 +15,9 @@ function ProductDetails(props) {
     const product = props.route.params.data;
     const [productCount, setProductCount] = useState(1);
     const [product_price, setProductPrice] = useState(product.product_price);
+
+    const [isLoggedIn, setLoggedInStatus] = useContext(UserContext);
+    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
 
     useEffect(() => {
@@ -25,6 +30,7 @@ function ProductDetails(props) {
     const addToCart = () => {
         console.log('added to cart');
         console.log(product);
+        setCartItemsCount(productCount);
     };
 
 
@@ -103,7 +109,7 @@ function ProductDetails(props) {
                         <View>
 
 
-                            <Button size="sm" variant="subtle" colorScheme="dark">
+                            <Button onPress={addToCart} size="sm" variant="subtle" colorScheme="dark">
                                 <HStack space={2}>
                                     <Icon name="shoppingcart" size={20} color="#fff"/>
                                     <Text style={{color: '#fff'}}>Add to Cart</Text>
