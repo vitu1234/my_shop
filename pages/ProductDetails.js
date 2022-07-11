@@ -6,43 +6,164 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
 import {UserContext} from '../app_contexts/UserContext';
 import {CartContext} from '../app_contexts/CartContext';
+import SQLite from 'react-native-sqlite-storage';
 
 
 const {width} = Dimensions.get('window');
 const windowHeight = Dimensions.get('window').height;
 
+const db = SQLite.openDatabase(
+    {
+        name: 'MainDB1',
+        location: 'default',
+        version: 1,
+    },
+    () => {
+    },
+    error => {
+        console.log(error);
+    },
+);
+
+
 function ProductDetails(props) {
+
     const product = props.route.params.data;
-    const [productCount, setProductCount] = useState(1);
+    const [productQty, setProductQty] = useState(1);
     const [product_price, setProductPrice] = useState(product.product_price);
 
     const [isLoggedIn, setLoggedInStatus] = useContext(UserContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
 
-    useEffect(() => {
-        setProductPrice(productCount * parseFloat(product.product_price));
-    }, [productCount]);
-
-    useEffect(() => {
-    }, [product_price]);
-
-    const addToCart = () => {
-        console.log('added to cart');
-        console.log(product);
-        setCartItemsCount(productCount);
+    const setCartCounterNumber = () => {
+        //update cart counter
+        db.transaction((tx) => {
+            tx.executeSql(
+                'SELECT * FROM cart',
+                [],
+                (tx, results) => {
+                    const len = results.rows.length;
+                    setCartItemsCount(len);
+                    console.log('COUNTING');
+                },
+            );
+        });
     };
 
 
+    useEffect(() => {
+        setProductPrice(productQty * (parseFloat(product.product_price)));
+        setCartCounterNumber();
+
+    }, [productQty, cartItemsCount]);
+
+
+    const addToCart = async () => {
+        console.log('added to cart');
+        // console.log(product);
+        // setProductQty(productQty);
+        //check if there are products in cart
+
+
+        try {
+            //insert into cart
+            await db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM cart WHERE product_id = ?',
+                    [
+                        product.product_id,
+                    ],
+                    (tx, results) => {
+                        const len = results.rows.length;
+                        console.log('dhdhd ' + len);
+                        if (len > 0) {
+                            db.transaction(async (tx) => {
+                                await tx.executeSql(
+                                    'UPDATE cart SET qty=? WHERE product_id = ?',
+                                    [productQty, product.product_id],
+                                    () => {
+                                        console.log('updated');
+                                        Alert.alert('Success!', 'Your data has been updated.');
+                                    },
+                                    error => {
+                                        console.log(error);
+                                    },
+                                );
+                            });
+                        } else {
+                            db.transaction(async (tx) => {
+
+                                await tx.executeSql(
+                                    'INSERT INTO cart(product_id,product_name,product_price,qty) VALUES (?,?,?,?);',
+                                    [product.product_id, product.product_name, product.product_price, productQty],
+                                );
+                                console.log('added to sqlite');
+                                db.transaction((tx) => {
+                                    tx.executeSql(
+                                        'SELECT * FROM cart',
+                                        [],
+                                        (tx, results) => {
+                                            setCartItemsCount(results.rows.length);
+                                            console.log('hmm cart' + results.rows.length);
+                                        },
+                                    );
+                                });
+                            });
+                        }
+                    },
+                );
+            });
+
+            //update cart counter
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM cart',
+                    [],
+                    (tx, results) => {
+                        setCartItemsCount(results.rows.length);
+                        console.log('hmm cart' + results.rows.length);
+                    },
+                );
+            });
+            /*
+            await db.transaction(async (tx) => {
+
+                await tx.executeSql(
+                    'INSERT INTO Users (Name, Age) VALUES (?,?)',
+                    ['vt', 33],
+                );
+            });
+
+
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'SELECT * FROM Users',
+                    [],
+                    (tx, results) => {
+                        const len = results.rows.length;
+                        console.log('hm22222m ' + results.rows.length);
+
+                    },
+                );
+            });
+             */
+
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
     const addProductQty = () => {
-        setProductCount(productCount + 1);
+        setProductQty(productQty + 1);
     };
 
     const minusProductQty = () => {
-        if (productCount === 1) {
-            setProductCount(1);
+        if (productQty === 1) {
+            setProductQty(1);
         } else {
-            setProductCount(productCount - 1);
+            setProductQty(productQty - 1);
         }
     };
 
@@ -60,7 +181,8 @@ function ProductDetails(props) {
                             />
                             <View style={styles.infoContainer}>
                                 <Text numberOfLines={1} style={styles.name}>{product.product_name}</Text>
-                                <Text numberOfLines={1} style={styles.price}>K {numbro(parseInt(product_price)).format({
+                                <Text numberOfLines={1}
+                                      style={styles.price}>K {numbro(parseInt(product_price)).format({
                                     thousandSeparated: true,
                                     mantissa: 2,
                                 })}</Text>
@@ -77,7 +199,7 @@ function ProductDetails(props) {
                                     <Button onPress={minusProductQty} variant={'outline'} size="sm">
                                         <Icon name="minus" size={15} color="#000"/>
                                     </Button>
-                                    <Text style={{fontSize: 20, fontWeight: 'bold'}}>{productCount}</Text>
+                                    <Text style={{fontSize: 20, fontWeight: 'bold'}}>{productQty}</Text>
                                     <Button onPress={addProductQty} variant={'outline'} size="sm">
                                         <Icon name="plus" size={15} color="#000"/>
                                     </Button>
@@ -92,13 +214,17 @@ function ProductDetails(props) {
                             >
 
                                 <Text style={styles.prodDesc}>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                                    tempor
+                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                                    nostrud
+                                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis
+                                    aute
                                     irure
                                     dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
                                     pariatur.
-                                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+                                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+                                    deserunt
                                     mollit anim id est laborum.
                                 </Text>
                             </CollapsibleView>
@@ -124,7 +250,7 @@ function ProductDetails(props) {
             </Center>
         </ScrollView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     card: {
