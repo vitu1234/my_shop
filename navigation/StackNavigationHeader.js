@@ -8,11 +8,19 @@ import {CartContext} from '../app_contexts/CartContext';
 
 function StackNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+
+    const navigator = props.data.navigator;
+    // console.log(props);
+
+    const gotToCart = () => {
+        navigator.navigate('Cart');
+    };
+
     return (
 
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={gotToCart}>
                     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                         <Icon
                             name="shoppingcart"

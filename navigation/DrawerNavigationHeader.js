@@ -8,6 +8,13 @@ import {CartContext} from '../app_contexts/CartContext';
 function DrawerNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
+    const navigator = props.data.navigator;
+// console.log(navi)
+    const gotToCart = () => {
+        navigator.navigate('Cart');
+
+    };
+
     return (
 
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
@@ -20,7 +27,7 @@ function DrawerNavigationHeader(props) {
                 />
             </TouchableOpacity>
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={gotToCart}>
                     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                         <Icon
                             name="shoppingcart"
