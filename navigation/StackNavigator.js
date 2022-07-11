@@ -40,11 +40,7 @@ function StackNavigator(props) {
                     // }}
                               options={({navigation}) => ({
                                   headerRight: () => (
-                                      <StackNavigationHeader data={{navigation:navigation}}>
-
-                                          // some component ...
-
-                                      </StackNavigationHeader>
+                                      <StackNavigationHeader data={{navigation: navigation}}/>
                                   ),
                               })}
                 />

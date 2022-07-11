@@ -10,7 +10,7 @@ function StackNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
     const navigator = props.data.navigation;
-    console.log(props);
+    // console.log(props);
 
     const gotToCart = () => {
         navigator.navigate('Cart');
