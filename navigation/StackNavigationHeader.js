@@ -9,8 +9,8 @@ import {CartContext} from '../app_contexts/CartContext';
 function StackNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
-    const navigator = props.data.navigator;
-    // console.log(props);
+    const navigator = props.data.navigation;
+    console.log(props);
 
     const gotToCart = () => {
         navigator.navigate('Cart');
