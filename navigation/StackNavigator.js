@@ -26,7 +26,13 @@ function StackNavigator(props) {
                     options={{headerShown: false}}
                 />
                 <Stack.Screen name="Feed" component={SettingsScreen}/>
-                <Stack.Screen name="Cart" component={CartScreen}/>
+                <Stack.Screen name="Cart" component={CartScreen}
+                              options={({navigation}) => ({
+                                  headerRight: () => (
+                                      <StackNavigationHeader data={{navigation: navigation}}/>
+                                  ),
+                              })}
+                />
                 <Stack.Screen name="ProductDetails" component={ProductDetails}
                     // options={{
                     //     title: 'Product Details', headerStyle: {

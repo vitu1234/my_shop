@@ -9,10 +9,8 @@ function DrawerNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
     const navigator = props.data.navigator;
-// console.log(navi)
     const gotToCart = () => {
         navigator.navigate('Cart');
-
     };
 
     return (

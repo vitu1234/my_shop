@@ -16,7 +16,7 @@ const db = SQLite.openDatabase(
     {
         name: 'MainDB1',
         location: 'default',
-        version: 1,
+        version: 2,
     },
     () => {
     },
@@ -95,8 +95,8 @@ function ProductDetails(props) {
                             db.transaction(async (tx) => {
 
                                 await tx.executeSql(
-                                    'INSERT INTO cart(product_id,product_name,product_price,qty) VALUES (?,?,?,?);',
-                                    [product.product_id, product.product_name, product.product_price, productQty],
+                                    'INSERT INTO cart(product_id,product_name,product_price,qty,img_url) VALUES (?,?,?,?,?);',
+                                    [product.product_id, product.product_name, product.product_price, productQty, product.img_url],
                                 );
                                 console.log('added to sqlite');
                                 db.transaction((tx) => {
