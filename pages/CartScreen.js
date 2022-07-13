@@ -68,8 +68,9 @@ function CartScreen(props) {
     useEffect(() => {
         setCartCounterNumber();
     }, [isLoadingScreen]);
-
     const removeProductCart = (product) => {
+        setIsLoadingScreen(true);
+
         db.transaction((tx) => {
             tx.executeSql(
                 'DELETE FROM cart where id=?',
@@ -79,7 +80,7 @@ function CartScreen(props) {
                     if (results.rowsAffected > 0) {
 
                         const len = results.rows.length;
-                        setCartItemsCount(len);
+                        // setCartItemsCount(len);
 
 
                         const temp = [];
@@ -90,7 +91,7 @@ function CartScreen(props) {
                             amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
                         }
                         // setCartProducts(temp);
-                        setProductsTotalAmount(amountTotal);
+                        // setProductsTotalAmount(amountTotal);
 
                         Alert.alert(
                             'Success',
@@ -108,64 +109,9 @@ function CartScreen(props) {
         });
     };
 
-    const addProductCart = (product) => {
-        console.log(product);
-        db.transaction(async (tx) => {
-            await tx.executeSql(
-                'UPDATE cart SET qty=? WHERE product_id = ?',
-                [product.qty + 1, product.product_id],
-                (tx, results) => {
-                    if (results.rowsAffected > 0) {
-                        const len = results.rows.length;
-                        setCartItemsCount(len);
-
-                        const temp = [];
-                        let amountTotal = 0;
-                        for (let i = 0; i < results.rows.length; ++i) {
-                            temp.push(results.rows.item(i));
-
-                            amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-                        }
-                        // setCartProducts(temp);
-                        setProductsTotalAmount(amountTotal);
-
-
-                    }
-                    console.log('updated');
-                },
-                error => {
-                    console.log(error);
-                },
-            );
-        });
-    };
-
-    const minusProductCart = (product, minusLogic) => {
-        minusLogic(product);
-        const new_qty = ((product.qty - 1) === 0) ? 1 : product.qty - 1;
-        db.transaction(async (tx) => {
-            await tx.executeSql(
-                'UPDATE cart SET qty=? WHERE product_id = ?',
-                [new_qty, product.product_id],
-                (tx, results) => {
-                    if (results.rowsAffected > 0) {
-                        const len = results.rows.length;
-                        const temp = [];
-                        let amountTotal = 0;
-                        for (let i = 0; i < results.rows.length; ++i) {
-                            temp.push(results.rows.item(i));
-
-                            amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-                        }
-
-
-                    }
-                },
-                error => {
-                    console.log(error);
-                },
-            );
-        });
+    const setLoadingScreen = () => {
+        // console.log('iniit')
+        setIsLoadingScreen(true);
     };
 
     if (!isLoadingScreen) {
@@ -177,9 +123,10 @@ function CartScreen(props) {
                 return (
                     <CartRow key={product.product_id} data={{
                         product: product,
-                        actionRemoveProductCart: removeProductCart,
+                        // actionRemoveProductCart: removeProductCart,
                         // actionAddProductCart: addProductCart,
                         // actionMinusProductCart: minusProductCart,
+                        actionRemoveLoading: setLoadingScreen,
                     }}/>
                 );
             });

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Center, HStack, Image, View} from 'native-base';
+import {Alert, Button, Center, HStack, Image, View} from 'native-base';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Dimensions} from 'react-native';
@@ -32,6 +32,7 @@ function CartRow(props) {
         const [product_price, setProductPrice] = useState(parseInt(product.product_price) * product.qty);
         const [isLoadingBtnAdd, setIsLoadingBtnAdd] = useState(false);
         const [isLoadingBtnMinus, setIsLoadingBtnMinus] = useState(false);
+        const [isLoadingBtnRemove, setIsLoadingBtnRemove] = useState(false);
 
         useEffect(() => {
             setProductPrice(productQty * (parseFloat(product.product_price)));
@@ -93,6 +94,48 @@ function CartRow(props) {
 
         };
 
+        const removeProductCart = () => {
+            data.actionRemoveLoading(true);
+            // console.log('djdj');
+
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'DELETE FROM cart where id=?',
+                    [product.id],
+                    (tx, results) => {
+
+                        if (results.rowsAffected > 0) {
+
+                            const len = results.rows.length;
+                            // setCartItemsCount(len);
+
+
+                            const temp = [];
+                            let amountTotal = 0;
+                            for (let i = 0; i < results.rows.length; ++i) {
+                                temp.push(results.rows.item(i));
+
+                                amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
+                            }
+                            // setCartProducts(temp);
+                            // setProductsTotalAmount(amountTotal);
+
+                            Alert.alert(
+                                'Success',
+                                'Removed from cart',
+                                [
+                                    {
+                                        text: 'Ok',
+                                        // onPress: () => navigation.navigate('HomeScreen'),
+                                    },
+                                ],
+                                {cancelable: false},
+                            );
+                        }
+                    });
+            });
+        };
+
         return (
             <View style={{
                 backgroundColor: '#fff',
@@ -115,7 +158,7 @@ function CartRow(props) {
 
                         <View>
                             <View style={{marginLeft: 'auto', justifyContent: 'flex-start', flexDirection: 'row'}}>
-                                <Button onPress={() => data.actionRemoveProductCart(product)}
+                                <Button isLoading={isLoadingBtnRemove} onPress={() => removeProductCart()}
                                         style={{marginRight: 'auto'}} variant={'outline'} size="sm">
                                     <Icon name="close" size={15} color="#ff0101"/>
                                 </Button>
@@ -135,13 +178,13 @@ function CartRow(props) {
                                     <HStack space={5}
                                             style={{alignItems: 'center'}}>
 
-                                        <Button isLoading={isLoadingBtnMinus} onPress={() => minusProductCart(product)}
+                                        <Button isLoading={isLoadingBtnMinus} onPress={() => minusProductCart()}
                                                 variant={'outline'}
                                                 size="sm">
                                             <Icon name="minus" size={15} color="#000"/>
                                         </Button>
                                         <Text style={{fontSize: 20, fontWeight: 'bold'}}>{productQty}</Text>
-                                        <Button isLoading={isLoadingBtnAdd} onPress={() => addProductCart(product)}
+                                        <Button isLoading={isLoadingBtnAdd} onPress={() => addProductCart()}
                                                 variant={'outline'}
                                                 size="sm">
                                             <Icon name="plus" size={15} color="#000"/>
