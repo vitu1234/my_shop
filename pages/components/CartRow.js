@@ -26,13 +26,15 @@ const db = SQLite.openDatabase(
 function CartRow(props) {
     const data = props.data;
     if (data !== undefined) {
-        const product = data.product;
+        const product = data.product
+
 
         const [productQty, setProductQty] = useState(product.qty);
         const [product_price, setProductPrice] = useState(parseInt(product.product_price) * product.qty);
         const [isLoadingBtnAdd, setIsLoadingBtnAdd] = useState(false);
         const [isLoadingBtnMinus, setIsLoadingBtnMinus] = useState(false);
         const [isLoadingBtnRemove, setIsLoadingBtnRemove] = useState(false);
+        console.log(productQty)
 
         useEffect(() => {
             setProductPrice(productQty * (parseFloat(product.product_price)));
@@ -52,7 +54,7 @@ function CartRow(props) {
                     () => {
 
                         setIsLoadingBtnAdd(false);
-                        console.log('updated');
+                        // console.log('updated');
                         Alert.alert('Success!', 'Your data has been updated.');
                     },
                     error => {
@@ -83,7 +85,7 @@ function CartRow(props) {
                     () => {
 
                         setIsLoadingBtnMinus(false);
-                        console.log('updated');
+                        // console.log('updated');
                         Alert.alert('Success!', 'Your data has been updated.');
                     },
                     error => {
@@ -183,7 +185,7 @@ function CartRow(props) {
                                                 size="sm">
                                             <Icon name="minus" size={15} color="#000"/>
                                         </Button>
-                                        <Text style={{fontSize: 20, fontWeight: 'bold'}}>{productQty}</Text>
+                                        <Text style={{color:'grey',fontSize: 16, fontWeight: 'bold'}}>{productQty}</Text>
                                         <Button isLoading={isLoadingBtnAdd} onPress={() => addProductCart()}
                                                 variant={'outline'}
                                                 size="sm">

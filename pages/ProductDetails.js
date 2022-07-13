@@ -199,7 +199,7 @@ function ProductDetails(props) {
                                     <Button onPress={minusProductQty} variant={'outline'} size="sm">
                                         <Icon name="minus" size={15} color="#000"/>
                                     </Button>
-                                    <Text style={{fontSize: 20, fontWeight: 'bold'}}>{productQty}</Text>
+                                    <Text style={{fontSize: 16, color:'grey', fontWeight: 'bold'}}>{productQty}</Text>
                                     <Button onPress={addProductQty} variant={'outline'} size="sm">
                                         <Icon name="plus" size={15} color="#000"/>
                                     </Button>
