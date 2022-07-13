@@ -7,6 +7,7 @@ import {UserContext} from '../app_contexts/UserContext';
 import {CartContext} from '../app_contexts/CartContext';
 import SQLite from 'react-native-sqlite-storage';
 import ProductCard from './components/ProductCard';
+import numbro from 'numbro';
 
 
 const {width} = Dimensions.get('window');
@@ -30,6 +31,7 @@ function CartScreen(props) {
     const [isLoggedIn, setLoggedInStatus] = useContext(UserContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [products, setCartProducts] = useState([]);
+    const [productsTotalAmount, setProductsTotalAmount] = useState(0);
 
     const windowWidth = useWindowDimensions().width;
     const windowHeight = useWindowDimensions().height;
@@ -44,11 +46,17 @@ function CartScreen(props) {
                 (tx, results) => {
                     const len = results.rows.length;
                     setCartItemsCount(len);
+
+                    let amountTotal = 0;
                     const temp = [];
+
                     for (let i = 0; i < results.rows.length; ++i) {
                         temp.push(results.rows.item(i));
+
+                        amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
                     }
                     setCartProducts(temp);
+                    setProductsTotalAmount(amountTotal);
                 },
             );
         });
@@ -73,6 +81,8 @@ function CartScreen(props) {
 
     if (products.length > 0) {
         // console.log(products.length);
+
+
         const renderProductList = products.map((product) => {
             return (
                 <CartRow key={product.product_id} data={{
@@ -83,6 +93,7 @@ function CartScreen(props) {
                 }}/>
             );
         });
+
         return (
 
             <View style={{flex: 1, justifyContent: 'center', backgroundColor: '#F5FCFF'}}>
@@ -102,7 +113,12 @@ function CartScreen(props) {
                         }} mt={2} size="md" variant="subtle" colorScheme="dark">
                             <HStack space={2}>
                                 <Icon name="creditcard" size={18} color="#fff"/>
-                                <Text style={{color: '#fff', fontSize: 10}}>CHECKOUT (K60,000.00)</Text>
+                                <Text style={{color: '#fff', fontSize: 10}}>CHECKOUT (K{
+                                    numbro(parseInt(productsTotalAmount)).format({
+                                        thousandSeparated: true,
+                                        mantissa: 2,
+                                    })
+                                }) </Text>
                             </HStack>
 
                         </Button>

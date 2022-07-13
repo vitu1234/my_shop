@@ -13,7 +13,7 @@ function CartRow(props) {
     const data = props.data;
     if (data !== undefined) {
         const product = data.product;
-        const product_price = 'K' + numbro(parseInt(product.product_price)).format({
+        const product_price = 'K' + numbro(parseInt(product.product_price) * product.qty).format({
             thousandSeparated: true,
             mantissa: 2,
         });
