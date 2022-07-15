@@ -25,9 +25,12 @@ import {UserContext} from './app_contexts/UserContext';
 import {CartContext} from './app_contexts/CartContext';
 
 const App: () => Node = () => {
+
+
     const [isLoggedIn, setLoggedInStatus] = useState(false);
     const [cartItemsCount, setCartItemsCount] = useState(0);
     const [cartItems, setCartItems] = useState([]);
+
 
     const isDarkMode = useColorScheme() === 'dark';
 
@@ -37,11 +40,11 @@ const App: () => Node = () => {
 
     return (
         <NativeBaseProvider>
-            <UserContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
-                <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
-                    <StackNavigator/>
-                </CartContext.Provider>
-            </UserContext.Provider>
+                <UserContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
+                    <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+                        <StackNavigator/>
+                    </CartContext.Provider>
+                </UserContext.Provider>
         </NativeBaseProvider>
     );
 };

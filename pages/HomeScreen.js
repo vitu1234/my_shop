@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Container, Heading, ScrollView, Text} from 'native-base';
 import {View, StyleSheet} from 'react-native';
-import ButtonCategory from '../components/ButtonCategory';
+import ButtonCategory from './components/ButtonCategory';
 import {Dimensions} from 'react-native';
-import ProductCard from '../components/ProductCard';
+import ProductCard from './components/ProductCard';
+import {CartContext} from '../app_contexts/CartContext';
+import SQLite from 'react-native-sqlite-storage';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -67,8 +69,25 @@ const products_list = [
     },
 ];
 
+const db = SQLite.openDatabase(
+    {
+        name: 'MainDB1',
+        location: 'default',
+        version: 1,
+    },
+    () => {
+        // console.log('db creaetd')
+    },
+    error => {
+        console.log(error);
+    },
+);
+
+
 function HomeScreen(props) {
     const [categoryActive, setCategoryActive] = useState(-1);
+    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+
     const btnCategoryAction = (category_id) => {
         console.log('GOES TO ' + category_id + ' CATEGORY');
         setCategoryActive(category_id);
@@ -78,6 +97,43 @@ function HomeScreen(props) {
         // console.log(product);
         props.navigation.navigate('ProductDetails', {data: product});
     };
+
+    const setCartCounterNumber = () => {
+        //update cart counter
+        db.transaction((tx) => {
+            tx.executeSql(
+                'SELECT * FROM cart',
+                [],
+                (tx, results) => {
+                    const len = results.rows.length;
+                    setCartItemsCount(len);
+
+                },
+            );
+        });
+    };
+    const createTable = () => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS "cart" (id	INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,product_id	INTEGER NOT NULL,product_name	TEXT NOT NULL,product_price	TEXT NOT NULL,qty	INTEGER NOT NULL)',
+            );
+
+            db.transaction((tx) => {
+                tx.executeSql(
+                    'CREATE TABLE IF NOT EXISTS '
+                    + 'Users '
+                    + '(ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER);',
+                );
+            });
+            console.log('created tanele');
+        });
+    };
+
+
+    useEffect(() => {
+        createTable();
+        setCartCounterNumber();
+    }, []);
 
     const renderCategoryList = product_categories_list.map((category) => {
         if (category.category_id === categoryActive) {
