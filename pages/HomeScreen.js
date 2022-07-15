@@ -73,7 +73,7 @@ const db = SQLite.openDatabase(
     {
         name: 'MainDB1',
         location: 'default',
-        version: 1,
+        version: 2,
     },
     () => {
         // console.log('db creaetd')
@@ -115,7 +115,7 @@ function HomeScreen(props) {
     const createTable = () => {
         db.transaction((tx) => {
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS "cart" (id	INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,product_id	INTEGER NOT NULL,product_name	TEXT NOT NULL,product_price	TEXT NOT NULL,qty	INTEGER NOT NULL)',
+                'CREATE TABLE IF NOT EXISTS "cart" (id	INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,product_id	INTEGER NOT NULL,product_name	TEXT NOT NULL,product_price	TEXT NOT NULL,qty INTEGER NOT NULL, img_url INTEGER NOT NULL)',
             );
 
             db.transaction((tx) => {

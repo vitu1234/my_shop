@@ -7,13 +7,15 @@ import ProductDetails from '../pages/ProductDetails';
 import StackNavigationHeader from './StackNavigationHeader';
 import {UserContext} from '../app_contexts/UserContext';
 import {CartContext} from '../app_contexts/CartContext';
+import CartScreen from '../pages/CartScreen';
 
 const Stack = createNativeStackNavigator();
 
 function StackNavigator(props) {
     const [isLoggedIn, setLoggedInStatus] = useContext(UserContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
-
+    // const navigationData = props.navigation;
+    console.log(props);
 
     return (
         <NavigationContainer>
@@ -24,13 +26,30 @@ function StackNavigator(props) {
                     options={{headerShown: false}}
                 />
                 <Stack.Screen name="Feed" component={SettingsScreen}/>
-                <Stack.Screen name="ProductDetails" component={ProductDetails} options={{
-                    title: 'Product Details', headerStyle: {
-                        // backgroundColor: '#f4511e',
-
-                    },
-                    headerRight: (props) => <StackNavigationHeader {...props} />,
-                }}/>
+                <Stack.Screen name="Cart" component={CartScreen}
+                              options={({navigation}) => ({
+                                  headerRight: () => (
+                                      <StackNavigationHeader data={{navigation: navigation}}/>
+                                  ),
+                              })}
+                />
+                <Stack.Screen name="ProductDetails" component={ProductDetails}
+                    // options={{
+                    //     title: 'Product Details', headerStyle: {
+                    //         // backgroundColor: '#f4511e',
+                    //     },
+                    //
+                    //
+                    //     headerRight: (props) => <StackNavigationHeader data={{
+                    //         // navigator: navigationData,
+                    //     }}/>,
+                    // }}
+                              options={({navigation}) => ({
+                                  headerRight: () => (
+                                      <StackNavigationHeader data={{navigation: navigation}}/>
+                                  ),
+                              })}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
