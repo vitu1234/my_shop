@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 
-import React from 'react';
+import React, {createContext, useState} from 'react';
 import type {Node} from 'react';
 import {
     SafeAreaView,
@@ -21,9 +21,14 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import StackNavigator from './navigation/StackNavigator';
 import {NativeBaseProvider} from 'native-base';
-
+import {UserContext} from './app_contexts/UserContext';
+import {CartContext} from './app_contexts/CartContext';
 
 const App: () => Node = () => {
+    const [isLoggedIn, setLoggedInStatus] = useState(false);
+    const [cartItemsCount, setCartItemsCount] = useState(0);
+    const [cartItems, setCartItems] = useState([]);
+
     const isDarkMode = useColorScheme() === 'dark';
 
     const backgroundStyle = {
@@ -32,8 +37,11 @@ const App: () => Node = () => {
 
     return (
         <NativeBaseProvider>
-
-            <StackNavigator/>
+            <UserContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
+                <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+                    <StackNavigator/>
+                </CartContext.Provider>
+            </UserContext.Provider>
         </NativeBaseProvider>
     );
 };
