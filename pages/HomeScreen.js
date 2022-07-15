@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Container, Heading, ScrollView, Text} from 'native-base';
+import {Button, Container, Heading, HStack, ScrollView, Text, VStack} from 'native-base';
 import {View, StyleSheet} from 'react-native';
 import ButtonCategory from './components/ButtonCategory';
 import {Dimensions} from 'react-native';
 import ProductCard from './components/ProductCard';
 import {CartContext} from '../app_contexts/CartContext';
 import SQLite from 'react-native-sqlite-storage';
+import Divider from 'native-base/src/components/composites/Divider/index';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -164,6 +165,17 @@ function HomeScreen(props) {
             <ProductCard key={product.product_id} data={{
                 product: product,
                 action: productCardAction,
+                cardWidth: 200,
+            }}/>
+        );
+    });
+
+    const renderProductList2 = products_list.map((product) => {
+        return (
+            <ProductCard key={product.product_id} data={{
+                product: product,
+                action: productCardAction,
+                cardWidth: 200,
             }}/>
         );
     });
@@ -199,36 +211,60 @@ function HomeScreen(props) {
                             data={{btnText: 'All', category_id: -1, action: btnCategoryAction, bgColor: true}}/>
                         :
                         <ButtonCategory
-                            data={{btnText: 'All', category_id: -1, action: btnCategoryAction, bgColor: false}}/>
+                            data={{
+                                btnText: 'All',
+                                category_id: -1,
+                                action: btnCategoryAction,
+                                bgColor: false,
+                            }}/>
                 }
 
                 {renderCategoryList}
             </ScrollView>
-
-            <ScrollView
-                ref={(scrollView) => {
-                    scrollView = scrollView;
-                }}
-                // style={s.container}
-                //pagingEnabled={true}
-                marginTop={5}
-                showsHorizontalScrollIndicator={false}
-                horizontal={true}
-                decelerationRate={0}
-                snapToInterval={width - 60}
-                snapToAlignment={'center'}
-                contentInset={{
-                    top: 0,
-                    left: 30,
-                    bottom: 0,
-                    right: 30,
-                }}>
+            <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+                <VStack>
 
 
-                {renderProductList}
+                    <ScrollView
+                        ref={(scrollView) => {
+                            scrollView = scrollView;
+                        }}
+                        // style={s.container}
+                        //pagingEnabled={true}
+                        marginTop={5}
+                        showsHorizontalScrollIndicator={false}
+                        horizontal={true}
+                        decelerationRate={0}
+                        snapToInterval={width - 60}
+                        snapToAlignment={'center'}
+                        contentInset={{
+                            top: 0,
+                            left: 30,
+                            bottom: 0,
+                            right: 30,
+                        }}>
+
+
+                        {renderProductList}
+                    </ScrollView>
+                    <Divider style={{marginTop: 10}}/>
+                    <View style={{display: 'flex', direction: 'row'}}>
+                        <HStack style={{marginTop: 15}}>
+                            <Heading size="md" fontWeight='bold'>
+                                Flash Products
+                                {/*<Text color="emerald.500"> React Ecosystem</Text>*/}
+                            </Heading>
+                            <Button onPress={() => console.log('Go to all products')} variant={'outline'} size={'sm'}
+                                    style={{alignSelf: 'flex-end', marginLeft: 'auto'}}><Text>View
+                                All</Text></Button>
+                        </HStack>
+                        {renderProductList2}
+                    </View>
+
+
+                </VStack>
             </ScrollView>
 
-            <ProductCard/>
         </View>
     );
 }

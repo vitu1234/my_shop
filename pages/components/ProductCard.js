@@ -5,9 +5,11 @@ import ImagedCarouselCard from 'react-native-imaged-carousel-card';
 import {ImageBackground, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import numbro from 'numbro';
 
+let dataG = [];
 
 function ProductCard(props) {
     const data = props.data;
+    dataG = data;
 
     if (data !== undefined) {
 
@@ -21,7 +23,7 @@ function ProductCard(props) {
 
 
         return (
-            <TouchableOpacity onPress={()=>data.action(product)} style={styles.card}>
+            <TouchableOpacity onPress={() => data.action(product)} style={styles.card}>
                 <Image
                     alt={'Product Image'}
                     style={styles.thumb}
@@ -46,7 +48,7 @@ function ProductCard(props) {
 
 const styles = StyleSheet.create({
     card: {
-        width: 230,
+        width: 200,
         backgroundColor: '#fff',
         borderRadius: 10,
         shadowOpacity: 0.5,
