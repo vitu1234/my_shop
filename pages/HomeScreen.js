@@ -162,11 +162,13 @@ function HomeScreen(props) {
     });
     const renderProductList = products_list.map((product) => {
         return (
-            <ProductCard key={product.product_id} data={{
-                product: product,
-                action: productCardAction,
-                cardWidth: 200,
-            }}/>
+            <View key={product.product_id} style={{width: '25%', marginEnd: 20}}>
+                <ProductCard data={{
+                    product: product,
+                    action: productCardAction,
+                    cardWidth: 200,
+                }}/>
+            </View>
         );
     });
 
@@ -263,21 +265,22 @@ function HomeScreen(props) {
                         <ScrollView
                             horizontal={true}
                             contentContainerStyle={{width: '100%', height: '100%'}}>
-                            <FlatList numColumns={2} horizontal={false} data={products_list} renderItem={({
-                                                                                                              item,
-                                                                                                          }) => <Box
-                                borderBottomWidth="1" _dark={{
-                                borderColor: 'muted.50',
-                            }} borderColor="muted.800" pl={['0', '4']} pr={['0', '5']} py="2">
+                            <FlatList
+                                columnWrapperStyle={{justifyContent: 'space-between'}}
+                                contentContainerStyle={{ paddingBottom: 80 }}
 
-                                <ProductCard key={item.product_id} data={{
-                                    product: item,
-                                    action: productCardAction,
-                                    cardWidth: 200,
-                                }}/>
-
-
-                            </Box>} keyExtractor={item => item.product_id}/>
+                                numColumns={2} horizontal={false}
+                                data={products_list}
+                                renderItem={({item}) =>
+                                    <Box style={{width: '45%'}}
+                                         py="2">
+                                        <ProductCard key={item.product_id} data={{
+                                            product: item,
+                                            action: productCardAction,
+                                            cardWidth: 200,
+                                        }}/>
+                                    </Box>
+                                } keyExtractor={item => item.product_id}/>
                         </ScrollView>
                     </View>
 
@@ -294,6 +297,16 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: '#fff',
         marginTop: 5,
+    },
+    cardContainer: {
+        flex: 1,
+        flexDirection: 'column',
+    },
+
+    card: {
+        flex: 1,
+        margin: 10,
+        flexBasis: '50%',
     },
 });
 
