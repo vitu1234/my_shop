@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Button, Container, Heading, HStack, ScrollView, Text, VStack} from 'native-base';
+import {Box, Button, Container, FlatList, Heading, HStack, ScrollView, Text, VStack} from 'native-base';
 import {View, StyleSheet} from 'react-native';
 import ButtonCategory from './components/ButtonCategory';
 import {Dimensions} from 'react-native';
@@ -221,6 +221,8 @@ function HomeScreen(props) {
 
                 {renderCategoryList}
             </ScrollView>
+
+
             <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
                 <VStack>
 
@@ -258,7 +260,25 @@ function HomeScreen(props) {
                                     style={{alignSelf: 'flex-end', marginLeft: 'auto'}}><Text>View
                                 All</Text></Button>
                         </HStack>
-                        {renderProductList2}
+                        <ScrollView
+                            horizontal={true}
+                            contentContainerStyle={{width: '100%', height: '100%'}}>
+                            <FlatList numColumns={2} horizontal={false} data={products_list} renderItem={({
+                                                                                                              item,
+                                                                                                          }) => <Box
+                                borderBottomWidth="1" _dark={{
+                                borderColor: 'muted.50',
+                            }} borderColor="muted.800" pl={['0', '4']} pr={['0', '5']} py="2">
+
+                                <ProductCard key={item.product_id} data={{
+                                    product: item,
+                                    action: productCardAction,
+                                    cardWidth: 200,
+                                }}/>
+
+
+                            </Box>} keyExtractor={item => item.product_id}/>
+                        </ScrollView>
                     </View>
 
 
