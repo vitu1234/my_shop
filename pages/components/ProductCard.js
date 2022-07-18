@@ -48,7 +48,7 @@ function ProductCard(props) {
 
 const styles = StyleSheet.create({
     card: {
-        width: 200,
+        width: '100%',
         backgroundColor: '#fff',
         borderRadius: 10,
         shadowOpacity: 0.5,

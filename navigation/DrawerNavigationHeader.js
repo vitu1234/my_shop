@@ -1,29 +1,52 @@
 import React, {useContext} from 'react';
 import {HStack, View, Text} from 'native-base';
 import Icon from 'react-native-vector-icons/AntDesign';
+import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from 'react-native';
 import {CartContext} from '../app_contexts/CartContext';
+import {useRoute} from '@react-navigation/native';
 
 
 function DrawerNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+    const route = useRoute();
+    console.log(route.name);
+
 
     const navigator = props.data.navigator;
+    // console.log(navigator.getState())
     const gotToCart = () => {
+        // if (navigator.getState().routes[1].name !== 'Cart') {
+        //    console.log('djdjdjdjjdjd')
+        // }
         navigator.navigate('Cart');
     };
 
     return (
 
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-            <TouchableOpacity style={{margin: 16}}>
-                <Icon
-                    name="search1"
-                    color={'#000'}
-                    size={23}
-                    containerStyle={{marginHorizontal: 15, position: 'relative'}}
-                />
-            </TouchableOpacity>
+            {/*remove search icon from nav bar*/}
+            {
+                (route.name !== 'Products') ?
+                    <TouchableOpacity style={{margin: 16}}>
+                        <Icon
+                            name="search1"
+                            color={'#000'}
+                            size={23}
+                            containerStyle={{marginHorizontal: 15, position: 'relative'}}
+                        />
+                    </TouchableOpacity> :
+                    <TouchableOpacity style={{margin: 16}}>
+                        <Icon2
+                            name="sort"
+                            color={'#000'}
+                            size={23}
+                            containerStyle={{marginHorizontal: 15, position: 'relative'}}
+                        />
+                    </TouchableOpacity>
+            }
+
+
             <View style={{alignItems: 'center', justifyContent: 'center'}}>
                 <TouchableOpacity onPress={gotToCart}>
                     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>

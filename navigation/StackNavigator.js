@@ -8,6 +8,7 @@ import StackNavigationHeader from './StackNavigationHeader';
 import {UserContext} from '../app_contexts/UserContext';
 import {CartContext} from '../app_contexts/CartContext';
 import CartScreen from '../pages/CartScreen';
+import FlashProducts from '../pages/FlashProducts';
 
 const Stack = createNativeStackNavigator();
 
@@ -34,6 +35,41 @@ function StackNavigator(props) {
                               })}
                 />
                 <Stack.Screen name="ProductDetails" component={ProductDetails}
+                    // options={{
+                    //     title: 'Product Details', headerStyle: {
+                    //         // backgroundColor: '#f4511e',
+                    //     },
+                    //
+                    //
+                    //     headerRight: (props) => <StackNavigationHeader data={{
+                    //         // navigator: navigationData,
+                    //     }}/>,
+                    // }}
+                              options={({navigation}) => ({
+                                  headerRight: () => (
+                                      <StackNavigationHeader data={{navigation: navigation}}/>
+                                  ),
+                              })}
+                />
+
+                <Stack.Screen name="Products" component={ProductDetails}
+                    // options={{
+                    //     title: 'Product Details', headerStyle: {
+                    //         // backgroundColor: '#f4511e',
+                    //     },
+                    //
+                    //
+                    //     headerRight: (props) => <StackNavigationHeader data={{
+                    //         // navigator: navigationData,
+                    //     }}/>,
+                    // }}
+                              options={({navigation}) => ({
+                                  headerRight: () => (
+                                      <StackNavigationHeader data={{navigation: navigation}}/>
+                                  ),
+                              })}/>
+
+                <Stack.Screen name="FlashProducts" component={FlashProducts}
                     // options={{
                     //     title: 'Product Details', headerStyle: {
                     //         // backgroundColor: '#f4511e',

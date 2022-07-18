@@ -1,18 +1,14 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Box, Button, Container, FlatList, Heading, HStack, ScrollView, Text, VStack} from 'native-base';
-import {View, StyleSheet} from 'react-native';
-import ButtonCategory from './components/ButtonCategory';
-import {Dimensions} from 'react-native';
-import ProductCard from './components/ProductCard';
+import {Box, Button, FlatList, Heading, HStack, Input, ScrollView, Text, View, VStack} from 'native-base';
+import {Dimensions, StyleSheet} from 'react-native';
 import {CartContext} from '../app_contexts/CartContext';
+import ButtonCategory from './components/ButtonCategory';
+import ProductCard from './components/ProductCard';
 import SQLite from 'react-native-sqlite-storage';
-import Divider from 'native-base/src/components/composites/Divider/index';
+import Icon from 'react-native-vector-icons/AntDesign';
+import SearchFilterScreen from './components/SearchFilterScreen';
 
-
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 const {width} = Dimensions.get('window');
-
 
 const product_categories_list = [
     {
@@ -84,8 +80,7 @@ const db = SQLite.openDatabase(
     },
 );
 
-
-function HomeScreen(props) {
+function Products(props) {
     const [categoryActive, setCategoryActive] = useState(-1);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
@@ -184,10 +179,13 @@ function HomeScreen(props) {
 
     return (
         <View style={styles.container}>
-            <Heading size="md" fontWeight='bold'>
-                Let's help you find what you want!
+            <Heading size="lg" fontWeight='900'>
+                Your One Stop Shop!
                 {/*<Text color="emerald.500"> React Ecosystem</Text>*/}
             </Heading>
+            <Input mt={5} InputLeftElement={<Icon style={{margin: 3}} name="search1"
+                                                  size={18} ml="2" color="#000"/>}
+                   placeholder="Search Products..."/>
             <ScrollView
                 ref={(scrollView) => {
                     scrollView = scrollView;
@@ -195,6 +193,7 @@ function HomeScreen(props) {
                 // style={s.container}
                 //pagingEnabled={true}
                 marginTop={5}
+                marginBottom={5}
                 showsHorizontalScrollIndicator={false}
                 horizontal={true}
                 decelerationRate={0}
@@ -224,56 +223,25 @@ function HomeScreen(props) {
                 {renderCategoryList}
             </ScrollView>
 
-
             <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
                 <VStack>
 
 
-                    <ScrollView
-                        ref={(scrollView) => {
-                            scrollView = scrollView;
-                        }}
-                        // style={s.container}
-                        //pagingEnabled={true}
-                        marginTop={5}
-                        showsHorizontalScrollIndicator={false}
-                        horizontal={true}
-                        decelerationRate={0}
-                        snapToInterval={width - 60}
-                        snapToAlignment={'center'}
-                        contentInset={{
-                            top: 0,
-                            left: 30,
-                            bottom: 0,
-                            right: 30,
-                        }}>
-
-
-                        {renderProductList}
-                    </ScrollView>
-                    <Divider style={{marginTop: 10}}/>
+                    {/*<Divider style={{marginTop: 5}}/>*/}
                     <View style={{display: 'flex', direction: 'row'}}>
-                        <HStack style={{marginTop: 15}}>
-                            <Heading size="md" fontWeight='bold'>
-                                Flash Products
-                                {/*<Text color="emerald.500"> React Ecosystem</Text>*/}
-                            </Heading>
-                            <Button onPress={() => console.log('Go to all products')} variant={'outline'} size={'sm'}
-                                    style={{alignSelf: 'flex-end', marginLeft: 'auto'}}><Text>View
-                                All</Text></Button>
-                        </HStack>
+
                         <ScrollView
                             horizontal={true}
                             contentContainerStyle={{width: '100%', height: '100%'}}>
                             <FlatList
                                 columnWrapperStyle={{justifyContent: 'space-between'}}
-                                contentContainerStyle={{ paddingBottom: 80 }}
+                                contentContainerStyle={{paddingBottom: 190}}
 
                                 numColumns={2} horizontal={false}
                                 data={products_list}
                                 renderItem={({item}) =>
                                     <Box style={{width: '45%'}}
-                                         py="2">
+                                         py="1">
                                         <ProductCard key={item.product_id} data={{
                                             product: item,
                                             action: productCardAction,
@@ -284,10 +252,10 @@ function HomeScreen(props) {
                         </ScrollView>
                     </View>
 
+                    <SearchFilterScreen/>
 
                 </VStack>
             </ScrollView>
-
         </View>
     );
 }
@@ -309,5 +277,4 @@ const styles = StyleSheet.create({
         flexBasis: '50%',
     },
 });
-
-export default HomeScreen;
+export default Products;
