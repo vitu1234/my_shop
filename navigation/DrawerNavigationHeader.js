@@ -12,6 +12,7 @@ function DrawerNavigationHeader(props) {
     const route = useRoute();
     console.log(route.name);
 
+
     const navigator = props.data.navigator;
     // console.log(navigator.getState())
     const gotToCart = () => {

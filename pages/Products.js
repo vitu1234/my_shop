@@ -6,6 +6,7 @@ import ButtonCategory from './components/ButtonCategory';
 import ProductCard from './components/ProductCard';
 import SQLite from 'react-native-sqlite-storage';
 import Icon from 'react-native-vector-icons/AntDesign';
+import SearchFilterScreen from './components/SearchFilterScreen';
 
 const {width} = Dimensions.get('window');
 
@@ -251,10 +252,10 @@ function Products(props) {
                         </ScrollView>
                     </View>
 
+                    <SearchFilterScreen/>
 
                 </VStack>
             </ScrollView>
-
         </View>
     );
 }
