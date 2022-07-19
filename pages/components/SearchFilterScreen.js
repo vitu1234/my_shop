@@ -8,9 +8,6 @@ function SearchFilterScreen(props) {
     // const [modalVisible, setModalVisible] = React.useState(false);
     const [isModalVisibleProducts, setIsModalVisibleProducts] = useContext(ProductFilterModalContext);
 
-
-    console.log('MODAL');
-    console.log(props);
     return (
         <View>
 
@@ -66,13 +63,13 @@ function SearchFilterScreen(props) {
                     <Modal.Footer>
 
                         <Button flex="1" onPress={() => {
-                            setModalVisible(false);
+                            setIsModalVisibleProducts(false);
                         }}>
                             Set
                         </Button>
 
                         <Button colorScheme={'danger'} mx={2} flex="1" onPress={() => {
-                            setModalVisible(false);
+                            setIsModalVisibleProducts(false);
                         }}>
                             Clear All filters
                         </Button>
