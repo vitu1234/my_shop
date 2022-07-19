@@ -4,7 +4,7 @@ import {View, StyleSheet} from 'react-native';
 import ButtonCategory from './components/ButtonCategory';
 import {Dimensions} from 'react-native';
 import ProductCard from './components/ProductCard';
-import {CartContext} from '../app_contexts/CartContext';
+import {CartContext} from '../app_contexts/AppContext';
 import SQLite from 'react-native-sqlite-storage';
 import Divider from 'native-base/src/components/composites/Divider/index';
 

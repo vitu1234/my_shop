@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Box, Button, FlatList, Heading, HStack, Input, ScrollView, Text, View, VStack} from 'native-base';
 import {Dimensions, StyleSheet} from 'react-native';
-import {CartContext} from '../app_contexts/CartContext';
+import {CartContext} from '../app_contexts/AppContext';
 import ButtonCategory from './components/ButtonCategory';
 import ProductCard from './components/ProductCard';
 import SQLite from 'react-native-sqlite-storage';
@@ -108,26 +108,9 @@ function Products(props) {
             );
         });
     };
-    const createTable = () => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS "cart" (id	INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,product_id	INTEGER NOT NULL,product_name	TEXT NOT NULL,product_price	TEXT NOT NULL,qty INTEGER NOT NULL, img_url INTEGER NOT NULL)',
-            );
-
-            db.transaction((tx) => {
-                tx.executeSql(
-                    'CREATE TABLE IF NOT EXISTS '
-                    + 'Users '
-                    + '(ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER);',
-                );
-            });
-            console.log('created tanele');
-        });
-    };
 
 
     useEffect(() => {
-        createTable();
         setCartCounterNumber();
     }, []);
 

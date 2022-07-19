@@ -2,8 +2,8 @@ import React, {useContext} from 'react';
 import {HStack, View, Text} from 'native-base';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from 'react-native';
-import {UserContext} from '../app_contexts/UserContext';
-import {CartContext} from '../app_contexts/CartContext';
+import {AppContext, CartContext} from '../app_contexts/AppContext';
+// import {CartContext} from '../app_contexts/CartContext';
 
 
 function StackNavigationHeader(props) {

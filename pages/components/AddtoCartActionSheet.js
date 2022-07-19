@@ -19,8 +19,8 @@ import numbro from 'numbro';
 import SQLite from 'react-native-sqlite-storage';
 import ProductCard from './ProductCard';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
-import {UserContext} from '../../app_contexts/UserContext';
-import {CartContext} from '../../app_contexts/CartContext';
+import {AppContext} from '../../app_contexts/AppContext';
+import {CartContext} from '../../app_contexts/AppContext';
 import CartRow from './CartRow';
 
 const db = SQLite.openDatabase(

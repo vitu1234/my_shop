@@ -1,16 +1,21 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {Button, FormControl, Input, View, VStack, Text, Modal, Radio, Icon} from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {CartContext, ProductFilterModalContext} from '../../app_contexts/AppContext';
+
 
 function SearchFilterScreen(props) {
-    const [modalVisible, setModalVisible] = React.useState(false);
+    // const [modalVisible, setModalVisible] = React.useState(false);
+    const [isModalVisibleProducts, setIsModalVisibleProducts] = useContext(ProductFilterModalContext);
+
 
     console.log('MODAL');
     console.log(props);
     return (
         <View>
 
-            <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)} avoidKeyboard justifyContent="flex-end"
+            <Modal isOpen={isModalVisibleProducts} onClose={() => setIsModalVisibleProducts(false)} avoidKeyboard
+                   justifyContent="flex-end"
                    bottom="0" size="lg">
                 <Modal.Content>
                     <Modal.CloseButton/>
@@ -76,7 +81,7 @@ function SearchFilterScreen(props) {
             </Modal>
             <VStack space={8} alignItems="center">
                 <Button w="104" onPress={() => {
-                    setModalVisible(!modalVisible);
+                    setIsModalVisibleProducts(!isModalVisibleProducts);
                 }}>
                     Open Modal
                 </Button>
