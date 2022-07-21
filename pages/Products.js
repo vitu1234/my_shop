@@ -84,6 +84,15 @@ function Products(props) {
     const [categoryActive, setCategoryActive] = useState(-1);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
+    const initialSearchFilters = {
+        price_asc: false,
+        price_desc: false,
+        newest_first: false,
+        name_asc: false,
+        name_desc: false,
+    };
+    const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+
     const btnCategoryAction = (category_id) => {
         console.log('GOES TO ' + category_id + ' CATEGORY');
         setCategoryActive(category_id);
@@ -235,7 +244,7 @@ function Products(props) {
                         </ScrollView>
                     </View>
 
-                    <SearchFilterScreen/>
+                    <SearchFilterScreen searchStates={[searchFilters, setSearchFilters]}/>
 
                 </VStack>
             </ScrollView>
