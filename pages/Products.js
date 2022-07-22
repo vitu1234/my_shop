@@ -88,6 +88,7 @@ function Products(props) {
         price_asc: false,
         price_desc: false,
         newest_first: false,
+        oldest_first: false,
         name_asc: false,
         name_desc: false,
     };
