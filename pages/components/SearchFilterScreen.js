@@ -9,10 +9,8 @@ function SearchFilterScreen(props) {
     const [isModalVisibleProducts, setIsModalVisibleProducts] = useContext(ProductFilterModalContext);
 
     // console.log('SEARCH SCREEN------------');
-    // console.log(props);
-    // console.log(props.searchStates);
+    console.log(props);
     const name_sort_init = props.searchStates['0'].name_asc === true ? 1 : props.searchStates['0'].name_desc === true ? 2 : '';
-
 
     const age_sort_init = props.searchStates['0'].newest_first === true ? 1 : props.searchStates['0'].oldest_first === true ? 1 : '';
 
@@ -30,6 +28,29 @@ function SearchFilterScreen(props) {
         sortAgeSort('');
         setNameSort('');
         // setIsModalVisibleProducts(false);
+    };
+
+    const setFilters = () => {
+        const price_asc = (price_sort == 1) ? true : false;
+        const price_desc = price_sort == 2 ? true : false;
+        const newest_first = age_sort == 1 ? true : false;
+        const oldest_first = age_sort == 2 ? true : false;
+        const name_asc = name_sort == 1 ? true : false;
+        const name_desc = name_sort == 2 ? true : false;
+
+        const filters = {
+            price_asc: price_asc,
+            price_desc: price_desc,
+            newest_first: newest_first,
+            oldest_first: oldest_first,
+            name_asc: name_asc,
+            name_desc: name_desc,
+        };
+        // console.log(filters);
+        props.data.newFilters(filters);
+        setIsModalVisibleProducts(false);
+
+
     };
 
 
@@ -95,9 +116,7 @@ function SearchFilterScreen(props) {
                     </Modal.Body>
                     <Modal.Footer>
 
-                        <Button flex="1" onPress={() => {
-                            setIsModalVisibleProducts(false);
-                        }}>
+                        <Button flex="1" onPress={setFilters}>
                             Set
                         </Button>
 

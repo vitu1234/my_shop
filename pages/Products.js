@@ -92,6 +92,12 @@ function Products(props) {
         name_asc: false,
         name_desc: false,
     };
+
+    const setFilters1 = (filters) => {
+        setSearchFilters(filters);
+        console.log(filters);
+        console.log('filter products here');
+    };
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
 
     const btnCategoryAction = (category_id) => {
@@ -245,7 +251,7 @@ function Products(props) {
                         </ScrollView>
                     </View>
 
-                    <SearchFilterScreen searchStates={[searchFilters, setSearchFilters]}/>
+                    <SearchFilterScreen data={{newFilters: setFilters1}} searchStates={[searchFilters]}/>
 
                 </VStack>
             </ScrollView>
