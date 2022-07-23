@@ -154,27 +154,7 @@ function Products(props) {
 
 
     });
-    const renderProductList = products_list.map((product) => {
-        return (
-            <View key={product.product_id} style={{width: '25%', marginEnd: 20}}>
-                <ProductCard data={{
-                    product: product,
-                    action: productCardAction,
-                    cardWidth: 200,
-                }}/>
-            </View>
-        );
-    });
 
-    const renderProductList2 = products_list.map((product) => {
-        return (
-            <ProductCard key={product.product_id} data={{
-                product: product,
-                action: productCardAction,
-                cardWidth: 200,
-            }}/>
-        );
-    });
 
     return (
         <View style={styles.container}>
