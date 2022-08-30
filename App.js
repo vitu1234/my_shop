@@ -21,13 +21,13 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import StackNavigator from './navigation/StackNavigator';
 import {NativeBaseProvider} from 'native-base';
-import {UserContext} from './app_contexts/UserContext';
-import {CartContext} from './app_contexts/CartContext';
+import {AppContext, ProductFilterModalContext, CartContext} from './app_contexts/AppContext';
 
 const App: () => Node = () => {
 
 
     const [isLoggedIn, setLoggedInStatus] = useState(false);
+    const [isModalVisibleProducts, setIsModalVisibleProducts] = useState(false);
     const [cartItemsCount, setCartItemsCount] = useState(0);
     const [cartItems, setCartItems] = useState([]);
 
@@ -40,11 +40,13 @@ const App: () => Node = () => {
 
     return (
         <NativeBaseProvider>
-                <UserContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
-                    <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+            <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
+                <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+                    <ProductFilterModalContext.Provider value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
                         <StackNavigator/>
-                    </CartContext.Provider>
-                </UserContext.Provider>
+                    </ProductFilterModalContext.Provider>
+                </CartContext.Provider>
+            </AppContext.Provider>
         </NativeBaseProvider>
     );
 };

@@ -4,7 +4,7 @@ import {View, StyleSheet} from 'react-native';
 import ButtonCategory from './components/ButtonCategory';
 import {Dimensions} from 'react-native';
 import ProductCard from './components/ProductCard';
-import {CartContext} from '../app_contexts/CartContext';
+import {CartContext} from '../app_contexts/AppContext';
 import SQLite from 'react-native-sqlite-storage';
 import Divider from 'native-base/src/components/composites/Divider/index';
 
@@ -12,6 +12,8 @@ import Divider from 'native-base/src/components/composites/Divider/index';
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const {width} = Dimensions.get('window');
+
+import {base_url, getProductCategories} from '../config/API';
 
 
 const product_categories_list = [
@@ -134,6 +136,7 @@ function HomeScreen(props) {
     useEffect(() => {
         createTable();
         setCartCounterNumber();
+        getProductCategories().then(r => console.log(r));
     }, []);
 
     const renderCategoryList = product_categories_list.map((category) => {
@@ -267,7 +270,7 @@ function HomeScreen(props) {
                             contentContainerStyle={{width: '100%', height: '100%'}}>
                             <FlatList
                                 columnWrapperStyle={{justifyContent: 'space-between'}}
-                                contentContainerStyle={{ paddingBottom: 80 }}
+                                contentContainerStyle={{paddingBottom: 80}}
 
                                 numColumns={2} horizontal={false}
                                 data={products_list}

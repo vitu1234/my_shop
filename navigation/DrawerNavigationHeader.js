@@ -3,14 +3,16 @@ import {HStack, View, Text} from 'native-base';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Icon2 from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from 'react-native';
-import {CartContext} from '../app_contexts/CartContext';
+import {ProductFilterModalContext, CartContext} from '../app_contexts/AppContext';
 import {useRoute} from '@react-navigation/native';
 
 
 function DrawerNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+    const [isModalVisibleProducts, setIsModalVisibleProducts] = useContext(ProductFilterModalContext);
+
     const route = useRoute();
-    console.log(route.name);
+    // console.log(route.name);
 
 
     const navigator = props.data.navigator;
@@ -21,6 +23,12 @@ function DrawerNavigationHeader(props) {
         // }
         navigator.navigate('Cart');
     };
+    const gotToProducts = () => {
+        // if (navigator.getState().routes[1].name !== 'Cart') {
+        //    console.log('djdjdjdjjdjd')
+        // }
+        navigator.navigate('Products');
+    };
 
     return (
 
@@ -28,7 +36,7 @@ function DrawerNavigationHeader(props) {
             {/*remove search icon from nav bar*/}
             {
                 (route.name !== 'Products') ?
-                    <TouchableOpacity style={{margin: 16}}>
+                    <TouchableOpacity onPress={gotToProducts} style={{margin: 16}}>
                         <Icon
                             name="search1"
                             color={'#000'}
@@ -36,7 +44,8 @@ function DrawerNavigationHeader(props) {
                             containerStyle={{marginHorizontal: 15, position: 'relative'}}
                         />
                     </TouchableOpacity> :
-                    <TouchableOpacity style={{margin: 16}}>
+
+                    <TouchableOpacity onPress={() => setIsModalVisibleProducts(true)} style={{margin: 16}}>
                         <Icon2
                             name="sort"
                             color={'#000'}

@@ -3,8 +3,8 @@ import {Button, Center, HStack, ScrollView, Text, View, Alert} from 'native-base
 import CartRow from './components/CartRow';
 import {Dimensions, useWindowDimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
-import {UserContext} from '../app_contexts/UserContext';
-import {CartContext} from '../app_contexts/CartContext';
+import {AppContext, CartContext} from '../app_contexts/AppContext';
+// import {CartContext} from '../app_contexts/CartContext';
 import SQLite from 'react-native-sqlite-storage';
 import ProductCard from './components/ProductCard';
 import numbro from 'numbro';
@@ -28,7 +28,7 @@ const db = SQLite.openDatabase(
 
 function CartScreen(props) {
 
-    const [isLoggedIn, setLoggedInStatus] = useContext(UserContext);
+    const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [products, setCartProducts] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);

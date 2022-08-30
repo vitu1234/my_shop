@@ -4,8 +4,8 @@ import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from 'reac
 import numbro from 'numbro';
 import Icon from 'react-native-vector-icons/AntDesign';
 import CollapsibleView from '@eliav2/react-native-collapsible-view';
-import {UserContext} from '../app_contexts/UserContext';
-import {CartContext} from '../app_contexts/CartContext';
+import {AppContext,CartContext} from '../app_contexts/AppContext';
+// import {CartContext} from '../app_contexts/CartContext';
 import SQLite from 'react-native-sqlite-storage';
 import AddtoCartActionSheet from './components/AddtoCartActionSheet';
 
@@ -33,7 +33,7 @@ function ProductDetails(props) {
     const [productQty, setProductQty] = useState(1);
     const [product_price, setProductPrice] = useState(product.product_price);
 
-    const [isLoggedIn, setLoggedInStatus] = useContext(UserContext);
+    const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
 

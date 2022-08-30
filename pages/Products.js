@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Box, Button, FlatList, Heading, HStack, Input, ScrollView, Text, View, VStack} from 'native-base';
 import {Dimensions, StyleSheet} from 'react-native';
-import {CartContext} from '../app_contexts/CartContext';
+import {CartContext} from '../app_contexts/AppContext';
 import ButtonCategory from './components/ButtonCategory';
 import ProductCard from './components/ProductCard';
 import SQLite from 'react-native-sqlite-storage';
@@ -84,6 +84,22 @@ function Products(props) {
     const [categoryActive, setCategoryActive] = useState(-1);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
+    const initialSearchFilters = {
+        price_asc: false,
+        price_desc: false,
+        newest_first: false,
+        oldest_first: false,
+        name_asc: false,
+        name_desc: false,
+    };
+
+    const setFilters1 = (filters) => {
+        setSearchFilters(filters);
+        console.log(filters);
+        console.log('filter products here');
+    };
+    const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+
     const btnCategoryAction = (category_id) => {
         console.log('GOES TO ' + category_id + ' CATEGORY');
         setCategoryActive(category_id);
@@ -108,26 +124,9 @@ function Products(props) {
             );
         });
     };
-    const createTable = () => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS "cart" (id	INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,product_id	INTEGER NOT NULL,product_name	TEXT NOT NULL,product_price	TEXT NOT NULL,qty INTEGER NOT NULL, img_url INTEGER NOT NULL)',
-            );
-
-            db.transaction((tx) => {
-                tx.executeSql(
-                    'CREATE TABLE IF NOT EXISTS '
-                    + 'Users '
-                    + '(ID INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT, Age INTEGER);',
-                );
-            });
-            console.log('created tanele');
-        });
-    };
 
 
     useEffect(() => {
-        createTable();
         setCartCounterNumber();
     }, []);
 
@@ -155,27 +154,7 @@ function Products(props) {
 
 
     });
-    const renderProductList = products_list.map((product) => {
-        return (
-            <View key={product.product_id} style={{width: '25%', marginEnd: 20}}>
-                <ProductCard data={{
-                    product: product,
-                    action: productCardAction,
-                    cardWidth: 200,
-                }}/>
-            </View>
-        );
-    });
 
-    const renderProductList2 = products_list.map((product) => {
-        return (
-            <ProductCard key={product.product_id} data={{
-                product: product,
-                action: productCardAction,
-                cardWidth: 200,
-            }}/>
-        );
-    });
 
     return (
         <View style={styles.container}>
@@ -252,7 +231,7 @@ function Products(props) {
                         </ScrollView>
                     </View>
 
-                    <SearchFilterScreen/>
+                    <SearchFilterScreen data={{newFilters: setFilters1}} searchStates={[searchFilters]}/>
 
                 </VStack>
             </ScrollView>
