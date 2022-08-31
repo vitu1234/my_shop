@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import {Dimensions} from 'react-native';
 import numbro from 'numbro';
 import SQLite from 'react-native-sqlite-storage';
+import { base_urlImages } from "../../config/API";
 
 const {width} = Dimensions.get('window');
 const windowHeight = Dimensions.get('window').height;
@@ -154,7 +155,9 @@ function CartRow(props) {
                                 style={{alignSelf: 'center'}}
                                 alt={'Product Image'}
                                 style={styles.thumb}
-                                source={product.img_url}
+                                source={{
+                                    uri: base_urlImages + "/products/" + product.img_url,
+                                }}
                             />
                         </View>
 
