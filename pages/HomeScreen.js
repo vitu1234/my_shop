@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Box, Button, Container, FlatList, Heading, HStack, ScrollView, Text, VStack } from "native-base";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ToastAndroid } from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import { Dimensions } from "react-native";
 import ProductCard from "./components/ProductCard";
-import { CartContext, IsAppDataFetchLoading, IsAppDataFetchLoadingContext } from "../app_contexts/AppContext";
+import { CartContext } from "../app_contexts/AppContext";
 import SQLite from "react-native-sqlite-storage";
 import Divider from "native-base/src/components/composites/Divider/index";
 
@@ -15,6 +15,7 @@ const { width } = Dimensions.get("window");
 
 import { base_url, getHomeScreen } from "../config/API";
 import { db } from "../config/sqlite_db_service";
+import ContentLoader from "react-native-easy-content-loader";
 
 
 const product_categories_list = [
@@ -111,6 +112,13 @@ function HomeScreen(props) {
     if (isFetchingDataError) {
       setIsAppDataFetchError(true);
       setIsAppDataFetchMsg(message);
+      ToastAndroid.showWithGravityAndOffset(
+        message,
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
     } else {
       setIsAppDataFetchError(false);
       setIsAppDataFetchMsg(message);
@@ -170,9 +178,18 @@ function HomeScreen(props) {
   });
 
   if (IsAppDataFetchLoading) {
-    console.log("loading");
+    console.log("loadingd");
     return (
-      <View />);
+      <View style={styles.container}>
+        <ContentLoader
+          active={true}
+          loading={true}
+          pRows={5}
+          pHeight={[70, 100, 50, 70, 160, 77]}
+          pWidth={[100, 300, 70, 200, 300, 300]}
+        />
+      </View>
+    );
   } else {
     console.log("finished loading");
     if (IsAppDataFetchError) {
