@@ -82,6 +82,10 @@ function HomeScreen(props) {
   const [IsAppDataFetchError, setIsAppDataFetchError] = useState(false);
   const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
 
+  const [categories, setCategories] = useState([]);
+  const [products_first_row, setProductsFirstRow] = useState([]);
+
+
   const btnCategoryAction = (category_id) => {
     console.log("GOES TO " + category_id + " CATEGORY");
     setCategoryActive(category_id);
@@ -122,6 +126,24 @@ function HomeScreen(props) {
     } else {
       setIsAppDataFetchError(false);
       setIsAppDataFetchMsg(message);
+
+      //get data from database
+      db.transaction((tx) => {
+        tx.executeSql(
+          'SELECT * FROM category',
+          [],
+          (tx, results) => {
+            const len = results.rows.length;
+            const temp = [];
+
+            for (let i = 0; i < results.rows.length; ++i) {
+              temp.push(results.rows.item(i));
+            }
+            setCategories(temp);
+
+          },
+        );
+      });
     }
   };
 
@@ -131,7 +153,7 @@ function HomeScreen(props) {
 
   }, []);
 
-  const renderCategoryList = product_categories_list.map((category) => {
+  const renderCategoryList = categories.map((category) => {
     if (category.category_id === categoryActive) {
       return (
         <ButtonCategory key={category.category_id} data={{
