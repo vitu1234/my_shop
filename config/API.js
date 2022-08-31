@@ -1,14 +1,14 @@
 import "react-native-gesture-handler";
 import React from "react";
 import { db, deleteAllHomescreenProducts, getAllCategory, getAllProductsHomeScreen } from "./sqlite_db_service";
-import { Alert } from "native-base";
+
 
 
 // require('dotenv/config');
 const base_url = "http://192.168.0.5/my_shop/my_shop_api/public/api";
 
+const getHomeScreen = async (props) => {
 
-const getHomeScreen = async () => {
   try {
 
     fetch(`${base_url}/homescreen`, {
@@ -42,14 +42,13 @@ const getHomeScreen = async () => {
             );
           });
         });
-
+        props.homeScreenLoading(false, 'Fetch data success')
       })
       .catch((err) => {
-        console.log(err.message);
+        props.homeScreenLoading(true, err.message)
       });
   } catch (error) {
-    console.error(error.message);
-    console.error("Error");
+    props.homeScreenLoading(true, error.message)
   }
 
 };
