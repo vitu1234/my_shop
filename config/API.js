@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React from "react";
-import { db, deleteAllHomescreenProducts, getAllCategory, getAllProductsHomeScreen } from "./sqlite_db_service";
+import { db, deleteAllProducts, deleteAllHomescreenProducts } from "./sqlite_db_service";
 
 
 
@@ -54,5 +54,50 @@ const getHomeScreen = async (props) => {
 
 };
 
+const getProductsScreen = async (props) => {
 
-export { base_url, getHomeScreen,base_urlImages };
+  try {
+
+    fetch(`${base_url}/product`, {
+      method: "GET", // default, so we can ignore
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log(data.products_homescreen);
+        //delete old data
+        deleteAllProducts();
+
+        //loop through all categories and insert into database
+        data.categories.map(async (category) => {
+          //insert in database
+          await db.transaction(async (tx) => {
+            await tx.executeSql(
+              "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+              [category.category_id, category.category_name],
+            );
+          });
+        });
+
+        data.products.map(async (product) => {
+          //insert in database
+
+          db.transaction(async (tx) => {
+
+            await tx.executeSql(
+              "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+              [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+            );
+          });
+        });
+        props.productsScreenLoading(false, 'Fetch data success')
+      })
+      .catch((err) => {
+        props.productsScreenLoading(true, err.message)
+      });
+  } catch (error) {
+    props.productsScreenLoading(true, error.message)
+  }
+
+};
+
+export { base_url, getProductsScreen,getHomeScreen,base_urlImages };

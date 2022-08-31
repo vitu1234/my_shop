@@ -32,6 +32,11 @@ const createTables = () => {
       tx.executeSql(
         "CREATE TABLE IF NOT EXISTS \"products_homescreen\" ( product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, category_id INTEGER NOT NULL,product_name TEXT NOT NULL,qty INTEGER NOT NULL,price TEXT NOT NULL,img_url TEXT NOT NULL DEFAULT \"noimage.jpg\",product_description TEXT NULL)");
     });
+
+    db.transaction((tx) => {
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS \"product\" ( product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, category_id INTEGER NOT NULL,product_name TEXT NOT NULL,qty INTEGER NOT NULL,price TEXT NOT NULL,img_url TEXT NOT NULL DEFAULT \"noimage.jpg\",product_description TEXT NULL,category_name TEXT NOT NULL)");
+    });
   });
 
   console.log("TABLES CREATED");
@@ -54,6 +59,32 @@ const deleteAllHomescreenProducts = async () => {
   db.transaction((tx) => {
     tx.executeSql(
       "DELETE FROM products_homescreen",
+      [],
+      (tx, results) => {
+        if (results.rowsAffected > 0) {
+
+        }
+      });
+  });
+};
+
+const deleteAllProducts = async () => {
+  //delete category
+  db.transaction((tx) => {
+    tx.executeSql(
+      "DELETE FROM category",
+      [],
+      (tx, results) => {
+        if (results.rowsAffected > 0) {
+
+        }
+      });
+  });
+
+  //delete products
+  db.transaction((tx) => {
+    tx.executeSql(
+      "DELETE FROM product",
       [],
       (tx, results) => {
         if (results.rowsAffected > 0) {
@@ -92,4 +123,4 @@ const getAllProductsHomeScreen = () => {
   });
 };
 
-export { db, deleteAllHomescreenProducts, getAllCategory, getAllProductsHomeScreen };
+export { db, deleteAllHomescreenProducts, getAllCategory, getAllProductsHomeScreen, deleteAllProducts };

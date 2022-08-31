@@ -18,61 +18,6 @@ import { db } from "../config/sqlite_db_service";
 import ContentLoader from "react-native-easy-content-loader";
 
 
-const product_categories_list = [
-  {
-    "category_id": 1,
-    "category_name": "Shoes",
-  },
-  {
-    "category_id": 2,
-    "category_name": "Electronics",
-  },
-  {
-    "category_id": 3,
-    "category_name": "Automotives",
-  },
-  {
-    "category_id": 4,
-    "category_name": "Children & Toys",
-  },
-  {
-    "category_id": 5,
-    "category_name": "School & Books",
-  },
-];
-
-const products_list = [
-  {
-    "product_id": 2,
-    "product_name": "Men's T-Shirt",
-    "product_price": "6000",
-    "img_url": require("../assets/products/tshirt_3.png"),
-  }, {
-    "product_id": 1,
-    "product_name": "Nike Shoes Men",
-    "product_price": "30000",
-    "img_url": require("../assets/products/shoes_1.png"),
-  },
-
-  {
-    "product_id": 5,
-    "product_name": "Nike Shoes Universal",
-    "product_price": "36000",
-    "img_url": require("../assets/products/shoes_2.png"),
-  },
-  {
-    "product_id": 3,
-    "product_name": "Macbook Air 2019",
-    "product_price": "1200000",
-    "img_url": require("../assets/products/macbook_4.png"),
-  },
-  {
-    "product_id": 4,
-    "product_name": "iPhone X Max",
-    "product_price": "970000",
-    "img_url": require("../assets/products/phone_5.png"),
-  },
-];
 
 
 function HomeScreen(props) {
