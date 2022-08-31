@@ -131,7 +131,7 @@ function HomeScreen(props) {
       //get data from database
       db.transaction((tx) => {
         tx.executeSql(
-          "SELECT * FROM category",
+          "SELECT * FROM category ORDER BY RANDOM()",
           [],
           (tx, results) => {
             const len = results.rows.length;
@@ -147,7 +147,7 @@ function HomeScreen(props) {
       });
       db.transaction((tx) => {
         tx.executeSql(
-          "SELECT * FROM products_homescreen LIMIT 10",
+          "SELECT * FROM products_homescreen ORDER BY RANDOM() LIMIT 10",
           [],
           (tx, results) => {
             const len = results.rows.length;
@@ -163,7 +163,7 @@ function HomeScreen(props) {
       });
       db.transaction((tx) => {
         tx.executeSql(
-          "SELECT * FROM products_homescreen LIMIT 20",
+          "SELECT * FROM products_homescreen ORDER BY RANDOM() LIMIT 20",
           [],
           (tx, results) => {
             const len = results.rows.length;
