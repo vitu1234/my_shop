@@ -4,27 +4,14 @@ import CartRow from './components/CartRow';
 import {Dimensions, useWindowDimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import {AppContext, CartContext} from '../app_contexts/AppContext';
-// import {CartContext} from '../app_contexts/CartContext';
-import SQLite from 'react-native-sqlite-storage';
-import ProductCard from './components/ProductCard';
+import {db} from "../config/sqlite_db_service";
 import numbro from 'numbro';
 
 
 const {width} = Dimensions.get('window');
 const windowHeight = Dimensions.get('window').height;
 
-const db = SQLite.openDatabase(
-    {
-        name: 'MainDB1',
-        location: 'default',
-        version: 2,
-    },
-    () => {
-    },
-    error => {
-        console.log(error);
-    },
-);
+
 
 function CartScreen(props) {
 
