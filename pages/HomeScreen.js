@@ -13,7 +13,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const {width} = Dimensions.get('window');
 
-import {base_url, getProductCategories} from '../config/API';
+import {base_url, getHomeScreen} from '../config/API';
 
 
 const product_categories_list = [
@@ -136,7 +136,7 @@ function HomeScreen(props) {
     useEffect(() => {
         createTable();
         setCartCounterNumber();
-        getProductCategories().then(r => console.log(r));
+        getHomeScreen().then(r => console.log(r));
     }, []);
 
     const renderCategoryList = product_categories_list.map((category) => {

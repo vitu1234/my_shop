@@ -1,69 +1,95 @@
-import SQLite, {enablePromise, openDatabase, SQLiteDatabase} from 'react-native-sqlite-storage';
+import "react-native-gesture-handler";
+import React from "react";
+import SQLite from "react-native-sqlite-storage";
 
-// enablePromise(true);
+const db = SQLite.openDatabase(
+  {
+    name: "MainDB1",
+    location: "default",
+    version: 2,
+  },
+  () => {
+    console.log("DB CREATED");
+    createTables();
+  },
+  error => {
+    console.log(error);
+  },
+);
 
-export const getDatabaseConnection = async () => {
-    const db = await SQLite.openDatabase(
-        {
-            name: 'MainDB',
-            location: 'default',
-        },
-        () => {
-        },
-        error => {
-            console.log(error);
-        },
+const createTables = () => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "CREATE TABLE IF NOT EXISTS \"cart\" (id	INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,product_id	INTEGER NOT NULL,product_name	TEXT NOT NULL,product_price	TEXT NOT NULL,qty INTEGER NOT NULL, img_url INTEGER NOT NULL)",
     );
-
-    return db;
-};
-
-export const createCartTable = (db) => {
     db.transaction((tx) => {
-        tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS "cart" (\n' +
-            '\t"id"\tINTEGER NOT NULL,\n' +
-            '\t"product_id"\tINTEGER NOT NULL,\n' +
-            '\t"product_name"\tTEXT NOT NULL,\n' +
-            '\t"img_url"\tTEXT NOT NULL,\n' +
-            '\t"product_price"\tTEXT NOT NULL,\n' +
-            '\t"qty"\tINTEGER NOT NULL,\n' +
-            '\tPRIMARY KEY("id" AUTOINCREMENT)\n' +
-            ');',
-        );
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS \"category\" (category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,category_name	TEXT NOT NULL)",
+      );
     });
-};
 
-export const cartCartCounter = (db) => {
-    //update cart counter
     db.transaction((tx) => {
-        tx.executeSql(
-            'SELECT * FROM cart',
-            [],
-            (tx, results) => {
-                return results.rows.length;
-            },
-        );
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS \"products_homescreen\" ( product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, category_id INTEGER NOT NULL,product_name TEXT NOT NULL,qty INTEGER NOT NULL,price TEXT NOT NULL,img_url TEXT NOT NULL DEFAULT \"noimage.jpg\",product_description TEXT NULL)");
     });
+  });
+
+  console.log("TABLES CREATED");
 };
 
+const deleteAllHomescreenProducts = async () => {
+  //delete category
+  db.transaction((tx) => {
+    tx.executeSql(
+      "DELETE FROM category",
+      [],
+      (tx, results) => {
+        if (results.rowsAffected > 0) {
 
-export const allCartProducts = (db) => {
-    db.transaction(function (txn) {
-        txn.executeSql(
-            'SELECT name FROM sqlite_master WHERE type=\'table\' AND name=\'table_user\'',
-            [],
-            function (tx, res) {
-                console.log('item:', res.rows.length);
-                if (res.rows.length === 0) {
-                    txn.executeSql('DROP TABLE IF EXISTS table_user', []);
-                    txn.executeSql(
-                        'CREATE TABLE IF NOT EXISTS table_user(user_id INTEGER PRIMARY KEY AUTOINCREMENT, user_name VARCHAR(20), user_contact INT(10), user_address VARCHAR(255))',
-                        [],
-                    );
-                }
-            },
-        );
-    });
+        }
+      });
+  });
 
+  //delete products homescreen
+  db.transaction((tx) => {
+    tx.executeSql(
+      "DELETE FROM products_homescreen",
+      [],
+      (tx, results) => {
+        if (results.rowsAffected > 0) {
+
+        }
+      });
+  });
 };
+
+const getAllCategory = () => {
+  db.transaction((tx) => {
+    tx.executeSql(
+      "SELECT * FROM category",
+      [],
+      (tx, results) => {
+        const len = results.rows.length;
+        // console.log(len)
+      },
+    );
+  });
+};
+
+const getAllProductsHomeScreen = () => {
+
+  db.transaction((tx) => {
+    tx.executeSql(
+      "SELECT * FROM products_homescreen",
+      [],
+      (tx, results) => {
+
+        console.log("len");
+        const len = results.rows.length;
+        console.log(len);
+      },
+    );
+  });
+};
+
+export { db, deleteAllHomescreenProducts, getAllCategory, getAllProductsHomeScreen };
