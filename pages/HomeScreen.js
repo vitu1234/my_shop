@@ -84,6 +84,7 @@ function HomeScreen(props) {
 
   const [categories, setCategories] = useState([]);
   const [products_first_row, setProductsFirstRow] = useState([]);
+  const [flash_products, setFlashProducts] = useState([]);
 
 
   const btnCategoryAction = (category_id) => {
@@ -130,7 +131,7 @@ function HomeScreen(props) {
       //get data from database
       db.transaction((tx) => {
         tx.executeSql(
-          'SELECT * FROM category',
+          "SELECT * FROM category",
           [],
           (tx, results) => {
             const len = results.rows.length;
@@ -140,6 +141,38 @@ function HomeScreen(props) {
               temp.push(results.rows.item(i));
             }
             setCategories(temp);
+
+          },
+        );
+      });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "SELECT * FROM products_homescreen LIMIT 10",
+          [],
+          (tx, results) => {
+            const len = results.rows.length;
+            const temp = [];
+
+            for (let i = 0; i < results.rows.length; ++i) {
+              temp.push(results.rows.item(i));
+            }
+            setProductsFirstRow(temp);
+
+          },
+        );
+      });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "SELECT * FROM products_homescreen LIMIT 20",
+          [],
+          (tx, results) => {
+            const len = results.rows.length;
+            const temp = [];
+
+            for (let i = 0; i < results.rows.length; ++i) {
+              temp.push(results.rows.item(i));
+            }
+            setFlashProducts(temp);
 
           },
         );
@@ -177,7 +210,7 @@ function HomeScreen(props) {
 
 
   });
-  const renderProductList = products_list.map((product) => {
+  const renderProductList = products_first_row.map((product) => {
     return (
       <View key={product.product_id} style={{ width: "25%", marginEnd: 20 }}>
         <ProductCard data={{
@@ -186,16 +219,6 @@ function HomeScreen(props) {
           cardWidth: 200,
         }} />
       </View>
-    );
-  });
-
-  const renderProductList2 = products_list.map((product) => {
-    return (
-      <ProductCard key={product.product_id} data={{
-        product: product,
-        action: productCardAction,
-        cardWidth: 200,
-      }} />
     );
   });
 
@@ -311,7 +334,7 @@ function HomeScreen(props) {
                     contentContainerStyle={{ paddingBottom: 80 }}
 
                     numColumns={2} horizontal={false}
-                    data={products_list}
+                    data={flash_products}
                     renderItem={({ item }) =>
                       <Box style={{ width: "45%" }}
                            py="2">

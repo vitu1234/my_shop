@@ -6,6 +6,7 @@ import { db, deleteAllHomescreenProducts, getAllCategory, getAllProductsHomeScre
 
 // require('dotenv/config');
 const base_url = "http://192.168.0.5/my_shop/my_shop_api/public/api";
+const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 const getHomeScreen = async (props) => {
 
@@ -54,4 +55,4 @@ const getHomeScreen = async (props) => {
 };
 
 
-export { base_url, getHomeScreen };
+export { base_url, getHomeScreen,base_urlImages };
