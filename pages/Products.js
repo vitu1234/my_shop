@@ -24,6 +24,48 @@ function Products(props) {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
 
+
+  const initialSearchFilters = {
+    price_asc: false,
+    price_desc: false,
+    newest_first: false,
+    oldest_first: false,
+    name_asc: false,
+    name_desc: false,
+  };
+
+  const setFilters1 = (filters) => {
+    setSearchFilters(filters);
+    console.log(filters);
+    console.log("filter products here");
+  };
+  const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+
+  const btnCategoryAction = (category_id) => {
+    console.log("GOES TO " + category_id + " CATEGORY");
+    setCategoryActive(category_id);
+  };
+
+  const productCardAction = (product) => {
+    // console.log(product);
+    props.navigation.navigate("ProductDetails", { data: product });
+  };
+
+  const setCartCounterNumber = () => {
+    //update cart counter
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT * FROM cart",
+        [],
+        (tx, results) => {
+          const len = results.rows.length;
+          setCartItemsCount(len);
+
+        },
+      );
+    });
+  };
+
   const productsScreenLoading = (isFetchingDataError, message) => {
     setIsAppDataFetchLoading(false);
     if (isFetchingDataError) {
@@ -75,47 +117,6 @@ function Products(props) {
         );
       });
     }
-  };
-
-  const initialSearchFilters = {
-    price_asc: false,
-    price_desc: false,
-    newest_first: false,
-    oldest_first: false,
-    name_asc: false,
-    name_desc: false,
-  };
-
-  const setFilters1 = (filters) => {
-    setSearchFilters(filters);
-    console.log(filters);
-    console.log("filter products here");
-  };
-  const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
-
-  const btnCategoryAction = (category_id) => {
-    console.log("GOES TO " + category_id + " CATEGORY");
-    setCategoryActive(category_id);
-  };
-
-  const productCardAction = (product) => {
-    // console.log(product);
-    props.navigation.navigate("ProductDetails", { data: product });
-  };
-
-  const setCartCounterNumber = () => {
-    //update cart counter
-    db.transaction((tx) => {
-      tx.executeSql(
-        "SELECT * FROM cart",
-        [],
-        (tx, results) => {
-          const len = results.rows.length;
-          setCartItemsCount(len);
-
-        },
-      );
-    });
   };
 
   useEffect(() => {
@@ -264,6 +265,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
     marginTop: 5,
+  },
+  errorText: {
+    color: "#b60303",
+    alignSelf: "center",
   },
   cardContainer: {
     flex: 1,
