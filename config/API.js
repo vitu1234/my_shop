@@ -3,7 +3,6 @@ import React from "react";
 import { db, deleteAllProducts, deleteAllHomescreenProducts } from "./sqlite_db_service";
 
 
-
 // require('dotenv/config');
 const base_url = "http://192.168.0.5/my_shop/my_shop_api/public/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
@@ -43,13 +42,13 @@ const getHomeScreen = async (props) => {
             );
           });
         });
-        props.homeScreenLoading(false, 'Fetch data success')
+        props.homeScreenLoading(false, "Fetch data success");
       })
       .catch((err) => {
-        props.homeScreenLoading(true, err.message)
+        props.homeScreenLoading(true, err.message);
       });
   } catch (error) {
-    props.homeScreenLoading(true, error.message)
+    props.homeScreenLoading(true, error.message);
   }
 
 };
@@ -57,47 +56,123 @@ const getHomeScreen = async (props) => {
 const getProductsScreen = async (props) => {
 
   try {
-
-    fetch(`${base_url}/product`, {
-      method: "GET", // default, so we can ignore
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // console.log(data.products_homescreen);
-        //delete old data
-        deleteAllProducts();
-
-        //loop through all categories and insert into database
-        data.categories.map(async (category) => {
-          //insert in database
-          await db.transaction(async (tx) => {
-            await tx.executeSql(
-              "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-              [category.category_id, category.category_name],
-            );
-          });
-        });
-
-        data.products.map(async (product) => {
-          //insert in database
-
-          db.transaction(async (tx) => {
-
-            await tx.executeSql(
-              "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-              [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
-            );
-          });
-        });
-        props.productsScreenLoading(false, 'Fetch data success')
+    // console.log(props.categoryActive)
+    if (props.categoryActive === -1) {
+      fetch(`${base_url}/product`, {
+        method: "GET", // default, so we can ignore
       })
-      .catch((err) => {
-        props.productsScreenLoading(true, err.message)
-      });
+        .then((response) => response.json())
+        .then((data) => {
+          // console.log(data.products_homescreen);
+          //delete old data
+          deleteAllProducts();
+
+          //loop through all categories and insert into database
+          data.categories.map(async (category) => {
+            //insert in database
+            await db.transaction(async (tx) => {
+              await tx.executeSql(
+                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+                [category.category_id, category.category_name],
+              );
+            });
+          });
+
+          data.products.map(async (product) => {
+            //insert in database
+
+            db.transaction(async (tx) => {
+
+              await tx.executeSql(
+                "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+                [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+              );
+            });
+          });
+          props.productsScreenLoading(false, "Fetch data success");
+        })
+        .catch((err) => {
+          props.productsScreenLoading(true, err.message);
+        });
+    }else if (props.category_id === -1) {
+      fetch(`${base_url}/product`, {
+        method: "GET", // default, so we can ignore
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // console.log(data.products_homescreen);
+          //delete old data
+          deleteAllProducts();
+
+          //loop through all categories and insert into database
+          data.categories.map(async (category) => {
+            //insert in database
+            await db.transaction(async (tx) => {
+              await tx.executeSql(
+                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+                [category.category_id, category.category_name],
+              );
+            });
+          });
+
+          data.products.map(async (product) => {
+            //insert in database
+
+            db.transaction(async (tx) => {
+
+              await tx.executeSql(
+                "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+                [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+              );
+            });
+          });
+          props.productsScreenLoading(false, "Fetch data success");
+        })
+        .catch((err) => {
+          props.productsScreenLoading(true, err.message);
+        });
+    } else {
+      fetch(`${base_url}/product/product_by_category/${props.category_id}`, {
+        method: "GET", // default, so we can ignore
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // console.log(data.products_homescreen);
+          //delete old data
+          deleteAllProducts();
+
+          //loop through all categories and insert into database
+          data.categories.map(async (category) => {
+            //insert in database
+            await db.transaction(async (tx) => {
+              await tx.executeSql(
+                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+                [category.category_id, category.category_name],
+              );
+            });
+          });
+
+          data.products.map(async (product) => {
+            //insert in database
+
+            db.transaction(async (tx) => {
+
+              await tx.executeSql(
+                "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+                [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+              );
+            });
+          });
+          props.productsScreenLoading(false, "Fetch data success");
+        })
+        .catch((err) => {
+          props.productsScreenLoading(true, err.message);
+        });
+    }
   } catch (error) {
-    props.productsScreenLoading(true, error.message)
+    props.productsScreenLoading(true, error.message);
   }
 
 };
 
-export { base_url, getProductsScreen,getHomeScreen,base_urlImages };
+export { base_url, getProductsScreen, getHomeScreen, base_urlImages };

@@ -24,58 +24,6 @@ function Products(props) {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
 
-  const productsScreenLoading = (isFetchingDataError, message) => {
-    setIsAppDataFetchLoading(false);
-    if (isFetchingDataError) {
-      setIsAppDataFetchError(true);
-      setIsAppDataFetchMsg(message);
-      ToastAndroid.showWithGravityAndOffset(
-        message,
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        50,
-      );
-    } else {
-      setIsAppDataFetchError(false);
-      setIsAppDataFetchMsg(message);
-
-      //get data from database
-      db.transaction((tx) => {
-        tx.executeSql(
-          "SELECT * FROM category ORDER BY category_name ASC",
-          [],
-          (tx, results) => {
-            const len = results.rows.length;
-            const temp = [];
-
-            for (let i = 0; i < results.rows.length; ++i) {
-              temp.push(results.rows.item(i));
-            }
-            setCategories(temp);
-
-          },
-        );
-      });
-
-      db.transaction((tx) => {
-        tx.executeSql(
-          "SELECT * FROM product",
-          [],
-          (tx, results) => {
-            const len = results.rows.length;
-            const temp = [];
-
-            for (let i = 0; i < results.rows.length; ++i) {
-              temp.push(results.rows.item(i));
-            }
-            setProducts(temp);
-
-          },
-        );
-      });
-    }
-  };
 
   const initialSearchFilters = {
     price_asc: false,
@@ -95,7 +43,10 @@ function Products(props) {
 
   const btnCategoryAction = (category_id) => {
     console.log("GOES TO " + category_id + " CATEGORY");
+    setIsAppDataFetchLoading(true);
+    setIsAppDataFetchError(false);
     setCategoryActive(category_id);
+    getProductsScreen({ productsScreenLoading, category_id });
   };
 
   const productCardAction = (product) => {
@@ -118,12 +69,66 @@ function Products(props) {
     });
   };
 
+  const productsScreenLoading = (isFetchingDataError, message) => {
+    setIsAppDataFetchLoading(false);
+    if (isFetchingDataError) {
+      setIsAppDataFetchError(true);
+      setIsAppDataFetchMsg(message);
+      ToastAndroid.showWithGravityAndOffset(
+        message,
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+        25,
+        50,
+      );
+    } else {
+      setIsAppDataFetchError(false);
+      setIsAppDataFetchMsg(message);
+
+      //get data from database
+
+      db.transaction((tx) => {
+        tx.executeSql(
+          "SELECT * FROM category",
+          [],
+          (tx, results) => {
+            const len = results.rows.length;
+            const temp = [];
+
+            for (let i = 0; i < results.rows.length; ++i) {
+              temp.push(results.rows.item(i));
+            }
+            setCategories(temp);
+
+          },
+        );
+      });
+      db.transaction((tx) => {
+        tx.executeSql(
+          "SELECT * FROM product",
+          [],
+          (tx, results) => {
+            const len = results.rows.length;
+            const temp = [];
+
+            for (let i = 0; i < results.rows.length; ++i) {
+              temp.push(results.rows.item(i));
+            }
+            setProducts(temp);
+
+          },
+        );
+      });
+    }
+  };
+
   useEffect(() => {
     setCartCounterNumber();
-    getProductsScreen({ productsScreenLoading });
+    getProductsScreen({ productsScreenLoading, categoryActive });
   }, []);
 
   const renderCategoryList = categories.map((category) => {
+    console.log(category);
     if (category.category_id === categoryActive) {
       return (
         <ButtonCategory key={category.category_id} data={{
@@ -264,6 +269,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "#fff",
     marginTop: 5,
+  },
+  errorText: {
+    color: "#b60303",
+    alignSelf: "center",
   },
   cardContainer: {
     flex: 1,
