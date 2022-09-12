@@ -43,7 +43,10 @@ function Products(props) {
 
   const btnCategoryAction = (category_id) => {
     console.log("GOES TO " + category_id + " CATEGORY");
+    setIsAppDataFetchLoading(true);
+    setIsAppDataFetchError(false);
     setCategoryActive(category_id);
+    getProductsScreen({ productsScreenLoading, category_id });
   };
 
   const productCardAction = (product) => {
@@ -83,9 +86,10 @@ function Products(props) {
       setIsAppDataFetchMsg(message);
 
       //get data from database
+
       db.transaction((tx) => {
         tx.executeSql(
-          "SELECT * FROM category ORDER BY category_name ASC",
+          "SELECT * FROM category",
           [],
           (tx, results) => {
             const len = results.rows.length;
@@ -99,7 +103,6 @@ function Products(props) {
           },
         );
       });
-
       db.transaction((tx) => {
         tx.executeSql(
           "SELECT * FROM product",
@@ -121,10 +124,11 @@ function Products(props) {
 
   useEffect(() => {
     setCartCounterNumber();
-    getProductsScreen({ productsScreenLoading });
+    getProductsScreen({ productsScreenLoading, categoryActive });
   }, []);
 
   const renderCategoryList = categories.map((category) => {
+    console.log(category);
     if (category.category_id === categoryActive) {
       return (
         <ButtonCategory key={category.category_id} data={{
