@@ -18,6 +18,12 @@ function StackNavigationHeader(props) {
         }
     };
 
+    const gotToLogin = () =>{
+        if (navigator.getState().routes[1].name !== 'Login') {
+            navigator.navigate('Login');
+        }
+    }
+
     return (
 
         <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
@@ -60,7 +66,7 @@ function StackNavigationHeader(props) {
                     </View>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={{marginStart: 16}}>
+            <TouchableOpacity style={{marginStart: 16}} onPress={gotToLogin}>
                 <Icon
 
                     name="login"
