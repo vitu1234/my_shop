@@ -183,7 +183,7 @@ function Products(props) {
             Your One Stop Shop!
             {/*<Text color="emerald.500"> React Ecosystem</Text>*/}
           </Heading>
-          <Input mt={5} InputLeftElement={<Icon style={{ margin: 3 }} name="search1"
+          <Input mt={5} InputLeftElement={<Icon style={{ margin: 15 }} name="search1"
                                                 size={18} ml="2" color="#000" />}
                  placeholder="Search Products..." />
           <ScrollView

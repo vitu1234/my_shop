@@ -9,6 +9,7 @@ import {AppContext, CartContext} from '../app_contexts/AppContext';
 // import {CartContext} from '../app_contexts/CartContext';
 import CartScreen from '../pages/CartScreen';
 import FlashProducts from '../pages/FlashProducts';
+import LoginScreen from "../pages/LoginScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,9 @@ function StackNavigator(props) {
                     options={{headerShown: false}}
                 />
                 <Stack.Screen name="Feed" component={SettingsScreen}/>
+                <Stack.Screen name="Login" component={LoginScreen}  options={{
+                  headerShown: false,
+                }}/>
                 <Stack.Screen name="Cart" component={CartScreen}
                               options={({navigation}) => ({
                                   headerRight: () => (
