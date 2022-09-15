@@ -28,7 +28,9 @@ function StackNavigator(props) {
                     options={{headerShown: false}}
                 />
                 <Stack.Screen name="Feed" component={SettingsScreen}/>
-                <Stack.Screen name="Login" component={LoginScreen}/>
+                <Stack.Screen name="Login" component={LoginScreen}  options={{
+                  headerShown: false,
+                }}/>
                 <Stack.Screen name="Cart" component={CartScreen}
                               options={({navigation}) => ({
                                   headerRight: () => (
