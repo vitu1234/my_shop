@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AppContext } from "../app_contexts/AppContext";
 import { Dimensions, Linking, StyleSheet } from "react-native";
 import {
@@ -15,10 +15,15 @@ import {
   Stack,
   Text,
   View,
+  useToast,
+  Alert,
 } from "native-base";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Feather from "react-native-vector-icons/Feather";
+
+import ToastComponent from "./components/ToastComponent";
+import { registerUserAccount } from "../config/API";
 
 const { width } = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
@@ -26,6 +31,161 @@ const windowHeight = Dimensions.get("window").height;
 function SignUpScreen(props) {
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
   const [show, setShow] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isDisabled, setIsDisabled] = React.useState(true);
+  const toast = useToast();
+
+  const [first_name, setFirstName] = React.useState("");
+  const [last_name, setLastName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [phone, setPhone] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [confirm_password, setConfirmPassword] = React.useState("");
+  const [conditions_check, setConditionsCheck] = React.useState(false);
+
+  const SignUpUser = () => {
+    // setIsLoading(true);
+
+    if (first_name === "") {
+      const ToastDetails = {
+        id: 14,
+        title: "Required Field",
+        variant: "left-accent",
+        description: "First name is required",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    if (last_name === "") {
+      const ToastDetails = {
+        id: 14,
+        title: "Required Field",
+        variant: "left-accent",
+        description: "Last name is required",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    if (phone === "") {
+      const ToastDetails = {
+        id: 14,
+        title: "Required Field",
+        variant: "left-accent",
+        description: "Phone is required",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    if (password === "") {
+      const ToastDetails = {
+        id: 14,
+        title: "Required Field",
+        variant: "left-accent",
+        description: "Password is required",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    if (confirm_password === "") {
+      const ToastDetails = {
+        id: 14,
+        title: "Required Field",
+        variant: "left-accent",
+        description: "Confirm password is required",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    if (conditions_check === false) {
+      const ToastDetails = {
+        id: 14,
+        title: "Agree to Terms",
+        variant: "left-accent",
+        description: "Please agree to our terms and conditions",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    if (password !== confirm_password) {
+      const ToastDetails = {
+        id: 14,
+        title: "Check Password",
+        variant: "left-accent",
+        description: "Provided passwords do not match, please check your input",
+        isClosable: false,
+        status: "error",
+        duration: 1000,
+      };
+      toast.show({
+        render: () => {
+          return <ToastComponent {...ToastDetails} />;
+        },
+      });
+    }
+
+    const data = {
+      first_name: first_name,
+      last_name: last_name,
+      email: email,
+      phone: phone,
+      password: password,
+    };
+    const response = registerUserAccount(data);
+    console.log(response);
+
+  };
+
+  useEffect(() => {
+    setIsLoading(false);
+    if (first_name !== "" && last_name !== "" && phone !== "" && password !== "" && confirm_password !== "" && conditions_check) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
+
+  }, [conditions_check, first_name, last_name, phone, password, confirm_password]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
@@ -39,6 +199,8 @@ function SignUpScreen(props) {
           <Stack space={4} w="100%" alignItems="center">
 
             <Input
+              value={first_name}
+              onChangeText={(first_name) => setFirstName(first_name)}
               w={{
                 base: "100%",
                 md: "25%",
@@ -48,6 +210,8 @@ function SignUpScreen(props) {
               placeholder="First Name" />
 
             <Input
+              value={last_name}
+              onChangeText={(last_name) => setLastName(last_name)}
               w={{
                 base: "100%",
                 md: "25%",
@@ -57,6 +221,8 @@ function SignUpScreen(props) {
               placeholder="Last Name" />
 
             <Input
+              value={phone}
+              onChangeText={(phone) => setPhone(phone)}
               w={{
                 base: "100%",
                 md: "25%",
@@ -66,16 +232,20 @@ function SignUpScreen(props) {
               placeholder="Phone" />
 
             <Input
+              value={email}
+              onChangeText={(email) => setEmail(email)}
+              type={"email"}
               w={{
                 base: "100%",
                 md: "25%",
               }}
               InputLeftElement={<SimpleLineIcons style={{ marginStart: 15 }} name="envelope"
                                                  size={18} ml="2" color="#000" />}
-              placeholder="Email" />
+              placeholder="Email (optional)" />
 
             <Input
-
+              value={password}
+              onChangeText={(password) => setPassword(password)}
               w={{
                 base: "100%",
                 md: "25%",
@@ -95,7 +265,8 @@ function SignUpScreen(props) {
             />
 
             <Input
-
+              value={confirm_password}
+              onChangeText={(confirm_password) => setConfirmPassword(confirm_password)}
               w={{
                 base: "100%",
                 md: "25%",
@@ -120,14 +291,19 @@ function SignUpScreen(props) {
 
 
             <Box width="99%">
-              <Checkbox _text={{
-                fontSize: "md",
-                fontWeight: 700,
-                _light: {
+              <Checkbox
+                isChecked={conditions_check}
+                onChange={() => {
+                  conditions_check ? setConditionsCheck(false) : setConditionsCheck(true);
+                }}
+                _text={{
+                  fontSize: "md",
+                  fontWeight: 700,
+                  _light: {
+                    color: "grey",
+                  },
                   color: "grey",
-                },
-                color: "grey",
-              }} shadow={2} value="agree" accessibilityLabel="Terms and conditions checkbox">
+                }} shadow={2} value="agree" accessibilityLabel="Terms and conditions checkbox">
                 <Text style={{ color: "grey" }}>By creating an account, you agree to our
                   <Text style={{ color: "rgba(255,255,255,0)" }}>
                     a</Text>
@@ -161,7 +337,9 @@ function SignUpScreen(props) {
           </View>
 
           <View style={{ marginTop: 20 }}>
-            <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
+            <Button isDisabled={isDisabled} isLoading={isLoading} isLoadingText="Registering" onPress={SignUpUser}
+                    style={styles.btn}
+                    size={"lg"}
                     _text={{
                       color: "#fff",
                     }}>
