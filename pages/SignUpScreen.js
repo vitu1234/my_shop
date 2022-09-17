@@ -15,10 +15,14 @@ import {
   Stack,
   Text,
   View,
+  useToast,
+  Alert,
 } from "native-base";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Feather from "react-native-vector-icons/Feather";
+
+import ToastComponent from "./components/ToastComponent";
 
 const { width } = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
@@ -26,6 +30,33 @@ const windowHeight = Dimensions.get("window").height;
 function SignUpScreen(props) {
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
   const [show, setShow] = React.useState(false);
+  const toast = useToast();
+
+  const SignUpUser = () => {
+    const ToastDetails = {
+      id: 14,
+      title: "Network connection restored",
+      variant: "left-accent",
+      description: "This is to inform you that your network connectivity is restored",
+      isClosable: false,
+      status: "error",
+      duration: 1000,
+    };
+
+    toast.show({
+      render: () => {
+        return <ToastComponent {...ToastDetails} />;
+      },
+    });
+
+    // toast.show({
+    //       render: ({
+    //                  id,
+    //                }) => {
+    //         return <ToastAlert id={id} {...item} />;
+    //       },
+    //     })
+  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
@@ -161,7 +192,7 @@ function SignUpScreen(props) {
           </View>
 
           <View style={{ marginTop: 20 }}>
-            <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
+            <Button onPress={SignUpUser} style={styles.btn} size={"lg"}
                     _text={{
                       color: "#fff",
                     }}>
