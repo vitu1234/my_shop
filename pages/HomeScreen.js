@@ -157,11 +157,11 @@ function HomeScreen(props) {
   });
   const renderProductList = products_first_row.map((product) => {
     return (
-      <View key={product.product_id} style={{ width: "25%", marginEnd: 20 }}>
+      <View key={product.product_id} style={{ width: "8%", marginEnd: 20 }}>
         <ProductCard data={{
           product: product,
           action: productCardAction,
-          cardWidth: 200,
+          // cardWidth: 100,
         }} />
       </View>
     );

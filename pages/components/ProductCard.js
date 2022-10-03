@@ -65,7 +65,8 @@ const styles = StyleSheet.create({
     marginEnd: 20,
   },
   thumb: {
-    height: 230,
+    resizeMode: "center",
+    height: 150,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     width: "100%",
@@ -75,12 +76,12 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "#424242",
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "bold",
   },
   price: {
     color: "black",
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "900",
     marginBottom: 8,
 
