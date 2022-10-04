@@ -401,7 +401,7 @@ function SignUpScreen(props) {
                     </View>
 
                     <View style={{marginTop: 20}}>
-                        <Button isDisabled={isDisabled} isLoading={isLoading} isLoadingText="Registering"
+                        <Button isDisabled={isDisabled} isLoading={isLoading} isLoadingText="Registering..."
                                 onPress={SignUpUser}
                                 style={styles.btn}
                                 size={"lg"}

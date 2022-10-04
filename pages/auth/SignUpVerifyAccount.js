@@ -1,9 +1,9 @@
 import React, {useContext} from "react";
 import {AppContext} from "../../app_contexts/AppContext";
-import {Dimensions, StyleSheet} from "react-native";
+import {Dimensions, StyleSheet, TouchableOpacity} from "react-native";
 import {
     Button,
-    Heading, HStack, Image,
+    Heading, HStack, Icon, Image,
     Input, Link,
     Pressable,
     ScrollView,
@@ -11,26 +11,31 @@ import {
     Text,
     View,
 } from "native-base";
-import Icon from "react-native-vector-icons/AntDesign";
-import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Feather from "react-native-vector-icons/Feather";
-import {red} from "react-native-reanimated/lib/types/lib/reanimated2";
-import {LinearGradient} from "react-native-svg";
 
-const {width} = Dimensions.get("window");
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import Ionicons from "react-native-vector-icons/Ionicons";
+
 const windowHeight = Dimensions.get("window").height;
 
 function SignUpVerifyAccount(props) {
+
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [isDisabled, setIsDisabled] = React.useState(false);
+
+    const resendVerificationCode = () => {
+        setIsDisabled(true)
+        setIsLoading(true)
+    }
+
+
     return (
         <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
             <View style={styles.mainContainer}>
                 <View style={styles.topContainer}>
                     <Heading style={styles.textSubTitle} size="lg">Confirm Your Account</Heading>
-                    <Text style={styles.textTitle}>Please enter the verification code which was sent to your phone or
-                        email!</Text>
-                    <Text style={styles.textTitle}>We we take care the rest after entering the code!</Text>
+                    <Text style={styles.textTitle}>Please enter the verification code which was sent to 
+                        <Text style={{fontWeight: "bold"}}> vitumafeni@yahoo.com</Text>
+                    </Text>
                 </View>
 
                 <View style={{alignSelf: "center"}}>
@@ -48,13 +53,31 @@ function SignUpVerifyAccount(props) {
                     </Stack>
 
                     <View style={{marginTop: 20}}>
-                        <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
+                        <Button isDisabled={isDisabled} onPress={() => console.log("hahah")} style={styles.btn}
+                                size={"lg"}
                                 _text={{
                                     color: "#fff",
                                 }}>
                             Verify
                         </Button>
 
+                    </View>
+
+
+                    <View style={{marginTop: 25, marginBottom: 10, alignItems: "center"}}>
+                        <Button
+                            style={{width: "70%"}}
+                            variant="subtle"
+                            colorScheme="dark"
+                            leftIcon={<Icon as={Ionicons} color="#fff" name="reload" size={"sm"}/>}
+                            isDisabled={isDisabled} isLoading={isLoading} isLoadingText="Verifying..."
+                            onPress={resendVerificationCode}
+                            size={"sm"}
+                            _text={{
+                                color: "#fff",
+                            }}>
+                            Resend Verification Code
+                        </Button>
                     </View>
 
                     <View style={{marginTop: 100}}>
@@ -106,6 +129,7 @@ const styles = StyleSheet.create({
     },
 
     btn: {
+
         width: "100%",
         // paddingLeft: 15,
         // paddingEnd: 15,
