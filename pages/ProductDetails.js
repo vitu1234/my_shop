@@ -58,7 +58,7 @@ function ProductDetails(props) {
     // setProductQty(productQty);
     //check if there are products in cart
 
-    setBottomSheetOpen(true);
+
     try {
       //insert into cart
       await db.transaction((tx) => {
@@ -124,7 +124,7 @@ function ProductDetails(props) {
     } catch (e) {
       console.log(e);
     }
-
+    setBottomSheetOpen(true);
   };
 
   const addProductQty = () => {

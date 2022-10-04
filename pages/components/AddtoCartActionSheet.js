@@ -22,19 +22,9 @@ import CollapsibleView from '@eliav2/react-native-collapsible-view';
 import {AppContext} from '../../app_contexts/AppContext';
 import {CartContext} from '../../app_contexts/AppContext';
 import CartRow from './CartRow';
+import {db} from '../../config/sqlite_db_service'
 
-const db = SQLite.openDatabase(
-    {
-        name: 'MainDB1',
-        location: 'default',
-        version: 2,
-    },
-    () => {
-    },
-    error => {
-        console.log(error);
-    },
-);
+
 
 function AddtoCartActionSheet(props) {
     const {
