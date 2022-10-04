@@ -36,14 +36,14 @@ function SignUpVerifyAccount(props) {
                 <View style={{alignSelf: "center"}}>
                     <Stack space={4} w="100%" alignItems="center">
 
-                        <Input
-                            w={{
-                                base: "100%",
-                                md: "25%",
-                            }}
-                            InputLeftElement={<SimpleLineIcons style={{marginStart: 15}} name="envelope"
-                                                               size={18} ml="2" color="#000"/>}
-                            placeholder="Phone or email"/>
+                        <Input type={"number"}
+                               w={{
+                                   base: "100%",
+                                   md: "25%",
+                               }}
+                               InputLeftElement={<MaterialIcons style={{marginStart: 15}} name="verified-user"
+                                                                size={18} ml="2" color="#000"/>}
+                               placeholder="4 digit code"/>
 
                     </Stack>
 
@@ -52,7 +52,7 @@ function SignUpVerifyAccount(props) {
                                 _text={{
                                     color: "#fff",
                                 }}>
-                            Send Reset Instructions
+                            Verify
                         </Button>
 
                     </View>
