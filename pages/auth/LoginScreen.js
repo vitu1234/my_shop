@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AppContext } from "../app_contexts/AppContext";
+import { AppContext } from "../../app_contexts/AppContext";
 import { Dimensions, StyleSheet } from "react-native";
 import {
   Button,
@@ -22,17 +22,24 @@ import { LinearGradient } from "react-native-svg";
 const { width } = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
 
-function ForgetPasswordScreen(props) {
+function LoginScreen(props) {
+  const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
   const [show, setShow] = React.useState(false);
+
+  const goToForgetPassword = () => {
+    props.navigation.navigate("ForgetPassword");
+  };
+
+  const goToRegister = () => {
+    props.navigation.navigate("SignUp");
+  }
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
-          <Heading style={styles.textSubTitle} size="lg">Reset Password</Heading>
-          <Text style={styles.textTitle}>Forgot your password? Don't worry, that's okay, It happens to everyone!</Text>
-          <Text style={styles.textTitle}>Please provide your email or phone number you used for signup to reset your
-            password!</Text>
+          <Text style={styles.textTitle}>Hey there,</Text>
+          <Heading style={styles.textSubTitle} size="lg">Welcome Back</Heading>
         </View>
 
         <View style={{ alignSelf: "center" }}>
@@ -45,16 +52,49 @@ function ForgetPasswordScreen(props) {
               }}
               InputLeftElement={<SimpleLineIcons style={{ marginStart: 15 }} name="envelope"
                                                  size={18} ml="2" color="#000" />}
-              placeholder="Phone or email" />
+              placeholder="Username or email" />
+
+            <Input
+              mt={7}
+              w={{
+                base: "100%",
+                md: "25%",
+              }}
+              type={show ? "text" : "password"}
+              InputLeftElement={<AntDesign style={{ marginStart: 15 }} name="lock1"
+                                           size={18} ml="2" color="#000" />}
+              placeholder="Password"
+
+              InputRightElement={
+                <Pressable onPress={() => setShow(!show)}>
+                  <Feather style={{ marginEnd: 10, padding: 6 }} name={show ? "eye" : "eye-off"}
+                           size={18} mr="2" color="#000" />
+                </Pressable>
+              }
+
+            />
 
           </Stack>
 
-          <View style={{ marginTop: 20 }}>
+          <View style={{ marginTop: 30, alignSelf: "center", padding:5 }}>
+            <Link onPress={goToForgetPassword} _text={{
+              fontSize: "md",
+              fontWeight: 700,
+              _light: {
+                color: "grey",
+              },
+              color: "grey",
+            }}>
+              Forgot your password?
+            </Link>
+          </View>
+
+          <View style={{ marginTop: 50 }}>
             <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
                     _text={{
                       color: "#fff",
                     }}>
-              Send Reset Instructions
+              Login
             </Button>
 
           </View>
@@ -64,8 +104,22 @@ function ForgetPasswordScreen(props) {
 
               alt={"Logo"}
               style={styles.logo}
-              source={require("../assets/app_rs/my_shop_logo.png")}
+              source={require("../../assets/app_rs/my_shop_logo.png")}
             />
+
+            <HStack style={{ alignSelf: "center" }}>
+              <Text fontSize={"md"} mr={2}>Don't have an account yet?</Text>
+              <Link onPress={goToRegister}  _text={{
+                fontSize: "md",
+                fontWeight: 700,
+                _light: {
+                  color: "black",
+                },
+                color: "black",
+              }}>
+                Register
+              </Link>
+            </HStack>
 
           </View>
 
@@ -83,27 +137,23 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     alignSelf: "center",
-    marginTop: 10,
-    marginBottom: 15,
+    marginTop: 20,
+    marginBottom: 10,
     // backgroundColor:"red",
     width: "100%",
 
   },
   textTitle: {
-    marginTop:2,
-    paddingStart: 7,
-    paddingEnd: 7,
-    color: "grey",
-    textAlign: "left",
-    // fontSize: 18,
-    fontWeight:"600"
+    padding: 7,
+    color: "#424242",
+    textAlign: "center",
+    fontSize: 18,
   },
   textSubTitle: {
     color: "black",
-    // marginBottom: 8,
-    paddingStart: 5,
-    paddingEnd: 5,
-    textAlign: "left",
+    marginBottom: 8,
+    padding: 5,
+    textAlign: "center",
     fontWeight: "900",
   },
 
@@ -130,4 +180,4 @@ const styles = StyleSheet.create({
 
 
 });
-export default ForgetPasswordScreen;
+export default LoginScreen;

@@ -9,9 +9,9 @@ import { AppContext, CartContext } from "../app_contexts/AppContext";
 // import {CartContext} from '../app_contexts/CartContext';
 import CartScreen from "../pages/CartScreen";
 import FlashProducts from "../pages/FlashProducts";
-import LoginScreen from "../pages/LoginScreen";
-import SignUpScreen from "../pages/SignUpScreen";
-import ForgetPasswordScreen from "../pages/ForgetPasswordScreen";
+import LoginScreen from "../pages/auth/LoginScreen";
+import SignUpScreen from "../pages/auth/SignUpScreen";
+import ForgetPasswordScreen from "../pages/auth/ForgetPasswordScreen";
 
 const Stack = createNativeStackNavigator();
 

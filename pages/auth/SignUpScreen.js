@@ -1,5 +1,5 @@
 import React, {useContext, useEffect} from "react";
-import {AppContext} from "../app_contexts/AppContext";
+import {AppContext} from "../../app_contexts/AppContext";
 import {Dimensions, Linking, StyleSheet, ToastAndroid} from "react-native";
 import {
     Box,
@@ -22,9 +22,9 @@ import AntDesign from "react-native-vector-icons/AntDesign";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Feather from "react-native-vector-icons/Feather";
 
-import ToastComponent from "./components/ToastComponent";
-import {registerUserAccount} from "../config/API";
-import {db} from "../config/sqlite_db_service";
+import ToastComponent from "../components/ToastComponent";
+import {registerUserAccount} from "../../config/API";
+import {db} from "../../config/sqlite_db_service";
 
 const {width} = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
@@ -220,9 +220,12 @@ function SignUpScreen(props) {
             setPassword("")
             setConfirmPassword("")
             setConditionsCheck(false)
+            props.navigation.navigate("Login");
         }
     };
-
+    const goToLogin = () => {
+        props.navigation.navigate("Login");
+    }
 
     useEffect(() => {
         setIsLoading(false);
@@ -415,19 +418,21 @@ function SignUpScreen(props) {
 
                             alt={"Logo"}
                             style={styles.logo}
-                            source={require("../assets/app_rs/my_shop_logo.png")}
+                            source={require("../../assets/app_rs/my_shop_logo.png")}
                         />
 
                         <HStack style={{alignSelf: "center"}}>
                             <Text fontSize={"md"} mr={2}>Already have an account?</Text>
-                            <Link _text={{
-                                fontSize: "md",
-                                fontWeight: 700,
-                                _light: {
+                            <Link
+                                onPress={goToLogin}
+                                _text={{
+                                    fontSize: "md",
+                                    fontWeight: 700,
+                                    _light: {
+                                        color: "black",
+                                    },
                                     color: "black",
-                                },
-                                color: "black",
-                            }}>
+                                }}>
                                 Login
                             </Link>
                         </HStack>
