@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AppContext } from "../app_contexts/AppContext";
+import { AppContext } from "../../app_contexts/AppContext";
 import { Dimensions, StyleSheet } from "react-native";
 import {
   Button,
@@ -55,7 +55,6 @@ function LoginScreen(props) {
               placeholder="Username or email" />
 
             <Input
-              mt={7}
               w={{
                 base: "100%",
                 md: "25%",
@@ -76,7 +75,7 @@ function LoginScreen(props) {
 
           </Stack>
 
-          <View style={{ marginTop: 30, alignSelf: "center", padding:5 }}>
+          <View style={{ marginTop: 10, alignSelf: "center", padding:5 }}>
             <Link onPress={goToForgetPassword} _text={{
               fontSize: "md",
               fontWeight: 700,
@@ -89,7 +88,7 @@ function LoginScreen(props) {
             </Link>
           </View>
 
-          <View style={{ marginTop: 50 }}>
+          <View style={{ marginTop: 10 }}>
             <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
                     _text={{
                       color: "#fff",
@@ -99,13 +98,8 @@ function LoginScreen(props) {
 
           </View>
 
-          <View style={{ marginTop: 100 }}>
-            <Image
+          <View style={{ marginTop: 20 }}>
 
-              alt={"Logo"}
-              style={styles.logo}
-              source={require("../assets/app_rs/my_shop_logo.png")}
-            />
 
             <HStack style={{ alignSelf: "center" }}>
               <Text fontSize={"md"} mr={2}>Don't have an account yet?</Text>
@@ -120,7 +114,12 @@ function LoginScreen(props) {
                 Register
               </Link>
             </HStack>
+            <Image
 
+                alt={"Logo"}
+                style={styles.logo}
+                source={require("../../assets/app_rs/my_shop_logo.png")}
+            />
           </View>
 
         </View>
@@ -173,6 +172,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   logo: {
+    marginTop:20,
     height: 100,
     width: 300,
     alignSelf: "center",

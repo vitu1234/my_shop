@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { AppContext } from "../app_contexts/AppContext";
+import { AppContext } from "../../app_contexts/AppContext";
 import { Dimensions, StyleSheet } from "react-native";
 import {
   Button,
@@ -64,7 +64,7 @@ function ForgetPasswordScreen(props) {
 
               alt={"Logo"}
               style={styles.logo}
-              source={require("../assets/app_rs/my_shop_logo.png")}
+              source={require("../../assets/app_rs/my_shop_logo.png")}
             />
 
           </View>
