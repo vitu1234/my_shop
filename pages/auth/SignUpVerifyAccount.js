@@ -18,10 +18,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 const windowHeight = Dimensions.get("window").height;
 
 function SignUpVerifyAccount(props) {
-
+    const user = props.route.params.user;
     const [isLoading, setIsLoading] = React.useState(false);
     const [isDisabled, setIsDisabled] = React.useState(false);
-
+    const user_data = user.email === "" ? user.phone : user.email + '/' + user.phone;
     const resendVerificationCode = () => {
         setIsDisabled(true)
         setIsLoading(true)
@@ -33,8 +33,8 @@ function SignUpVerifyAccount(props) {
             <View style={styles.mainContainer}>
                 <View style={styles.topContainer}>
                     <Heading style={styles.textSubTitle} size="lg">Confirm Your Account</Heading>
-                    <Text style={styles.textTitle}>Please enter the verification code which was sent to 
-                        <Text style={{fontWeight: "bold"}}> vitumafeni@yahoo.com</Text>
+                    <Text style={styles.textTitle}>Please enter the verification code which was sent to
+                        <Text style={{fontWeight: "bold"}}> {user_data}</Text>
                     </Text>
                 </View>
 

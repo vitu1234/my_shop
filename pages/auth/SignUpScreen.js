@@ -213,6 +213,7 @@ function SignUpScreen(props) {
                     return <ToastComponent {...ToastDetails} />;
                 },
             });
+            const userData = {email: email, phone: phone}
             setFirstName("")
             setLastName("")
             setEmail("")
@@ -220,7 +221,7 @@ function SignUpScreen(props) {
             setPassword("")
             setConfirmPassword("")
             setConditionsCheck(false)
-            props.navigation.navigate("SignUpVerifyAccount");
+            props.navigation.navigate("SignUpVerifyAccount", {user: userData});
         }
     };
     const goToLogin = () => {
@@ -414,12 +415,6 @@ function SignUpScreen(props) {
                     </View>
 
                     <View style={{marginTop: 10}}>
-                        <Image
-
-                            alt={"Logo"}
-                            style={styles.logo}
-                            source={require("../../assets/app_rs/my_shop_logo.png")}
-                        />
 
                         <HStack style={{alignSelf: "center"}}>
                             <Text fontSize={"md"} mr={2}>Already have an account?</Text>
@@ -436,6 +431,15 @@ function SignUpScreen(props) {
                                 Login
                             </Link>
                         </HStack>
+
+
+                        <Image
+
+                            alt={"Logo"}
+                            style={styles.logo}
+                            source={require("../../assets/app_rs/my_shop_logo.png")}
+                        />
+
 
                     </View>
 
