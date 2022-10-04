@@ -47,7 +47,7 @@ function SignUpScreen(props) {
     const [conditions_check, setConditionsCheck] = React.useState(false);
 
     const SignUpUser = () => {
-        // setIsLoading(true);
+        setIsLoading(true);
 
         if (first_name === "") {
             const ToastDetails = {
@@ -177,7 +177,7 @@ function SignUpScreen(props) {
             setIsSignUpError: setIsSignUpError
         };
         const response = registerUserAccount(data);
-        console.log(response);
+        // console.log(response);
 
     };
 
@@ -213,6 +213,13 @@ function SignUpScreen(props) {
                     return <ToastComponent {...ToastDetails} />;
                 },
             });
+            setFirstName("")
+            setLastName("")
+            setEmail("")
+            setPhone("")
+            setPassword("")
+            setConfirmPassword("")
+            setConditionsCheck(false)
         }
     };
 
