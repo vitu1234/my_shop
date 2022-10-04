@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from "react";
 import {AppContext} from "../app_contexts/AppContext";
-import {Dimensions, Linking, StyleSheet} from "react-native";
+import {Dimensions, Linking, StyleSheet, ToastAndroid} from "react-native";
 import {
     Box,
     Button,
@@ -24,6 +24,7 @@ import Feather from "react-native-vector-icons/Feather";
 
 import ToastComponent from "./components/ToastComponent";
 import {registerUserAccount} from "../config/API";
+import {db} from "../config/sqlite_db_service";
 
 const {width} = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
@@ -33,6 +34,8 @@ function SignUpScreen(props) {
     const [show, setShow] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(false);
     const [isDisabled, setIsDisabled] = React.useState(true);
+
+    // const [isSignUpError, setIsSignUpError] = React.useState(false);
     const toast = useToast();
 
     const [first_name, setFirstName] = React.useState("");
@@ -171,11 +174,48 @@ function SignUpScreen(props) {
             email: email,
             phone: phone,
             password: password,
+            setIsSignUpError: setIsSignUpError
         };
         const response = registerUserAccount(data);
         console.log(response);
 
     };
+
+    const setIsSignUpError = (isError, message) => {
+        setIsLoading(false);
+        if (isError) {
+            const ToastDetails = {
+                id: 14,
+                title: "Sign Up Failed",
+                variant: "left-accent",
+                description: message,
+                isClosable: false,
+                status: "error",
+                duration: 1000,
+            };
+            toast.show({
+                render: () => {
+                    return <ToastComponent {...ToastDetails} />;
+                },
+            });
+        } else {
+            const ToastDetails = {
+                id: 14,
+                title: "Account Created",
+                variant: "left-accent",
+                description: message,
+                isClosable: false,
+                status: "success",
+                duration: 1000,
+            };
+            toast.show({
+                render: () => {
+                    return <ToastComponent {...ToastDetails} />;
+                },
+            });
+        }
+    };
+
 
     useEffect(() => {
         setIsLoading(false);
@@ -199,7 +239,7 @@ function SignUpScreen(props) {
                     <Stack space={4} w="100%" alignItems="center">
 
                         <Input
-                            returnKeyType = "next"
+                            returnKeyType="next"
                             type={"text"}
                             value={first_name}
                             onChangeText={(first_name) => setFirstName(first_name)}
@@ -212,7 +252,7 @@ function SignUpScreen(props) {
                             placeholder="First Name"/>
 
                         <Input
-                            returnKeyType = "next"
+                            returnKeyType="next"
                             type={"text"}
                             value={last_name}
                             onChangeText={(last_name) => setLastName(last_name)}
