@@ -220,7 +220,7 @@ function SignUpScreen(props) {
             setPassword("")
             setConfirmPassword("")
             setConditionsCheck(false)
-            props.navigation.navigate("Login");
+            props.navigation.navigate("SignUpVerifyAccount");
         }
     };
     const goToLogin = () => {
