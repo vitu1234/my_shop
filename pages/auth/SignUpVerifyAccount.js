@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, {useContext, useEffect} from "react";
 import {AppContext} from "../../app_contexts/AppContext";
 import {Dimensions, StyleSheet, TouchableOpacity} from "react-native";
 import {
@@ -25,13 +25,13 @@ function SignUpVerifyAccount(props) {
 
     const user = props.route.params.user;
     const [isLoading, setIsLoading] = React.useState(false);
-    const [isDisabled, setIsDisabled] = React.useState(false);
+    const [isDisabled, setIsDisabled] = React.useState(true);
     const [code, setCode] = React.useState("");
     const user_data = user.email === "" ? user.phone : user.email + '/' + user.phone;
 
     const resendVerificationCode = () => {
-        setIsDisabled(true)
-        setIsLoading(true)
+        // setIsDisabled(true)
+        // setIsLoading(true)
     }
 
     //verify user provided code
@@ -109,6 +109,22 @@ function SignUpVerifyAccount(props) {
     }
 
 
+    useEffect(() => {
+        setIsLoading(false);
+        if (code !== "") {
+            if (code.length === 4){
+                setIsDisabled(false);
+            }else{
+                setIsDisabled(true);
+            }
+
+        } else {
+            setIsDisabled(true);
+        }
+
+    }, [code]);
+
+
     return (
         <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
             <View style={styles.mainContainer}>
@@ -139,8 +155,9 @@ function SignUpVerifyAccount(props) {
 
                     <View style={{marginTop: 20}}>
                         <Button
+                            isDisabled={isDisabled} isLoading={isLoading} isLoadingText="Verifying..."
                             onPress={verifyUserCode}
-                            isDisabled={isDisabled} style={styles.btn}
+                            style={styles.btn}
                             size={"lg"}
                             _text={{
                                 color: "#fff",
@@ -157,7 +174,7 @@ function SignUpVerifyAccount(props) {
                             variant="subtle"
                             colorScheme="dark"
                             leftIcon={<Icon as={Ionicons} color="#fff" name="reload" size={"sm"}/>}
-                            isDisabled={isDisabled} isLoading={isLoading} isLoadingText="Verifying..."
+
                             onPress={resendVerificationCode}
                             size={"sm"}
                             _text={{
