@@ -9,11 +9,11 @@ const db = SQLite.openDatabase(
     version: 2,
   },
   () => {
-    console.log("DB CREATED");
+    // console.log("DB CREATED");
     createTables();
   },
   error => {
-    console.log(error);
+    // console.log(error);
   },
 );
 
@@ -39,7 +39,7 @@ const createTables = () => {
     });
   });
 
-  console.log("TABLES CREATED");
+  // console.log("TABLES CREATED");
 };
 
 const deleteAllHomescreenProducts = async () => {
@@ -115,9 +115,9 @@ const getAllProductsHomeScreen = () => {
       [],
       (tx, results) => {
 
-        console.log("len");
+        // console.log("len");
         const len = results.rows.length;
-        console.log(len);
+        // console.log(len);
       },
     );
   });
