@@ -177,7 +177,7 @@ const getProductsScreen = async (props) => {
 
 //register user account
 const registerUserAccount = async (props) => {
-    console.log(props);
+    // console.log(props);
     // Example POST method implementation:
 
     // Default options are marked with *
@@ -210,4 +210,83 @@ const registerUserAccount = async (props) => {
 
 };
 
-export {base_url, getProductsScreen, getHomeScreen, registerUserAccount, base_urlImages};
+//verify code sent to user after register
+const registerVerifyCodeUserAccount = async (props) => {
+    // console.log(props);
+    // Example POST method implementation:
+
+    // Default options are marked with *
+    const response = await fetch(`${base_url}/user/verify_email_phone_code`, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(props), // body data type must match "Content-Type" header
+    }).then((response) => response.json())
+        .then((data) => {
+            console.log("data");
+            console.log(data);
+            console.log("data")
+            props.setIsVerifyAccountError(data.isError, data.message);
+        })
+        .catch((err) => {
+            console.log(err);
+            props.setIsVerifyAccountError(true, err.message);
+        });
+
+    // return response.json(); // parses JSON response into native JavaScript objects
+
+
+};
+
+//login user account
+const userLogin = async (props) => {
+    // console.log(props);
+    // Example POST method implementation:
+
+    // Default options are marked with *
+    const response = await fetch(`${base_url}/user/verify_email_phone_code`, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(props), // body data type must match "Content-Type" header
+    }).then((response) => response.json())
+        .then((data) => {
+            console.log("data");
+            console.log(data);
+            console.log("data")
+            props.setIsVerifyAccountError(data.isError, data.message);
+        })
+        .catch((err) => {
+            console.log(err);
+            props.setIsVerifyAccountError(true, err.message);
+        });
+
+    // return response.json(); // parses JSON response into native JavaScript objects
+
+
+};
+
+
+export {
+    base_url,
+    getProductsScreen,
+    getHomeScreen,
+    registerUserAccount,
+    registerVerifyCodeUserAccount,
+    userLogin,
+    base_urlImages
+};
