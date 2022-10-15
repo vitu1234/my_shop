@@ -32,7 +32,7 @@ function LoginScreen(props) {
 
 
     const loginUser = () => {
-        // setIsLoading(true);
+        setIsLoading(true);
         if (email !== "" && password !== "") {
             setIsDisabled(false);
         } else {
@@ -102,12 +102,7 @@ function LoginScreen(props) {
                     return <ToastComponent {...ToastDetails} />;
                 },
             });
-
-            console.log("will go home")
-            // console.log(user_data)
-
-
-            // goToHome()
+            goToHome()
         }
     };
 
