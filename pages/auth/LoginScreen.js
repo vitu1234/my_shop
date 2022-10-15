@@ -86,7 +86,7 @@ function LoginScreen(props) {
                     return <ToastComponent {...ToastDetails} />;
                 },
             });
-            setPassword("")
+            // setPassword("")
         } else {
             const ToastDetails = {
                 id: 14,
