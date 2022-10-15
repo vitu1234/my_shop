@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React from "react";
-import {db, deleteAllHomescreenProducts, deleteAllProducts} from "./sqlite_db_service";
+import {db, deleteAllHomescreenProducts, deleteAllProducts, saveLoggedInUser} from "./sqlite_db_service";
 
 
 // require('dotenv/config');
@@ -251,7 +251,7 @@ const userLogin = async (props) => {
     // Example POST method implementation:
 
     // Default options are marked with *
-    const response = await fetch(`${base_url}/user/verify_email_phone_code`, {
+    const response = await fetch(`${base_url}/auth/login`, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -265,14 +265,16 @@ const userLogin = async (props) => {
         body: JSON.stringify(props), // body data type must match "Content-Type" header
     }).then((response) => response.json())
         .then((data) => {
-            console.log("data");
-            console.log(data);
-            console.log("data")
-            props.setIsVerifyAccountError(data.isError, data.message);
+            console.log(data)
+            //if user logged in save into localdb
+            if (!data.isError) {
+                saveLoggedInUser(data.user_data)
+            }
+            props.setIsLoginError(data.isError, data.message);
         })
         .catch((err) => {
             console.log(err);
-            props.setIsVerifyAccountError(true, err.message);
+            props.setIsLoginError(true, err.message);
         });
 
     // return response.json(); // parses JSON response into native JavaScript objects
