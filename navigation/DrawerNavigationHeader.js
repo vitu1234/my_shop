@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {HStack, View, Text, Image} from "native-base";
 import Icon from "react-native-vector-icons/AntDesign";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons";
@@ -6,13 +6,14 @@ import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from "reac
 import {ProductFilterModalContext, CartContext, AppContext} from "../app_contexts/AppContext";
 import {useRoute} from "@react-navigation/native";
 import {navibar_profile_styles} from "../styles/AllStyles";
-import {deleteAllUserData} from "../config/sqlite_db_service";
+import {deleteAllUserData, getLoggedInUser} from "../config/sqlite_db_service";
 
 
 function DrawerNavigationHeader(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isModalVisibleProducts, setIsModalVisibleProducts] = useContext(ProductFilterModalContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
+    const [user, setLoggedInUser] = useState([])
 
     const route = useRoute();
     // console.log(route.name);
@@ -43,7 +44,8 @@ function DrawerNavigationHeader(props) {
 
     //login status checker
     if (isLoggedIn) {
-
+        console.log(getLoggedInUser())
+        // console.log('HAHAHAdH')
     } else {
 
     }
@@ -139,7 +141,7 @@ function DrawerNavigationHeader(props) {
                         </TouchableOpacity>
                     ]
                     :
-                    <TouchableOpacity style={{margin:16}} onPress={gotToLogin}>
+                    <TouchableOpacity style={{margin: 16}} onPress={gotToLogin}>
                         <Icon
                             name="login"
                             color={"#000"}

@@ -4,9 +4,9 @@ import SQLite from "react-native-sqlite-storage";
 
 const db = SQLite.openDatabase(
     {
-        name: "MainDB1",
+        name: "my_shop_db",
         location: "default",
-        version: 2,
+        version: 2.1,
     },
     () => {
         // console.log("DB CREATED");
@@ -40,7 +40,7 @@ const createTables = () => {
 
         db.transaction((tx) => {
             tx.executeSql(
-                "CREATE TABLE IF NOT EXISTS \"user\" ( user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT NOT NULL, profile_img TEXT NOT NULL DEFAULT \"noimage.jpg\", is_active INTEGER NOT NULL DEFAULT 1, is_verified INTEGER NOT NULL DEFAULT 0,access_token TEXT NOT NULL)");
+                "CREATE TABLE IF NOT EXISTS \"user\" ( user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT NOT NULL, profile_img TEXT NOT NULL DEFAULT \"noimage.jpg\",access_token TEXT NULL, is_active INTEGER NOT NULL DEFAULT 1, is_verified INTEGER NOT NULL DEFAULT 0)");
         });
     });
 
@@ -143,6 +143,8 @@ const deleteAllUserData = async () => {
 };
 
 const saveLoggedInUser = async (user_data) => {
+    console.log("Saved USer")
+    console.log(user_data)
     deleteAllUserData();
     db.transaction(async (tx) => {
         await tx.executeSql(
@@ -150,7 +152,33 @@ const saveLoggedInUser = async (user_data) => {
             [user_data.user_id, user_data.first_name, user_data.last_name, user_data.phone, user_data.email, user_data.profile_img, user_data.is_active, user_data.is_verified, user_data.access_token],
         );
     });
+
+
 }
+
+//get logged in user
+const getLoggedInUser = () => {
+    const temp = [];
+    db.transaction((tx) => {
+        tx.executeSql(
+            "SELECT * FROM user",
+            [],
+            (tx, results) => {
+                const len = results.rows.length;
+                console.log(len)
+                for (let i = 0; i < results.rows.length; ++i) {
+                    temp.push(results.rows.item(i));
+                }
+
+
+            },
+        );
+    });
+    // console.log('taDaa!')
+    // console.log(temp)
+    return temp;
+};
+
 
 export {
     db,
@@ -159,5 +187,6 @@ export {
     getAllProductsHomeScreen,
     deleteAllProducts,
     deleteAllHomescreenProducts,
-    deleteAllUserData
+    deleteAllUserData,
+    getLoggedInUser
 };
