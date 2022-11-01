@@ -4,7 +4,7 @@ import {View, StyleSheet, ToastAndroid} from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import {Dimensions} from "react-native";
 import ProductCard from "./components/ProductCard";
-import {CartContext} from "../app_contexts/AppContext";
+import {AppContext, CartContext} from "../app_contexts/AppContext";
 import SQLite from "react-native-sqlite-storage";
 import Divider from "native-base/src/components/composites/Divider/index";
 
@@ -19,8 +19,10 @@ import ContentLoader from "react-native-easy-content-loader";
 
 
 function HomeScreen(props) {
-    const [categoryActive, setCategoryActive] = useState(-1);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+    const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
+
+    const [categoryActive, setCategoryActive] = useState(-1);
     const [IsAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
     const [IsAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
@@ -125,14 +127,19 @@ function HomeScreen(props) {
 
     useEffect(() => {
         setCartCounterNumber();
+        const isLoggedIn = getLoggedInUser()
+        console.log('user')
+        console.log(isLoggedIn)
+        console.log('user')
+
+        if (isLoggedIn) {
+            setLoggedInStatus(true)
+        } else {
+            setLoggedInStatus(false)
+        }
+
         getHomeScreen({homeScreenLoading}).then(r => {
-            const user = getLoggedInUser()
-            console.log('user')
-            console.log(user)
-            console.log('user')
         });
-
-
     }, []);
 
     const renderCategoryList = categories.map((category) => {
