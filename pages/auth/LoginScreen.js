@@ -15,6 +15,7 @@ import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Feather from "react-native-vector-icons/Feather";
 import ToastComponent from "../components/ToastComponent";
+import {userLogin} from "../../config/API";
 
 const {width} = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
@@ -37,8 +38,26 @@ function LoginScreen(props) {
         } else {
             setIsDisabled(true);
         }
-    }
+        let data = ''
+        let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+        if (reg.test(email) === false) {
+            data = {
+                phone: email,
+                password: password,
+                setIsLoginError: setIsLoginError
+            };
+        } else {
+            data = {
+                email: email,
+                password: password,
+                setIsLoginError: setIsLoginError
+            };
+            console.log("Value is not an email address!");
+        }
+        const response = userLogin(data);
 
+
+    }
 
     const goToForgetPassword = () => {
         props.navigation.navigate("ForgetPassword");
@@ -67,7 +86,7 @@ function LoginScreen(props) {
                     return <ToastComponent {...ToastDetails} />;
                 },
             });
-            setPassword("")
+            // setPassword("")
         } else {
             const ToastDetails = {
                 id: 14,
@@ -89,6 +108,7 @@ function LoginScreen(props) {
 
     //login user and go to homescreen
     const goToHome = () => {
+        setLoggedInStatus(true)
         props.navigation.navigate("Drawer");
     }
 
