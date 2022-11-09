@@ -265,7 +265,7 @@ const userLogin = async (props) => {
     body: JSON.stringify(props), // body data type must match "Content-Type" header
   }).then((response) => response.json())
     .then((data) => {
-      console.log(data);
+
       //if user logged in save into localdb
       if (!data.isError) {
         saveLoggedInUser(data.user_data);
@@ -284,7 +284,7 @@ const userLogin = async (props) => {
 
 //get registered user account | checks user token validity
 const getUserAccount = async (props) => {
-  console.log(`${props.access_token}:ACCESS TOKEN`)
+  // console.log(`${props.access_token}:ACCESS TOKEN`)
   // Default options are marked with *
   const response = await fetch(`${base_url}/auth/profile`, {
     method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -298,17 +298,17 @@ const getUserAccount = async (props) => {
     },
     redirect: "follow", // manual, *follow, error
     referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    body: JSON.stringify(props), // body data type must match "Content-Type" header
+    // body: JSON.stringify(props), // body data type must match "Content-Type" header
   }).then((response) => response.json())
     .then((data) => {
-      console.log("data ACCESS");
-      console.log(data);
-      console.log("data");
-      // props.setIsSignUpError(data.isError, data.message);
+      // console.log("data ACCESS");
+      // console.log(data);
+      // console.log("data");
+      props.setIsTokenError(data.isError, data.message);
     })
     .catch((err) => {
-      console.log(err);
-      // props.setIsSignUpError(true, err.message);
+      // console.log(err);
+      props.setIsTokenError(true, err.message);
     });
 
 };

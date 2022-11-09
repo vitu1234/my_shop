@@ -20,8 +20,8 @@ const Stack = createNativeStackNavigator();
 function StackNavigator(props) {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="AuthLoadingScreen" component={AuthLoadingScreen} options={{
+      <Stack.Navigator initialRouteName={'AuthLoadingScreen'}>
+        <Stack.Screen  name="AuthLoadingScreen" component={AuthLoadingScreen} options={{
           headerShown: false,
         }} />
         <Stack.Screen

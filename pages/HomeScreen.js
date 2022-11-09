@@ -19,6 +19,7 @@ import ContentLoader from "react-native-easy-content-loader";
 
 
 function HomeScreen(props) {
+  console.log(props.navigation);
   const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
 

@@ -143,9 +143,9 @@ const deleteAllUserData = async () => {
 };
 
 const saveLoggedInUser = async (user_data) => {
-  console.log("Saved USer");
-  console.log(user_data);
-  deleteAllUserData();
+  // console.log("Saved USer");
+  // console.log(user_data);
+  await deleteAllUserData();
   db.transaction(async (tx) => {
     await tx.executeSql(
       "INSERT INTO user(user_id,first_name,last_name,phone,email,profile_img,is_active,is_verified,access_token) VALUES (?,?,?,?,?,?,?,?,?);",
@@ -156,26 +156,6 @@ const saveLoggedInUser = async (user_data) => {
 
 };
 
-//get logged in user
-const getLoggedInUser = () => {
-  const temp = [];
-  db.transaction((tx) => {
-    tx.executeSql(
-      "SELECT * FROM user",
-      [],
-      (tx, results) => {
-        // const len = results.rows.length;
-        // console.log(len);
-        for (let i = 0; i < results.rows.length; ++i) {
-          temp.push(results.rows.item(i));
-        }
-      },
-    );
-  });
-  // console.log('taDaa!')
-  // console.log(temp)
-  return temp;
-};
 
 
 export {
@@ -186,5 +166,4 @@ export {
   deleteAllProducts,
   deleteAllHomescreenProducts,
   deleteAllUserData,
-  getLoggedInUser,
 };
