@@ -6,7 +6,6 @@ import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity} from "reac
 import {ProductFilterModalContext, CartContext, AppContext} from "../app_contexts/AppContext";
 import {useRoute} from "@react-navigation/native";
 import {navibar_profile_styles} from "../styles/AllStyles";
-import {deleteAllUserData, getLoggedInUser} from "../config/sqlite_db_service";
 
 
 function DrawerNavigationHeader(props) {
@@ -39,7 +38,7 @@ function DrawerNavigationHeader(props) {
     };
     const gotToLogout = () => {
         setLoggedInStatus(false)
-        deleteAllUserData()
+        // deleteAllUserData()
     }
 
     //login status checker

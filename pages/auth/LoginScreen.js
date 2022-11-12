@@ -52,7 +52,7 @@ function LoginScreen(props) {
                 password: password,
                 setIsLoginError: setIsLoginError
             };
-            console.log("Value is not an email address!");
+            // console.log("Value is not an email address!");
         }
         const response = userLogin(data);
 
