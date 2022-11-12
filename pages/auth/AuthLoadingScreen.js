@@ -21,9 +21,9 @@ function AuthLoadingScreen(props) {
   }, []);
 
   useEffect(() => {
-      if (!isLoadingScreen) {
-        props.navigation.replace("Drawer", { isLoggedIn: isLoggedIn }); //navigates by removing current screen from history stack
-      }
+    if (!isLoadingScreen) {
+      props.navigation.replace("Drawer", { isLoggedIn: isLoggedIn }); //navigates by removing current screen from history stack
+    }
 
   }, [isLoadingScreen]);
 
@@ -58,10 +58,10 @@ function AuthLoadingScreen(props) {
           if (user.length === 0) {
             setIsLoadingScreen(false);
             setLoggedInStatus(false);
-            console.log("no user")
+            // console.log("no user")
             // props.navigation.replace("Drawer", { isLoggedIn: false }); //navigates by removing current screen from history stack
           } else {
-            console.log("UUSER EXISTS")
+            // console.log("UUSER EXISTS")
             const data = {
               access_token: user[0].access_token,
               setIsTokenError: setIsTokenError,
@@ -75,10 +75,17 @@ function AuthLoadingScreen(props) {
 
 
   return (
-    <View>
+    <View style={{
+      padding: 16,
+      marginTop: 5,
+
+    }}>
       {
         isLoadingScreen ? <View>
-          <HStack space={2} alignItems="center">
+          <HStack style={{
+            alignItems: "center",
+            justifyContent: "center",
+          }} space={2} alignItems="center">
             <Spinner accessibilityLabel="Loading..." />
             <Heading color="primary.500" fontSize="md">
               Loading...

@@ -7,6 +7,9 @@ import { db, deleteAllHomescreenProducts, deleteAllProducts, saveLoggedInUser } 
 const base_url = "http://192.168.0.5/my_shop/my_shop_api/public/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
+//===================================================================
+//GET METHODS
+//===================================================================
 const getHomeScreen = async (props) => {
 
   try {
@@ -175,6 +178,40 @@ const getProductsScreen = async (props) => {
 
 };
 
+//get registered user account | checks user token validity
+const getUserAccount = async (props) => {
+  // console.log(`${props.access_token}:ACCESS TOKEN`)
+  // Default options are marked with *
+  const response = await fetch(`${base_url}/auth/profile`, {
+    method: "GET", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${props.access_token}`,
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    // body: JSON.stringify(props), // body data type must match "Content-Type" header
+  }).then((response) => response.json())
+    .then((data) => {
+      // console.log("data ACCESS");
+      // console.log(data);
+      // console.log("data");
+      props.setIsTokenError(data.isError, data.message);
+    })
+    .catch((err) => {
+      // console.log(err);
+      props.setIsTokenError(true, err.message);
+    });
+
+};
+
+//=======================================================================
+//POST METHODS
+//=======================================================================
 //register user account
 const registerUserAccount = async (props) => {
   // console.log(props);
@@ -195,13 +232,13 @@ const registerUserAccount = async (props) => {
     body: JSON.stringify(props), // body data type must match "Content-Type" header
   }).then((response) => response.json())
     .then((data) => {
-      console.log("data");
-      console.log(data);
-      console.log("data");
+      // console.log("data");
+      // console.log(data);
+      // console.log("data");
       props.setIsSignUpError(data.isError, data.message);
     })
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
       props.setIsSignUpError(true, err.message);
     });
 
@@ -230,13 +267,13 @@ const registerVerifyCodeUserAccount = async (props) => {
     body: JSON.stringify(props), // body data type must match "Content-Type" header
   }).then((response) => response.json())
     .then((data) => {
-      console.log("data");
-      console.log(data);
-      console.log("data");
+      // console.log("data");
+      // console.log(data);
+      // console.log("data");
       props.setIsVerifyAccountError(data.isError, data.message);
     })
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
       props.setIsVerifyAccountError(true, err.message);
     });
 
@@ -273,7 +310,7 @@ const userLogin = async (props) => {
       props.setIsLoginError(data.isError, data.message);
     })
     .catch((err) => {
-      console.log(err);
+      // console.log(err);
       props.setIsLoginError(true, err.message);
     });
 
@@ -282,45 +319,14 @@ const userLogin = async (props) => {
 
 };
 
-//get registered user account | checks user token validity
-const getUserAccount = async (props) => {
-  // console.log(`${props.access_token}:ACCESS TOKEN`)
-  // Default options are marked with *
-  const response = await fetch(`${base_url}/auth/profile`, {
-    method: "GET", // *GET, POST, PUT, DELETE, etc.
-    mode: "cors", // no-cors, *cors, same-origin
-    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: "same-origin", // include, *same-origin, omit
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${props.access_token}`,
-      // 'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    redirect: "follow", // manual, *follow, error
-    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    // body: JSON.stringify(props), // body data type must match "Content-Type" header
-  }).then((response) => response.json())
-    .then((data) => {
-      // console.log("data ACCESS");
-      // console.log(data);
-      // console.log("data");
-      props.setIsTokenError(data.isError, data.message);
-    })
-    .catch((err) => {
-      // console.log(err);
-      props.setIsTokenError(true, err.message);
-    });
-
-};
-
 
 export {
   base_url,
+  base_urlImages,
   getProductsScreen,
   getHomeScreen,
+  getUserAccount,
   registerUserAccount,
   registerVerifyCodeUserAccount,
   userLogin,
-  base_urlImages,
-  getUserAccount,
 };
