@@ -1,14 +1,18 @@
 import React, { useContext } from "react";
-import { HStack, View, Text, Image } from "native-base";
+import { HStack, View, Text, Image, useToast } from "native-base";
 import Icon from "react-native-vector-icons/AntDesign";
 import { Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity } from "react-native";
 import { AppContext, CartContext } from "../app_contexts/AppContext";
 import { navibar_profile_styles } from "../styles/AllStyles";
+import { deleteAllUserData } from "../config/sqlite_db_service";
+import ToastComponent from "../pages/components/ToastComponent";
+
 
 // import {CartContext} from '../app_contexts/CartContext';
 
 
 function StackNavigationHeader(props) {
+  const toast = useToast();
   const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
   const navigator = props.data.navigation;
@@ -28,7 +32,21 @@ function StackNavigationHeader(props) {
 
   const gotToLogout = () => {
     setLoggedInStatus(false);
-    // deleteAllUserData()
+    deleteAllUserData();
+    const ToastDetails = {
+      id: 14,
+      title: "Success",
+      variant: "left-accent",
+      description: "Logout successful",
+      isClosable: false,
+      status: "success",
+      duration: 1000,
+    };
+    toast.show({
+      render: () => {
+        return <ToastComponent {...ToastDetails} />;
+      },
+    });
   };
 
   return (
@@ -52,7 +70,7 @@ function StackNavigationHeader(props) {
                   height: 16,
                   borderRadius: 15 / 2,
                   right: -8,
-                  top: -5,
+                  top: 5,
                   alignItems: "center",
                   justifyContent: "center",
                 }}>

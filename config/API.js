@@ -1,6 +1,12 @@
 import "react-native-gesture-handler";
 import React from "react";
-import { db, deleteAllHomescreenProducts, deleteAllProducts, saveLoggedInUser } from "./sqlite_db_service";
+import {
+  db,
+  deleteAllHomescreenProducts,
+  deleteAllProducts,
+  deleteAllUserData,
+  saveLoggedInUser,
+} from "./sqlite_db_service";
 
 
 // require('dotenv/config');
@@ -329,4 +335,5 @@ export {
   registerUserAccount,
   registerVerifyCodeUserAccount,
   userLogin,
+  // userLogout,
 };
