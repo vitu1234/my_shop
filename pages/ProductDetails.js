@@ -9,13 +9,11 @@ import { AppContext, CartContext } from "../app_contexts/AppContext";
 import SQLite from "react-native-sqlite-storage";
 import AddtoCartActionSheet from "./components/AddtoCartActionSheet";
 import { base_urlImages } from "../config/API";
-import {db} from '../config/sqlite_db_service'
+import { db } from "../config/sqlite_db_service";
 
 
 const { width } = Dimensions.get("window");
 const windowHeight = Dimensions.get("window").height;
-
-
 
 
 function ProductDetails(props) {
@@ -27,8 +25,13 @@ function ProductDetails(props) {
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
   const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
   const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [isAddingToCartBtn, setIsAddingToCartBtn] = useState(false);
+  const [isPlusToCartBtnDisabled, setIsPlusToCartBtnDisabled] = useState(false);
+  const [isMinusToCartBtnDisabled, setIsMinusToCartBtnDisabled] = useState(false);
 
+  const [productsTotalAmount, setProductsTotalAmount] = useState(0);
 
+// console.log(product)
   const setCartCounterNumber = () => {
     //update cart counter
     db.transaction((tx) => {
@@ -37,8 +40,20 @@ function ProductDetails(props) {
         [],
         (tx, results) => {
           const len = results.rows.length;
+          let amountTotal = 0;
+          const temp = [];
+
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+
+            amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
+          }
+
+
+          setProductsTotalAmount(amountTotal);
           setCartItemsCount(len);
-          console.log("COUNTING");
+
+          // console.log("COUNTING");
         },
       );
     });
@@ -46,19 +61,22 @@ function ProductDetails(props) {
 
 
   useEffect(() => {
+    if (productQty === 1) {
+      setIsMinusToCartBtnDisabled(true);
+    }
     setProductPrice(productQty * (parseFloat(product.price)));
     setCartCounterNumber();
 
-  }, [productQty, cartItemsCount]);
+  }, [productQty, cartItemsCount, productsTotalAmount]);
 
 
   const addToCart = async () => {
-    console.log("added to cart");
-    console.log(product);
+    // console.log("added to cart");
+    // console.log(product);
     // setProductQty(productQty);
     //check if there are products in cart
 
-
+    setIsAddingToCartBtn(true);
     try {
       //insert into cart
       await db.transaction((tx) => {
@@ -69,15 +87,35 @@ function ProductDetails(props) {
           ],
           (tx, results) => {
             const len = results.rows.length;
-            console.log("dhdhd " + len);
+            // console.log("dhdhd " + len);
             if (len > 0) {
               db.transaction(async (tx) => {
                 await tx.executeSql(
                   "UPDATE cart SET qty=? WHERE product_id = ?",
                   [productQty, product.product_id],
                   () => {
-                    console.log("updated");
-                    Alert.alert("Success!", "Your data has been updated.");
+                    // console.log("updated");
+                    // Alert.alert("Success!", "Your data has been updated.");
+                    db.transaction((tx) => {
+                      tx.executeSql(
+                        "SELECT * FROM cart",
+                        [],
+                        (tx, results) => {
+
+                          let amountTotal = 0;
+                          const temp = [];
+
+                          for (let i = 0; i < results.rows.length; ++i) {
+                            temp.push(results.rows.item(i));
+
+                            amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
+                          }
+
+                          setProductsTotalAmount(amountTotal);
+                          setCartItemsCount(results.rows.length);
+                        },
+                      );
+                    });
                   },
                   error => {
                     console.log(error);
@@ -91,14 +129,24 @@ function ProductDetails(props) {
                   "INSERT INTO cart(product_id,product_name,product_price,qty,img_url) VALUES (?,?,?,?,?);",
                   [product.product_id, product.product_name, product.price, productQty, product.img_url],
                 );
-                console.log("added to sqlite");
+                // console.log("added to sqlite");
                 db.transaction((tx) => {
                   tx.executeSql(
                     "SELECT * FROM cart",
                     [],
                     (tx, results) => {
+
+                      let amountTotal = 0;
+                      const temp = [];
+
+                      for (let i = 0; i < results.rows.length; ++i) {
+                        temp.push(results.rows.item(i));
+
+                        amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
+                      }
+
+                      setProductsTotalAmount(amountTotal);
                       setCartItemsCount(results.rows.length);
-                      console.log("hmm cart" + results.rows.length);
                     },
                   );
                 });
@@ -114,28 +162,55 @@ function ProductDetails(props) {
           "SELECT * FROM cart",
           [],
           (tx, results) => {
+            let amountTotal = 0;
+            const temp = [];
+
+            for (let i = 0; i < results.rows.length; ++i) {
+              temp.push(results.rows.item(i));
+
+              amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
+            }
+
+
+            setProductsTotalAmount(amountTotal);
             setCartItemsCount(results.rows.length);
-            console.log("hmm cart" + results.rows.length);
           },
         );
       });
 
 
     } catch (e) {
-      console.log(e);
+      // console.log(e);
     }
-    setBottomSheetOpen(true);
+    // setTimeout(setBottomSheetOpen(true), 2000);
+    // setBottomSheetOpen(true);
+    setTimeout(() => {
+      setBottomSheetOpen(true);
+      setIsAddingToCartBtn(false);
+    }, 1000);
+
   };
 
   const addProductQty = () => {
-    setProductQty(productQty + 1);
+    //amount should not exit the qty in inventory
+    const before_add = productQty + 1;
+    if (before_add <= product.qty) {
+      setProductQty(productQty + 1);
+      setIsPlusToCartBtnDisabled(false);
+      setIsMinusToCartBtnDisabled(false);
+    } else {
+      setIsPlusToCartBtnDisabled(true);
+    }
   };
 
   const minusProductQty = () => {
     if (productQty === 1) {
       setProductQty(1);
+      setIsMinusToCartBtnDisabled(true);
     } else {
       setProductQty(productQty - 1);
+      setIsPlusToCartBtnDisabled(false);
+      setIsMinusToCartBtnDisabled(false);
     }
   };
 
@@ -174,11 +249,11 @@ function ProductDetails(props) {
                 <HStack space={5}
                         style={{ alignItems: "center" }}>
 
-                  <Button onPress={minusProductQty} variant={"outline"} size="sm">
+                  <Button isDisabled={isMinusToCartBtnDisabled} onPress={minusProductQty} variant={"outline"} size="sm">
                     <Icon name="minus" size={15} color="#000" />
                   </Button>
                   <Text style={{ fontSize: 16, color: "grey", fontWeight: "bold" }}>{productQty}</Text>
-                  <Button onPress={addProductQty} variant={"outline"} size="sm">
+                  <Button isDisabled={isPlusToCartBtnDisabled} onPress={addProductQty} variant={"outline"} size="sm">
                     <Icon name="plus" size={15} color="#000" />
                   </Button>
                 </HStack>
@@ -204,7 +279,8 @@ function ProductDetails(props) {
             <View>
 
 
-              <Button onPress={addToCart} size="sm" variant="subtle" colorScheme="dark">
+              <Button isLoading={isAddingToCartBtn} isLoadingText={"Adding..."} onPress={addToCart} size="sm"
+                      variant="subtle" colorScheme="dark">
                 <HStack space={2}>
                   <Icon name="shoppingcart" size={20} color="#fff" />
                   <Text style={{ color: "#fff" }}>Add to Cart</Text>
@@ -217,7 +293,8 @@ function ProductDetails(props) {
 
         </View>
       </Center>
-      <AddtoCartActionSheet openCart={openCart} setStatus={setBottomSheetOpen} isOpen={isBottomSheetOpen} />
+      <AddtoCartActionSheet openCart={openCart} setStatus={setBottomSheetOpen} isOpen={isBottomSheetOpen}
+                            productsTotalAmount={productsTotalAmount} cartItemsCount={cartItemsCount} />
     </ScrollView>
   );
 };

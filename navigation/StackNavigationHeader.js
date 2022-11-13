@@ -70,7 +70,7 @@ function StackNavigationHeader(props) {
                   height: 16,
                   borderRadius: 15 / 2,
                   right: -8,
-                  top: -5,
+                  top: 5,
                   alignItems: "center",
                   justifyContent: "center",
                 }}>
