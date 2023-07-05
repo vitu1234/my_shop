@@ -4,8 +4,8 @@ import { db, deleteAllProducts, deleteAllHomescreenProducts } from "./sqlite_db_
 
 
 // require('dotenv/config');
-const base_url = "http://192.168.0.5/my_shop/my_shop_api/public/api";
-const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
+const base_url = "http://192.168.0.13/my_shop/api/public/api";
+const base_urlImages = "http://192.168.0.13/my_shop/api/storage/app/public";
 
 const getHomeScreen = async (props) => {
 

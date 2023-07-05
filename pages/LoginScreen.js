@@ -38,6 +38,12 @@ function LoginScreen(props) {
     <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
+          <Image
+
+              alt={"Logo"}
+              style={styles.logo}
+              source={require("../assets/app_rs/my_shop_logo.png")}
+          />
           <Text style={styles.textTitle}>Hey there,</Text>
           <Heading style={styles.textSubTitle} size="lg">Welcome Back</Heading>
         </View>
@@ -55,7 +61,7 @@ function LoginScreen(props) {
               placeholder="Username or email" />
 
             <Input
-              mt={7}
+              mt={3}
               w={{
                 base: "100%",
                 md: "25%",
@@ -76,7 +82,17 @@ function LoginScreen(props) {
 
           </Stack>
 
-          <View style={{ marginTop: 30, alignSelf: "center", padding:5 }}>
+          <View style={{ marginTop: 20 }}>
+            <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
+                    _text={{
+                      color: "#fff",
+                    }}>
+              Login
+            </Button>
+
+          </View>
+
+          <View style={{ marginTop: 2, padding:2 }}>
             <Link onPress={goToForgetPassword} _text={{
               fontSize: "md",
               fontWeight: 700,
@@ -89,25 +105,12 @@ function LoginScreen(props) {
             </Link>
           </View>
 
-          <View style={{ marginTop: 50 }}>
-            <Button onPress={() => console.log("hahah")} style={styles.btn} size={"lg"}
-                    _text={{
-                      color: "#fff",
-                    }}>
-              Login
-            </Button>
 
-          </View>
 
-          <View style={{ marginTop: 100 }}>
-            <Image
+          <View style={{ marginTop: 10 }}>
 
-              alt={"Logo"}
-              style={styles.logo}
-              source={require("../assets/app_rs/my_shop_logo.png")}
-            />
 
-            <HStack style={{ alignSelf: "center" }}>
+            <HStack style={{ padding: 2 }}>
               <Text fontSize={"md"} mr={2}>Don't have an account yet?</Text>
               <Link onPress={goToRegister}  _text={{
                 fontSize: "md",

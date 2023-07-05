@@ -191,6 +191,12 @@ function SignUpScreen(props) {
     <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
+          <Image
+
+              alt={"Logo"}
+              style={styles.logo}
+              source={require("../assets/app_rs/my_shop_logo.png")}
+          />
           <Text style={styles.textTitle}>Hey there,</Text>
           <Heading style={styles.textSubTitle} size="lg">Create an Account</Heading>
         </View>
@@ -349,12 +355,7 @@ function SignUpScreen(props) {
           </View>
 
           <View style={{ marginTop: 10 }}>
-            <Image
 
-              alt={"Logo"}
-              style={styles.logo}
-              source={require("../assets/app_rs/my_shop_logo.png")}
-            />
 
             <HStack style={{ alignSelf: "center" }}>
               <Text fontSize={"md"} mr={2}>Already have an account?</Text>
