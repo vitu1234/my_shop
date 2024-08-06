@@ -1,7 +1,7 @@
 import "react-native-gesture-handler";
 import React from "react";
 import {
-    // db,
+    db,
     deleteAllHomescreenProducts,
     deleteAllProducts,
     deleteAllUserData,
@@ -10,8 +10,8 @@ import {
 
 
 // require('dotenv/config');
-const base_url = "http://192.168.3.200/api";
-const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
+const base_url = "http://192.168.3.200:5000/api";
+const base_urlImages = "http://192.168.200.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================
 //GET METHODS
@@ -25,32 +25,32 @@ const getHomeScreen = async (props) => {
         })
             .then((response) => response.json())
             .then((data) => {
-                // console.log(data.products_homescreen);
+                console.log(data.products_homescreen);
                 //delete old data
-                deleteAllHomescreenProducts();
-
-                //loop through all categories and insert into database
-                data.categories.map(async (category) => {
-                    //insert in database
-                    await db.transaction(async (tx) => {
-                        await tx.executeSql(
-                            "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                            [category.category_id, category.category_name],
-                        );
-                    });
-                });
-
-                data.products_homescreen.map(async (product) => {
-                    //insert in database
-
-                    db.transaction(async (tx) => {
-
-                        await tx.executeSql(
-                            "INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);",
-                            [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],
-                        );
-                    });
-                });
+                // deleteAllHomescreenProducts();
+                //
+                // //loop through all categories and insert into database
+                // data.categories.map(async (category) => {
+                //     //insert in database
+                //     await db.transaction(async (tx) => {
+                //         await tx.executeSql(
+                //             "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+                //             [category.category_id, category.category_name],
+                //         );
+                //     });
+                // });
+                //
+                // data.products_homescreen.map(async (product) => {
+                //     //insert in database
+                //
+                //     db.transaction(async (tx) => {
+                //
+                //         await tx.executeSql(
+                //             "INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);",
+                //             [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],
+                //         );
+                //     });
+                // });
                 props.homeScreenLoading(false, "Fetch data success");
             })
             .catch((err) => {

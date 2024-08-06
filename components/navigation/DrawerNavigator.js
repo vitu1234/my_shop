@@ -7,7 +7,9 @@ import DrawerNavigationHeader from "./DrawerNavigationHeader";
 import CartScreen from "../pages/CartScreen";
 import FlashProducts from "../pages/FlashProducts";
 import Products from "../pages/Products";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { House, ShoppingBag, CircleUser,AlignJustify } from 'lucide-react-native';
+
+
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -26,11 +28,12 @@ function DrawerNavigator(props) {
                            navigator: navigationData,
                          }} />,
                          drawerIcon: ({ focused, size }) => (
-                           <Ionicons
-                             name="md-home"
-                             size={size}
-                             color={focused ? "#2780e3" : "#ccc"}
-                           />
+                           // <Ionicons
+                           //   name="md-home"
+                           //   size={size}
+                           //   color={focused ? "#2780e3" : "#ccc"}
+                           // />
+                         <House size={size} color={focused ? "#2780e3" : "#ccc"} />
                          ),
                        }
                      }
@@ -39,11 +42,7 @@ function DrawerNavigator(props) {
         {
 
           drawerIcon: ({ focused, size }) => (
-            <Ionicons
-              name="person-circle-outline"
-              size={size}
-              color={focused ? "#2780e3" : "#ccc"}
-            />
+                  <CircleUser size={size} color={focused ? "#2780e3" : "#ccc"} />
           ),
         }
       }
@@ -53,11 +52,7 @@ function DrawerNavigator(props) {
                        {
 
                          drawerIcon: ({ focused, size }) => (
-                           <Ionicons
-                             name="cart-outline"
-                             size={size}
-                             color={focused ? "#2780e3" : "#ccc"}
-                           />
+                             <ShoppingBag size={size} color={focused ? "#2780e3" : "#ccc"} />
                          ),
                        }
                      }
@@ -68,11 +63,7 @@ function DrawerNavigator(props) {
             navigator: navigationData,
           }} />,
           drawerIcon: ({ focused, size }) => (
-            <Ionicons
-              name="list-circle-outline"
-              size={size}
-              color={focused ? "#2780e3" : "#ccc"}
-            />
+              <AlignJustify size={size} color={focused ? "#2780e3" : "#ccc"} />
           ),
         }
       } />

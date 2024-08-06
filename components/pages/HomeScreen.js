@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {View, StyleSheet, ToastAndroid, ScrollView, FlatList} from "react-native";
+import {View, StyleSheet, ToastAndroid, ScrollView, FlatList, Platform} from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import {Dimensions} from "react-native";
 import ProductCard from "./components/ProductCard";
@@ -21,6 +21,7 @@ import {base_url, getHomeScreen} from "../config/API";
 // import {db, getLoggedInUser} from "../config/sqlite_db_service";
 import ContentLoader from "react-native-easy-content-loader";
 import {Divider} from "@/components/ui/divider";
+import Toast from "react-native-toast-message";
 
 
 function HomeScreen(props) {
@@ -68,19 +69,27 @@ function HomeScreen(props) {
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
-            ToastAndroid.showWithGravityAndOffset(
-                message,
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
+            if(Platform.OS === 'android'){
+                ToastAndroid.showWithGravityAndOffset(
+                    message,
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                    25,
+                    50,
+                );
+            }else if(Platform.OS === 'ios') {
+                Toast.show({
+                    type: 'info',
+                    text1: message
+                });
+            }
         } else {
             setIsAppDataFetchError(false);
             setIsAppDataFetchMsg(message);
 
             //get data from database
-            /*db.transaction((tx) => {
+            /*
+            db.transaction((tx) => {
                 tx.executeSql(
                     "SELECT * FROM category ORDER BY RANDOM()",
                     [],
@@ -127,7 +136,8 @@ function HomeScreen(props) {
 
                     },
                 );
-            });*/
+            });
+            */
         }
     };
 
