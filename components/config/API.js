@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React from "react";
-import {connectToDatabase, deleteAllHomescreenProducts} from "@/components/config/sqlite_db_service";
+import {connectToDatabase, deleteAllHomescreenProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
 const base_url = "http://192.168.3.200:5000/api";
@@ -70,32 +70,33 @@ const getProductsScreen = async (props) => {
                 method: "GET", // default, so we can ignore
             })
                 .then((response) => response.json())
-                .then((data) => {
-                    // console.log(data.products_homescreen);
+                .then(async (data) => {
+                    console.log(data.products_homescreen);
                     //delete old data
-                    deleteAllProducts();
+                    const db = await connectToDatabase()
+                    await deleteAllProducts();
 
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        /*await db.transaction(async (tx) => {
-                          await tx.executeSql(
-                            "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                            [category.category_id, category.category_name],
-                          );
-                        });*/
+                        await db.transactionAsync(async (tx) => {
+                            await tx.executeSqlAsync(
+                                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+                                [category.category_id, category.category_name],
+                            );
+                        });
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-                        /*
-                          db.transaction(async (tx) => {
 
-                            await tx.executeSql(
-                              "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-                              [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+                        await db.transactionAsync(async (tx) => {
+
+                            await tx.executeSqlAsync(
+                                "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+                                [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
                             );
-                          });*/
+                        });
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })
@@ -107,32 +108,33 @@ const getProductsScreen = async (props) => {
                 method: "GET", // default, so we can ignore
             })
                 .then((response) => response.json())
-                .then((data) => {
+                .then(async (data) => {
                     // console.log(data.products_homescreen);
                     //delete old data
-                    deleteAllProducts();
+                    const db = await connectToDatabase()
+                    await deleteAllProducts(db);
 
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        /*await db.transaction(async (tx) => {
-                          await tx.executeSql(
-                            "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                            [category.category_id, category.category_name],
-                          );
-                        });*/
+                        await db.transactionAsync(async (tx) => {
+                            await tx.executeSqlAsync(
+                                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
+                                [category.category_id, category.category_name],
+                            );
+                        });
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-                        /*
-                          db.transaction(async (tx) => {
 
-                            await tx.executeSql(
-                              "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-                              [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
-                            );
-                          });*/
+                          await db.transactionAsync(async (tx) => {
+
+                              await tx.executeSqlAsync(
+                                  "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+                                  [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+                              );
+                          });
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })
@@ -144,34 +146,35 @@ const getProductsScreen = async (props) => {
                 method: "GET", // default, so we can ignore
             })
                 .then((response) => response.json())
-                .then((data) => {
+                .then(async (data) => {
                     // console.log(data.products_homescreen);
                     //delete old data
-                    deleteAllProducts();
+                    const db = await connectToDatabase()
+                    await deleteAllProducts(db);
 
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        /*
-                        await db.transaction(async (tx) => {
-                          await tx.executeSql(
+
+                        await db.transactionAsync(async (tx) => {
+                          await tx.executeSqlAsync(
                             "INSERT INTO category (category_id, category_name) VALUES (?,?)",
                             [category.category_id, category.category_name],
                           );
-                        }); */
+                        });
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-                        /*
-                          db.transaction(async (tx) => {
 
-                            await tx.executeSql(
-                              "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-                              [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
-                            );
+                          await db.transactionAsync(async (tx) => {
+
+                              await tx.executeSqlAsync(
+                                  "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
+                                  [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
+                              );
                           });
-                          */
+
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })

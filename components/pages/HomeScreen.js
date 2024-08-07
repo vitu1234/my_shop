@@ -22,6 +22,7 @@ import {base_url, getHomeScreen} from "../config/API";
 import ContentLoader from "react-native-easy-content-loader";
 import {Divider} from "@/components/ui/divider";
 import Toast from "react-native-toast-message";
+import {connectToDatabase} from "@/components/config/sqlite_db_service";
 
 
 function HomeScreen(props) {
@@ -49,27 +50,27 @@ function HomeScreen(props) {
         props.navigation.navigate("ProductDetails", {data: product});
     };
 
-    const setCartCounterNumber = () => {
+    const setCartCounterNumber = async () => {
         //update cart counter
-        /*db.transaction((tx) => {
-            tx.executeSql(
+        const db = await connectToDatabase()
+        await db.withExclusiveTransactionAsync((tx) => {
+            tx.execSync(
                 "SELECT * FROM cart",
                 [],
                 (tx, results) => {
                     const len = results.rows.length;
                     setCartItemsCount(len);
-
                 },
             );
-        });*/
+        });
     };
 
-    const homeScreenLoading = (isFetchingDataError, message) => {
+    const homeScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
-            if(Platform.OS === 'android'){
+            if (Platform.OS === 'android') {
                 ToastAndroid.showWithGravityAndOffset(
                     message,
                     ToastAndroid.LONG,
@@ -77,7 +78,7 @@ function HomeScreen(props) {
                     25,
                     50,
                 );
-            }else if(Platform.OS === 'ios') {
+            } else if (Platform.OS === 'ios') {
                 Toast.show({
                     type: 'info',
                     text1: message
@@ -88,9 +89,9 @@ function HomeScreen(props) {
             setIsAppDataFetchMsg(message);
 
             //get data from database
-            /*
-            db.transaction((tx) => {
-                tx.executeSql(
+            const db = await connectToDatabase()
+            await db.transactionAsync((tx) => {
+                tx.executeSqlAsync(
                     "SELECT * FROM category ORDER BY RANDOM()",
                     [],
                     (tx, results) => {
@@ -105,8 +106,8 @@ function HomeScreen(props) {
                     },
                 );
             });
-            db.transaction((tx) => {
-                tx.executeSql(
+            await db.transactionAsync((tx) => {
+                tx.executeSqlAsync(
                     "SELECT * FROM products_homescreen ORDER BY RANDOM() LIMIT 10",
                     [],
                     (tx, results) => {
@@ -121,8 +122,8 @@ function HomeScreen(props) {
                     },
                 );
             });
-            db.transaction((tx) => {
-                tx.executeSql(
+            await db.transactionAsync((tx) => {
+                tx.executeSqlAsync(
                     "SELECT * FROM products_homescreen ORDER BY RANDOM() LIMIT 20",
                     [],
                     (tx, results) => {
@@ -137,12 +138,23 @@ function HomeScreen(props) {
                     },
                 );
             });
-            */
+
         }
     };
 
     useEffect(() => {
-        setCartCounterNumber();
+
+        setCartCounterNumber().then(() => {
+            // Your logic here, for example:
+            console.log('Cart counter number has been updated successfully.');
+
+            // Additional actions, e.g., updating the UI
+            // updateCartUI();
+        }).catch((error) => {
+            // Handle any errors that occurred during the promise execution
+            console.error('Error updating cart counter number:', error);
+        });
+
         if (isLoggedIn) {
             setLoggedInStatus(true);
         } else {
@@ -190,7 +202,7 @@ function HomeScreen(props) {
     });
 
     if (IsAppDataFetchLoading) {
-        // console.log("loadingd");
+        console.log("loadingd");
         return (
             <View style={styles.container}>
                 <ContentLoader

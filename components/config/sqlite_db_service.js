@@ -77,11 +77,11 @@ const deleteAllHomescreenProducts = async (db) => {
 };
 
 // Function to delete all products
-const deleteAllProducts = async () => {
-    // db.transaction((tx) => {
-    //     tx.executeSql("DELETE FROM category");
-    //     tx.executeSql("DELETE FROM product");
-    // });
+const deleteAllProducts = async (db) => {
+    db.transactionAsync((tx) => {
+        tx.executeSqlAsync("DELETE FROM category");
+        tx.executeSqlAsync("DELETE FROM product");
+    });
 };
 
 // Function to get all categories
