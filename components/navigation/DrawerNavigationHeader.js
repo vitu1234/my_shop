@@ -68,7 +68,7 @@ function DrawerNavigationHeader(props) {
   //login status checker
   if (isLoggedIn) {
     // console.log(getLoggedInUser())
-    // console.log('HAHAHAdH')
+    console.log('HAHAHAdH')
   } else {
 
   }

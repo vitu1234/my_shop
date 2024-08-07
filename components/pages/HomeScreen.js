@@ -161,7 +161,15 @@ function HomeScreen(props) {
             setLoggedInStatus(false);
         }
 
-        getHomeScreen({homeScreenLoading}).then(r => {
+        getHomeScreen({homeScreenLoading}).then(() => {
+            // Your logic here, for example:
+            console.log('success pulling loading screen');
+
+            // Additional actions, e.g., updating the UI
+            // updateCartUI();
+        }).catch((error) => {
+            // Handle any errors that occurred during the promise execution
+            console.error('Error pulling loading screen', error);
         });
     }, []);
 

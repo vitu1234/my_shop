@@ -31,32 +31,22 @@ const getHomeScreen = async (props) => {
                 //loop through all categories and insert into database
                 data.categories.map(async (category) => {
                     //insert in database
-                    await db.withExclusiveTransactionAsync(async (tx) => {
-                        await tx.execAsync(
-                            "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                            [category.category_id, category.category_name],
-                        );
-                    });
+                    await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
                 });
                 //
                 data.products_homescreen.map(async (product) => {
                     //insert in database
 
-                    await db.withExclusiveTransactionAsync(async (tx) => {
 
-                        await tx.execAsync(
-                            "INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);",
-                            [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],
-                        );
-                    });
+                    await db.prepareAsync("INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],);
                 });
-                props.homeScreenLoading(false, "Fetch data success");
+                await props.homeScreenLoading(false, "Fetch data success");
             })
             .catch((err) => {
                 props.homeScreenLoading(true, err.message);
             });
     } catch (error) {
-        props.homeScreenLoading(true, error.message);
+        await props.homeScreenLoading(true, error.message);
     }
 
 };
@@ -79,24 +69,12 @@ const getProductsScreen = async (props) => {
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        await db.transactionAsync(async (tx) => {
-                            await tx.executeSqlAsync(
-                                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                                [category.category_id, category.category_name],
-                            );
-                        });
+                        await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-
-                        await db.transactionAsync(async (tx) => {
-
-                            await tx.executeSqlAsync(
-                                "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-                                [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
-                            );
-                        });
+                        await db.prepareAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })
@@ -117,24 +95,12 @@ const getProductsScreen = async (props) => {
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        await db.transactionAsync(async (tx) => {
-                            await tx.executeSqlAsync(
-                                "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                                [category.category_id, category.category_name],
-                            );
-                        });
+                        await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-
-                          await db.transactionAsync(async (tx) => {
-
-                              await tx.executeSqlAsync(
-                                  "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-                                  [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
-                              );
-                          });
+                        await db.prepareAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name]);
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })
@@ -155,25 +121,14 @@ const getProductsScreen = async (props) => {
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-
-                        await db.transactionAsync(async (tx) => {
-                          await tx.executeSqlAsync(
-                            "INSERT INTO category (category_id, category_name) VALUES (?,?)",
-                            [category.category_id, category.category_name],
-                          );
-                        });
+                        await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
 
-                          await db.transactionAsync(async (tx) => {
 
-                              await tx.executeSqlAsync(
-                                  "INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);",
-                                  [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],
-                              );
-                          });
+                        await db.prepareAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
 
                     });
                     props.productsScreenLoading(false, "Fetch data success");
@@ -199,16 +154,14 @@ const getUserAccount = async (props) => {
         credentials: "same-origin", // include, *same-origin, omit
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${props.access_token}`,
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
+            "Authorization": `Bearer ${props.access_token}`, // 'Content-Type': 'application/x-www-form-urlencoded',
+        }, redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         // body: JSON.stringify(props), // body data type must match "Content-Type" header
     }).then((response) => response.json())
         .then((data) => {
-            // console.log("data ACCESS");
-            // console.log(data);
+            console.log("data ACCESS");
+            console.log(data);
             // console.log("data");
             props.setIsTokenError(data.isError, data.message);
         })
@@ -234,10 +187,8 @@ const registerUserAccount = async (props) => {
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
         credentials: "same-origin", // include, *same-origin, omit
         headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
+            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+        }, redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(props), // body data type must match "Content-Type" header
     }).then((response) => response.json())
@@ -269,10 +220,8 @@ const registerVerifyCodeUserAccount = async (props) => {
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
         credentials: "same-origin", // include, *same-origin, omit
         headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
+            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+        }, redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(props), // body data type must match "Content-Type" header
     }).then((response) => response.json())
@@ -304,10 +253,8 @@ const userLogin = async (props) => {
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
         credentials: "same-origin", // include, *same-origin, omit
         headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
+            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+        }, redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(props), // body data type must match "Content-Type" header
     }).then((response) => response.json())
@@ -338,6 +285,5 @@ export {
     getUserAccount,
     registerUserAccount,
     registerVerifyCodeUserAccount,
-    userLogin,
-    // userLogout,
+    userLogin, // userLogout,
 };

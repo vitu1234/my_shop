@@ -12,6 +12,7 @@ import {Image} from "@/components/ui/image"
 import {useToast, Toast} from "@/components/ui/toast"
 import {Spinner} from "@/components/ui/spinner"
 import {Heading} from "@/components/ui/heading"
+import {connectToDatabase} from "@/components/config/sqlite_db_service";
 
 function AuthLoadingScreen(props) {
     const [isLoadingScreen, setIsLoadingScreen] = useState(true);
@@ -23,7 +24,15 @@ function AuthLoadingScreen(props) {
 
     useEffect(() => {
         console.log("VITU")
-        getLoggedInUser();
+        getLoggedInUser().then(() => {
+            // Your logic here, for example:
+            console.log('Auth Loading Scerebn done');
+
+        }).catch((error) => {
+            // Handle any errors that occurred during the promise execution
+            console.error('Error Auth Loading Scerebn done', error);
+        });
+        ;
 
 
     }, []);
@@ -47,45 +56,34 @@ function AuthLoadingScreen(props) {
         } else {
             setIsLoadingScreen(false);
             setLoggedInStatus(true);
-            // props.navigation.replace("Drawer", { isLoggedIn: true }); //navigates by removing current screen from history stack
+            props.navigation.replace("Drawer", {isLoggedIn: true}); //navigates by removing current screen from history stack
         }
     };
 
     //get logged in user
-    const getLoggedInUser = async () => {
-        setIsLoadingScreen(false);
-        setLoggedInStatus(false);
-    }
     // const getLoggedInUser = async () => {
-    //     await db.transaction((tx) => {
-    //         tx.executeSql(
-    //             "SELECT * FROM user LIMIT 1",
-    //             [],
-    //             (tx, results) => {
-    //                 const len = results.rows.length;
-    //                 let user = [];
-    //
-    //                 for (let i = 0; i < results.rows.length; ++i) {
-    //                     user.push(results.rows.item(i));
-    //                 }
-    //
-    //                 if (user.length === 0) {
-    //                     setIsLoadingScreen(false);
-    //                     setLoggedInStatus(false);
-    //                     // console.log("no user")
-    //                     // props.navigation.replace("Drawer", { isLoggedIn: false }); //navigates by removing current screen from history stack
-    //                 } else {
-    //                     // console.log("UUSER EXISTS")
-    //                     const data = {
-    //                         access_token: user[0].access_token,
-    //                         setIsTokenError: setIsTokenError,
-    //                     };
-    //                     getUserAccount(data);
-    //                 }
-    //             },
-    //         );
-    //     });
-    // };
+    //     setIsLoadingScreen(false);
+    //     setLoggedInStatus(false);
+    // }
+    const getLoggedInUser = async () => {
+        const db = await connectToDatabase()
+        const user = await db.getAllAsync('SELECT *FROM user LIMIT 1');
+        if (user.length === 0) {
+            setIsLoadingScreen(false);
+            setLoggedInStatus(false);
+            console.log("no user")
+            props.navigation.replace("Drawer", {isLoggedIn: false}); //navigates by removing current screen from history stack
+        } else {
+            console.log("UUSER EXISTS")
+            const data = {
+                access_token: user[0].access_token,
+                setIsTokenError: setIsTokenError,
+            };
+            await getUserAccount(data);
+        }
+
+        console.log("UUSER BRUHHHH2")
+    };
 
 
     return (
