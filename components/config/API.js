@@ -1,13 +1,18 @@
 import "react-native-gesture-handler";
 import React from "react";
-import {
-    db,
-    deleteAllHomescreenProducts,
-    deleteAllProducts,
-    deleteAllUserData,
-    saveLoggedInUser,
-} from "./sqlite_db_service";
 
+// import {
+//     db,
+//     deleteAllHomescreenProducts,
+//     deleteAllProducts,
+//     deleteAllUserData,
+//     saveLoggedInUser,
+// } from "./sqlite_db_service";
+// import {openDatabase} from 'react-native-sqlite-storage';
+
+// export const getDBConnection = async () => {
+//     return openDatabase({name: 'todo-data.db', location: 'default'});
+// };
 
 // require('dotenv/config');
 const base_url = "http://192.168.3.200:5000/api";

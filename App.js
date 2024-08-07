@@ -4,6 +4,7 @@ import {GluestackUIProvider} from "@/components/ui/gluestack-ui-provider";
 import { AppContext, ProductFilterModalContext, CartContext } from "./app_contexts/AppContext";
 import StackNavigator from "components/navigation/StackNavigator";
 import {
+    AppRegistry,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -14,6 +15,15 @@ import {
 import React, { createContext, useState } from "react";
 import {Colors} from "react-native/Libraries/NewAppScreen";
 
+import { initializeDatabase } from '@/components/config/sqlite_db_service';
+
+// Initialize the database
+initializeDatabase().then(() => {
+    // Start the app once the database is ready
+    console.log("initialized db sucsess")
+}).catch((error) => {
+    console.error("Failed to initialize database:", error);
+});
 
 Colors.darker = undefined;
 export default function App() {

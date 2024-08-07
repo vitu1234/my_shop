@@ -1,24 +1,28 @@
 import "react-native-gesture-handler";
 import React from "react";
-import {openDatabase} from "react-native-sqlite-storage";
-const db = SQLite.openDatabase(
-    {
-        name: "my_shop_db",
-        location: "default",
-        version: 2.1,
-    },
-    () => {
-        // console.log("DB CREATED");
-        createTables();
-    },
-    error => {
-        // console.log(error);
-    },
-);
+import SQLite from "react-native-sqlite-storage";
+import {enablePromise, openDatabase, SQLiteDatabase} from "react-native-sqlite-storage"
+// Define the getDBConnection function to return the database connection
+// Define the global db variable
 
+
+// Function to get the database connection
+const connectToDatabase = async () => {
+    return openDatabase(
+        {name: "yourProjectName.db", location: "default"},
+        () => {
+        },
+        (error) => {
+            console.error(error)
+            throw Error("Could not connect to database")
+        }
+    )
+}
+
+// const db = await connectToDatabase()
 // Function to create tables
-const createTables = () => {
-    db.transaction((tx) => {
+const createTables = async (db) => {
+    await db.transaction((tx) => {
         tx.executeSql(
             `CREATE TABLE IF NOT EXISTS cart (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -137,7 +141,7 @@ const saveLoggedInUser = async (user_data) => {
 
 // Export functions
 export {
-    db,
+    // db,
     saveLoggedInUser,
     getAllCategory,
     getAllProductsHomeScreen,
