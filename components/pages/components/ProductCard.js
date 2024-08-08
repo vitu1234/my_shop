@@ -2,7 +2,7 @@ import React from "react";
 import {Button} from "@/components/ui/button"
 import {Card} from "@/components/ui/card"
 import {Image} from "@/components/ui/image"
-import {ImageBackground, Text, StyleSheet, TouchableOpacity} from "react-native";
+import {ImageBackground, Text, View, StyleSheet, TouchableOpacity} from "react-native";
 import numbro from "numbro";
 import {base_urlImages} from "../../config/API";
 

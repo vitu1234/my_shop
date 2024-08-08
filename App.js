@@ -1,5 +1,5 @@
 import {StatusBar} from 'expo-status-bar';
-import "global.css";
+// import "global.css";
 import {GluestackUIProvider} from "@/components/ui/gluestack-ui-provider";
 import {AppContext, ProductFilterModalContext, CartContext} from "./app_contexts/AppContext";
 import StackNavigator from "components/navigation/StackNavigator";
@@ -32,8 +32,8 @@ export default function App() {
     }
 
     useEffect(() => {
-        loadData();
-    }, [loadData()]);
+        loadData().catch(error => console.error("Load Data Error:", error));
+    }, []);
 
 
     const [isLoggedIn, setLoggedInStatus] = useState(false);
@@ -50,7 +50,7 @@ export default function App() {
     };
 
     return (
-        <GluestackUIProvider mode="light"><View style={styles.container}>
+        <GluestackUIProvider ><View style={styles.container}>
             <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
                 <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
                     <ProductFilterModalContext.Provider value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
@@ -58,7 +58,8 @@ export default function App() {
                     </ProductFilterModalContext.Provider>
                 </CartContext.Provider>
             </AppContext.Provider>
-        </View></GluestackUIProvider>
+        </View>
+        </GluestackUIProvider>
     );
 }
 

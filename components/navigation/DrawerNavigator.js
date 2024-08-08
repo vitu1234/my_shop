@@ -15,8 +15,8 @@ const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
 function DrawerNavigator(props) {
-
-  // console.log(props.navigation)
+console.log("VIIIIIIIIIIIII")
+  console.log(props.navigation)
   const navigationData = props.navigation;
 
   return (

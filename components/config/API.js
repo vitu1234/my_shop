@@ -10,7 +10,8 @@ const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 //GET METHODS
 //===================================================================
 const getHomeScreen = async (props) => {
-
+    console.log(props)
+    console.log("propsgg\n")
     try {
 
         fetch(`${base_url}/homescreen`, {
@@ -21,7 +22,7 @@ const getHomeScreen = async (props) => {
                 const db = await connectToDatabase()
 
                 console.log(data.products_homescreen);
-                console.log(db);
+                // console.log(db);
                 //
                 if (db == null) {
                     throw new Error('Database connection is not initialized.');
@@ -31,14 +32,15 @@ const getHomeScreen = async (props) => {
                 //loop through all categories and insert into database
                 data.categories.map(async (category) => {
                     //insert in database
-                    await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
+                    const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
+
+
                 });
                 //
                 data.products_homescreen.map(async (product) => {
                     //insert in database
+                    const result =await db.runAsync("INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],);
 
-
-                    await db.prepareAsync("INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],);
                 });
                 await props.homeScreenLoading(false, "Fetch data success");
             })
@@ -69,12 +71,14 @@ const getProductsScreen = async (props) => {
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+                        const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-                        await db.prepareAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
+                        const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
+
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })
@@ -95,12 +99,14 @@ const getProductsScreen = async (props) => {
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+                        const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
-                        await db.prepareAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name]);
+                        const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name]);
+
                     });
                     props.productsScreenLoading(false, "Fetch data success");
                 })
@@ -121,14 +127,14 @@ const getProductsScreen = async (props) => {
                     //loop through all categories and insert into database
                     data.categories.map(async (category) => {
                         //insert in database
-                        await db.prepareAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
+                        const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
+
                     });
 
                     data.products.map(async (product) => {
                         //insert in database
+                        const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
 
-
-                        await db.prepareAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
 
                     });
                     props.productsScreenLoading(false, "Fetch data success");

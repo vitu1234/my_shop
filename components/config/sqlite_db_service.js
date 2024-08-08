@@ -14,7 +14,7 @@ export const connectToDatabase = async () => {
 // Function to create tables
 export const createTables = async (db) => {
     await db.withExclusiveTransactionAsync(async () => {
-        await db.execAsync(`
+        await db.execSync(`
             CREATE TABLE IF NOT EXISTS cart (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_id INTEGER NOT NULL,
@@ -24,13 +24,13 @@ export const createTables = async (db) => {
                 img_url TEXT NOT NULL
             );
         `);
-        await db.execAsync(`
+        await db.execSync(`
             CREATE TABLE IF NOT EXISTS category (
                 category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_name TEXT NOT NULL
             );
         `);
-        await db.execAsync(`
+        await db.execSync(`
             CREATE TABLE IF NOT EXISTS products_homescreen (
                 product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_id INTEGER NOT NULL,
@@ -41,7 +41,7 @@ export const createTables = async (db) => {
                 product_description TEXT
             );
         `);
-        await db.execAsync(`
+        await db.execSync(`
             CREATE TABLE IF NOT EXISTS product (
                 product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_id INTEGER NOT NULL,
@@ -53,7 +53,7 @@ export const createTables = async (db) => {
                 category_name TEXT NOT NULL
             );
         `);
-        await db.execAsync(`
+        await db.execSync(`
             CREATE TABLE IF NOT EXISTS user (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 first_name TEXT NOT NULL,
