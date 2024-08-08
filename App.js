@@ -50,7 +50,9 @@ export default function App() {
     };
 
     return (
-        <GluestackUIProvider ><View style={styles.container}>
+        <View style={styles.container}>
+        <GluestackUIProvider >
+
             <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
                 <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
                     <ProductFilterModalContext.Provider value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
@@ -58,8 +60,9 @@ export default function App() {
                     </ProductFilterModalContext.Provider>
                 </CartContext.Provider>
             </AppContext.Provider>
-        </View>
+
         </GluestackUIProvider>
+        </View>
     );
 }
 
