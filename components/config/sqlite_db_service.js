@@ -72,6 +72,20 @@ export const createTables = async (db) => {
             );
         `);
 
+        
+        await db.execSync(`
+            CREATE TABLE IF NOT EXISTS user (
+                user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                email TEXT NOT NULL,
+                profile_img TEXT NOT NULL DEFAULT "noimage.jpg",
+                access_token TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                is_verified INTEGER NOT NULL DEFAULT 0
+            );
+        `);
 
         // await db.execSync(`
         //     CREATE TABLE IF NOT EXISTS category (
@@ -104,19 +118,6 @@ export const createTables = async (db) => {
                     );
                 `);
 
-                await db.execSync(`
-                    CREATE TABLE IF NOT EXISTS user (
-                        user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        first_name TEXT NOT NULL,
-                        last_name TEXT NOT NULL,
-                        phone TEXT NOT NULL,
-                        email TEXT NOT NULL,
-                        profile_img TEXT NOT NULL DEFAULT "noimage.jpg",
-                        access_token TEXT,
-                        is_active INTEGER NOT NULL DEFAULT 1,
-                        is_verified INTEGER NOT NULL DEFAULT 0
-                    );
-                `);
 
          */
     });

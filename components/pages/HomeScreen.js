@@ -52,13 +52,19 @@ function HomeScreen(props) {
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
-            ToastAndroid.showWithGravityAndOffset(
-                message,
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
+            // ToastAndroid.showWithGravityAndOffset(
+            //     message,
+            //     ToastAndroid.LONG,
+            //     ToastAndroid.BOTTOM,
+            //     25,
+            //     50,
+            // );
+            Toast.show({
+                text1: 'Hello',
+                text2: message,
+                position: 'bottom',
+                bottomOffset: 50,
+            });
         } else {
             setIsAppDataFetchError(false);
             setIsAppDataFetchMsg(message);
