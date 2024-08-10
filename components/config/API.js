@@ -21,7 +21,7 @@ const getHomeScreen = async (props) => {
             .then(async (data) => {
                 const db = await connectToDatabase()
 
-                console.log(data.products_homescreen);
+                console.log(data.products);
                 // console.log(db);
                 //
                 if (db == null) {
@@ -29,19 +29,41 @@ const getHomeScreen = async (props) => {
                 } //delete old data
                 await deleteAllHomescreenProducts(db);
 
-                //loop through all categories and insert into database
                 data.categories.map(async (category) => {
                     //insert in database
-                    const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
-
-
+                    await db.runAsync("INSERT INTO category(category_id,category_name,category_description) VALUES (?,?,?);", [category.category_id, category.category_name, category.category_description],);
                 });
-                //
-                data.products_homescreen.map(async (product) => {
+
+                data.sub_categories.map(async (sub_category) => {
                     //insert in database
-                    const result =await db.runAsync("INSERT INTO products_homescreen(product_id,category_id,product_name,qty,price,img_url,product_description) VALUES (?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description],);
+                    await db.runAsync("INSERT INTO sub_category(sub_category_id,category_id,sub_category_name,sub_category_description) VALUES (?,?,?,?);", [sub_category.sub_category_id, sub_category.category_id, sub_category.sub_category_name, sub_category.sub_category_description]);
+                });
+
+                data.products.map(async (product) => {
+                    //insert in database
+                    await db.runAsync("INSERT INTO product(product_id,product_name,likes,cover,product_description) VALUES (?,?,?,?,?);", [product.product_id, product.product_name, product.likes, product.cover, product.product_description]);
+
+                    //product subcategories
+                    data.products.product_sub_categories.map(async (product_sub_category) => {
+                        //insert in database
+                        await db.runAsync("INSERT INTO product_sub_categories(product_sub_category_id,sub_category_id,category_id,product_id,sub_category_name,category_name,sub_category_description) VALUES (?,?,?,?,?,?,?,?);", [product_sub_category.product_sub_category_id, product_sub_category.sub_category_id, product_sub_category.category_id, product_sub_category.product_id, product_sub_category.sub_category_name, product_sub_category.category_name, product_sub_category.sub_category_description]);
+                    });
+
+                    //product attributes
+                    data.products.product_attributes.map(async (product_attribute) => {
+                        //insert in database
+                        await db.runAsync("INSERT INTO product_attributes(product_attributes_id,product_id,product_attributes_default,product_attributes_name,product_attributes_value,product_attributes_price,product_attributes_stock_qty,product_attributes_summary) VALUES (?,?,?,?,?,?,?);", [product_attribute.product_attributes_id, product_attribute.product_id, product_attribute.product_attributes_default, product_attribute.product_attributes_name, product_attribute.product_attributes_value,product_attribute.product_attributes_price, product_attribute.product_attributes_stock_qty, product_attribute.product_attributes_summary ]);
+                    });
+
+                    //product images
+                    data.products.product_images.map(async (product_image) => {
+                        //insert in database
+                        await db.runAsync("INSERT INTO product_images(product_images_id,product_id,img_url) VALUES (?,?,?);", [product_image.product_images_id, product_image.product_id, product_image.img_url ]);
+                    });
 
                 });
+
+
                 await props.homeScreenLoading(false, "Fetch data success");
             })
             .catch((err) => {

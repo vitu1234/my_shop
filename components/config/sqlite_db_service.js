@@ -15,58 +15,113 @@ export const connectToDatabase = async () => {
 export const createTables = async (db) => {
     await db.withExclusiveTransactionAsync(async () => {
         await db.execSync(`
-            CREATE TABLE IF NOT EXISTS cart (
-                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                product_id INTEGER NOT NULL,
-                product_name TEXT NOT NULL,
-                product_price TEXT NOT NULL,
-                qty INTEGER NOT NULL,
-                img_url TEXT NOT NULL
-            );
-        `);
-        await db.execSync(`
-            CREATE TABLE IF NOT EXISTS category (
-                category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                category_name TEXT NOT NULL
-            );
-        `);
-        await db.execSync(`
-            CREATE TABLE IF NOT EXISTS products_homescreen (
+            CREATE TABLE IF NOT EXISTS product (
                 product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                category_id INTEGER NOT NULL,
                 product_name TEXT NOT NULL,
-                qty INTEGER NOT NULL,
-                price TEXT NOT NULL,
-                img_url TEXT NOT NULL DEFAULT "noimage.jpg",
+                likes INTEGER NOT NULL,
+                cover TEXT NOT NULL,
                 product_description TEXT
             );
         `);
+
         await db.execSync(`
-            CREATE TABLE IF NOT EXISTS product (
-                product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            CREATE TABLE IF NOT EXISTS category (
+                category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                category_name TEXT NOT NULL,
+                category_description TEXT           
+            );
+        `);
+        await db.execSync(`
+            CREATE TABLE IF NOT EXISTS sub_category (
+                sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_id INTEGER NOT NULL,
-                product_name TEXT NOT NULL,
-                qty INTEGER NOT NULL,
-                price TEXT NOT NULL,
-                img_url TEXT NOT NULL DEFAULT "noimage.jpg",
-                product_description TEXT,
-                category_name TEXT NOT NULL
+                sub_category_name TEXT NOT NULL,
+                sub_category_description TEXT           
             );
         `);
         await db.execSync(`
-            CREATE TABLE IF NOT EXISTS user (
-                user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                first_name TEXT NOT NULL,
-                last_name TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                email TEXT NOT NULL,
-                profile_img TEXT NOT NULL DEFAULT "noimage.jpg",
-                access_token TEXT,
-                is_active INTEGER NOT NULL DEFAULT 1,
-                is_verified INTEGER NOT NULL DEFAULT 0
+            CREATE TABLE IF NOT EXISTS product_sub_categories (
+                product_sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                sub_category_id INTEGER NOT NULL,
+                category_id INTEGER NOT NULL,
+                product_id INTEGER NOT NULL,
+                sub_category_name TEXT NOT NULL,
+                category_name TEXT NOT NULL,
+                sub_category_description TEXT           
             );
         `);
+
+        await db.execSync(`
+            CREATE TABLE IF NOT EXISTS product_attributes (
+                product_attributes_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                product_id INTEGER NOT NULL,
+                product_attributes_default INTEGER NOT NULL,
+                product_attributes_name TEXT NOT NULL,
+                product_attributes_value TEXT NOT NULL,
+                product_attributes_price TEXT NOT NULL,
+                product_attributes_stock_qty INTEGER NOT NULL,
+                product_attributes_summary TEXT           
+            );
+        `);
+
+        await db.execSync(`
+            CREATE TABLE IF NOT EXISTS product_images (
+                product_images_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                product_id INTEGER NOT NULL,
+                img_url TEXT NOT NULL
+            );
+        `);
+
+
+        // await db.execSync(`
+        //     CREATE TABLE IF NOT EXISTS category (
+        //         product_images_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        //         category_name TEXT NOT NULL,
+        //         img_url TEXT
+        //     );
+        // `);
+        /*
+                await db.execSync(`
+                    CREATE TABLE IF NOT EXISTS cart (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        product_id INTEGER NOT NULL,
+                        product_name TEXT NOT NULL,
+                        product_price TEXT NOT NULL,
+                        qty INTEGER NOT NULL,
+                        img_url TEXT NOT NULL
+                    );
+                `);
+
+                await db.execSync(`
+                    CREATE TABLE IF NOT EXISTS products_homescreen (
+                        product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        category_id INTEGER NOT NULL,
+                        product_name TEXT NOT NULL,
+                        qty INTEGER NOT NULL,
+                        price TEXT NOT NULL,
+                        img_url TEXT NOT NULL DEFAULT "noimage.jpg",
+                        product_description TEXT
+                    );
+                `);
+
+                await db.execSync(`
+                    CREATE TABLE IF NOT EXISTS user (
+                        user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        first_name TEXT NOT NULL,
+                        last_name TEXT NOT NULL,
+                        phone TEXT NOT NULL,
+                        email TEXT NOT NULL,
+                        profile_img TEXT NOT NULL DEFAULT "noimage.jpg",
+                        access_token TEXT,
+                        is_active INTEGER NOT NULL DEFAULT 1,
+                        is_verified INTEGER NOT NULL DEFAULT 0
+                    );
+                `);
+
+         */
     });
+
+
 };
 // Function to delete all home screen products
 const deleteAllHomescreenProducts = async (db) => {
