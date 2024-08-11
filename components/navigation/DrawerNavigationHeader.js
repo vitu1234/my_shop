@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/AntDesign";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons";
-import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View} from "react-native";
+import { Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import { ProductFilterModalContext, CartContext, AppContext } from "@/app_contexts/AppContext";
 import { useRoute } from "@react-navigation/native";
 import { navibar_profile_styles } from "@/styles/AllStyles";
@@ -68,7 +68,7 @@ function DrawerNavigationHeader(props) {
   //login status checker
   if (isLoggedIn) {
     // console.log(getLoggedInUser())
-    console.log('HAHAHAdH')
+    console.log('HAHAHAdH LOGIN IN header')
   } else {
 
   }
@@ -83,20 +83,20 @@ function DrawerNavigationHeader(props) {
       {/*remove search icon from nav bar*/}
       {
         (route.name !== "Products") ?
-          <TouchableOpacity onPress={gotToProducts} style={{ margin: 16 }}>
+          <TouchableOpacity onPress={gotToProducts} style={{ margin: 12 }}>
             <Icon
               name="search1"
               color={"#000"}
-              size={23}
+              size={20}
               containerStyle={{ marginHorizontal: 15, position: "relative" }}
             />
           </TouchableOpacity> :
 
-          <TouchableOpacity onPress={() => setIsModalVisibleProducts(true)} style={{ margin: 16 }}>
+          <TouchableOpacity onPress={() => setIsModalVisibleProducts(true)} style={{ margin: 12 }}>
             <Icon2
               name="sort"
               color={"#000"}
-              size={23}
+              size={20}
               containerStyle={{ marginHorizontal: 15, position: "relative" }}
             />
           </TouchableOpacity>
@@ -109,12 +109,13 @@ function DrawerNavigationHeader(props) {
             <Icon
               name="shoppingcart"
               color={"#000"}
-              size={26}
+              size={20}
               containerStyle={{ marginHorizontal: 15, position: "relative" }}
             />
             {cartItemsCount > 0 ? (
               <View
                 style={{
+
                   position: "absolute",
                   backgroundColor: "blue",
                   width: 16,
@@ -127,9 +128,10 @@ function DrawerNavigationHeader(props) {
                 }}>
                 <Text
                   style={{
+                    color: "red",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#FFFFFF",
+                    // color: "#FFFFFF",
                     fontSize: 8,
                   }}>
                   {cartItemsCount}
@@ -143,37 +145,38 @@ function DrawerNavigationHeader(props) {
         </TouchableOpacity>
       </View>
 
-      {
-        (isLoggedIn) ?
-          [
-            <TouchableHighlight key={1} style={navibar_profile_styles.profileImgContainer}
-                                onPress={gotToLogin}>
-              <Image
-                alt={"Profile"}
-                source={require("@/assets/app_rs/my_shop_logo.png")}
-                // source={{uri: "https://www.t-nation.com/system/publishing/articles/10005529/original/6-Reasons-You-Should-Never-Open-a-Gym.png"}}
-                style={navibar_profile_styles.profileImg} />
-            </TouchableHighlight>,
-            <TouchableOpacity key={2} style={{ marginTop: 17, marginRight: 16 }} onPress={gotToLogout}>
+      <View style={{ alignItems: "center", justifyContent: "center" }}>
+        {
+          (isLoggedIn) ?
+            [
+              <TouchableHighlight key={1} style={navibar_profile_styles.profileImgContainer}
+                onPress={gotToLogin}>
+                <Image
+                  alt={"Profile"}
+                  source={require("@/assets/app_rs/my_shop_logo.png")}
+                  // source={{uri: "https://www.t-nation.com/system/publishing/articles/10005529/original/6-Reasons-You-Should-Never-Open-a-Gym.png"}}
+                  style={navibar_profile_styles.profileImg} />
+              </TouchableHighlight>,
+              <TouchableOpacity key={2} style={{ marginTop: 17, marginRight: 16 }} onPress={gotToLogout}>
+                <Icon
+                  name="logout"
+                  color={"#000"}
+                  size={20}
+                  containerStyle={{ marginHorizontal: 15, position: "relative" }}
+                />
+              </TouchableOpacity>,
+            ]
+            :
+            <TouchableOpacity style={{ marginEnd: 16, marginStart: 16 }} onPress={gotToLogin}>
               <Icon
-                name="logout"
+                name="login"
                 color={"#000"}
-                size={23}
+                size={20}
                 containerStyle={{ marginHorizontal: 15, position: "relative" }}
               />
-            </TouchableOpacity>,
-          ]
-          :
-          <TouchableOpacity style={{ margin: 16 }} onPress={gotToLogin}>
-            <Icon
-              name="login"
-              color={"#000"}
-              size={23}
-              containerStyle={{ marginHorizontal: 15, position: "relative" }}
-            />
-          </TouchableOpacity>
-      }
-    </View>
+            </TouchableOpacity>
+        }
+      </View></View>
   );
 }
 

@@ -41,9 +41,12 @@ function HomeScreen(props) {
     };
 
     const setCartCounterNumber = async () => {
+        
         if (db) {
             const cartItems = await db.getAllAsync('SELECT * FROM cart');
             setCartItemsCount(cartItems.length);
+            
+            // console.log(cartItems.length)
         }
     };
 
@@ -69,18 +72,22 @@ function HomeScreen(props) {
             setIsAppDataFetchError(false);
             setIsAppDataFetchMsg(message);
 
+            console.log("got data")
+            console.log(db)
             if (db) {
-                const categories = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM()");
+                console.log("checked db")
+                const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
                 setCategories(categories);
+                console.log(categories)
 
-                const productsFirstRow = await db.getAllAsync("SELECT * FROM products_homescreen ORDER BY RANDOM() LIMIT 10");
+                const productsFirstRow = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 10");
                 setProductsFirstRow(productsFirstRow);
 
-                const productsHome = await db.getAllAsync("SELECT * FROM products_homescreen ORDER BY RANDOM() LIMIT 20");
+                const productsHome = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 20");
                 setFlashProducts(productsHome);
 
-                console.log("productsFirstRow");
-                console.log(productsFirstRow);
+                // console.log("productsFirstRow");
+                // console.log(productsFirstRow);
             }
         }
     };
@@ -90,6 +97,8 @@ function HomeScreen(props) {
             try {
                 const database = await connectToDatabase();
                 setDb(database);
+                console.log(db)
+                console.log("DB INITIALIZATION")
                 await setCartCounterNumber();
                 if (isLoggedIn) {
                     setLoggedInStatus(true);

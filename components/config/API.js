@@ -3,76 +3,65 @@ import React from "react";
 import {connectToDatabase, deleteAllHomescreenProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.0.2:5000/api";
+const base_url = "http://192.168.0.2:8000/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================
 //GET METHODS
 //===================================================================
 const getHomeScreen = async (props) => {
-    console.log(props)
-    console.log("propsgg\n")
     try {
+        const response = await fetch(`${base_url}/homescreen`, { method: "GET" });
+        const data = await response.json();
+        const db = await connectToDatabase();
 
-        fetch(`${base_url}/homescreen`, {
-            method: "GET", // default, so we can ignore
-        })
-            .then((response) => response.json())
-            .then(async (data) => {
-                const db = await connectToDatabase()
+        if (db == null) {
+            throw new Error('Database connection is not initialized.');
+        }
 
-                console.log(data.products);
-                // console.log(db);
-                //
-                if (db == null) {
-                    throw new Error('Database connection is not initialized.');
-                } //delete old data
-                await deleteAllHomescreenProducts(db);
+        // Delete old data
+        await deleteAllHomescreenProducts(db);
 
-                data.categories.map(async (category) => {
-                    //insert in database
-                    await db.runAsync("INSERT INTO category(category_id,category_name,category_description) VALUES (?,?,?);", [category.category_id, category.category_name, category.category_description],);
-                });
+        // Use Promise.all to wait for all insert operations to complete
+        await Promise.all([
+            ...data.categories.map(category => db.runAsync("INSERT INTO category(category_id,category_name,category_description) VALUES (?,?,?);", [category.category_id, category.category_name, category.category_description])),
+            ...data.sub_categories.map(sub_category => db.runAsync("INSERT INTO sub_category(sub_category_id,category_id,sub_category_name,sub_category_description) VALUES (?,?,?,?);", [sub_category.sub_category_id, sub_category.category_id, sub_category.sub_category_name, sub_category.sub_category_description])),
+            ...data.products.map(async (product) => {
+                await db.runAsync("INSERT INTO product(product_id,product_name,likes,cover,product_description) VALUES (?,?,?,?,?);", [product.product_id, product.product_name, product.likes, product.cover, product.product_description]);
 
-                data.sub_categories.map(async (sub_category) => {
-                    //insert in database
-                    await db.runAsync("INSERT INTO sub_category(sub_category_id,category_id,sub_category_name,sub_category_description) VALUES (?,?,?,?);", [sub_category.sub_category_id, sub_category.category_id, sub_category.sub_category_name, sub_category.sub_category_description]);
-                });
+                // Insert product subcategories
+                await Promise.all(
+                    product.product_sub_categories.map(product_sub_category => 
+                        db.runAsync("INSERT INTO product_sub_categories(product_sub_category_id,sub_category_id,category_id,product_id,sub_category_name,category_name,sub_category_description) VALUES (?,?,?,?,?,?,?);", [product_sub_category.product_sub_category_id, product_sub_category.sub_category_id, product_sub_category.category_id, product_sub_category.product_id, product_sub_category.sub_category_name, product_sub_category.category_name, product_sub_category.sub_category_description])
+                    )
+                );
 
-                data.products.map(async (product) => {
-                    //insert in database
-                    await db.runAsync("INSERT INTO product(product_id,product_name,likes,cover,product_description) VALUES (?,?,?,?,?);", [product.product_id, product.product_name, product.likes, product.cover, product.product_description]);
+                // Insert product attributes
+                await Promise.all(
+                    product.product_attributes.map(product_attribute => 
+                        db.runAsync("INSERT INTO product_attributes(product_attributes_id,product_id,product_attributes_default,product_attributes_name,product_attributes_value,product_attributes_price,product_attributes_stock_qty,product_attributes_summary) VALUES (?,?,?,?,?,?,?,?);", [product_attribute.product_attributes_id, product_attribute.product_id, product_attribute.product_attributes_default, product_attribute.product_attributes_name, product_attribute.product_attributes_value, product_attribute.product_attributes_price, product_attribute.product_attributes_stock_qty, product_attribute.product_attributes_summary])
+                    )
+                );
 
-                    //product subcategories
-                    data.products.product_sub_categories.map(async (product_sub_category) => {
-                        //insert in database
-                        await db.runAsync("INSERT INTO product_sub_categories(product_sub_category_id,sub_category_id,category_id,product_id,sub_category_name,category_name,sub_category_description) VALUES (?,?,?,?,?,?,?,?);", [product_sub_category.product_sub_category_id, product_sub_category.sub_category_id, product_sub_category.category_id, product_sub_category.product_id, product_sub_category.sub_category_name, product_sub_category.category_name, product_sub_category.sub_category_description]);
-                    });
+                // Insert product images
+                await Promise.all(
+                    product.product_images.map(product_image => 
+                        db.runAsync("INSERT INTO product_images(product_images_id,product_id,img_url) VALUES (?,?,?);", [product_image.product_images_id, product_image.product_id, product_image.img_url])
+                    )
+                );
 
-                    //product attributes
-                    data.products.product_attributes.map(async (product_attribute) => {
-                        //insert in database
-                        await db.runAsync("INSERT INTO product_attributes(product_attributes_id,product_id,product_attributes_default,product_attributes_name,product_attributes_value,product_attributes_price,product_attributes_stock_qty,product_attributes_summary) VALUES (?,?,?,?,?,?,?);", [product_attribute.product_attributes_id, product_attribute.product_id, product_attribute.product_attributes_default, product_attribute.product_attributes_name, product_attribute.product_attributes_value,product_attribute.product_attributes_price, product_attribute.product_attributes_stock_qty, product_attribute.product_attributes_summary ]);
-                    });
-
-                    //product images
-                    data.products.product_images.map(async (product_image) => {
-                        //insert in database
-                        await db.runAsync("INSERT INTO product_images(product_images_id,product_id,img_url) VALUES (?,?,?);", [product_image.product_images_id, product_image.product_id, product_image.img_url ]);
-                    });
-
-                });
-
-
-                await props.homeScreenLoading(false, "Fetch data success");
+                console.log('Product processed');
             })
-            .catch((err) => {
-                props.homeScreenLoading(true, err.message);
-            });
+        ]);
+
+        // Notify success
+        console.log("before props push")
+        await props.homeScreenLoading(false, "Fetch data success");
+
     } catch (error) {
+        // Handle error
         await props.homeScreenLoading(true, error.message);
     }
-
 };
 
 const getProductsScreen = async (props) => {
@@ -85,7 +74,7 @@ const getProductsScreen = async (props) => {
             })
                 .then((response) => response.json())
                 .then(async (data) => {
-                    console.log(data.products_homescreen);
+                    // console.log(data.products_homescreen);
                     //delete old data
                     const db = await connectToDatabase()
                     await deleteAllProducts();

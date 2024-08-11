@@ -72,7 +72,7 @@ export const createTables = async (db) => {
             );
         `);
 
-        
+
         await db.execSync(`
             CREATE TABLE IF NOT EXISTS user (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -87,15 +87,9 @@ export const createTables = async (db) => {
             );
         `);
 
-        // await db.execSync(`
-        //     CREATE TABLE IF NOT EXISTS category (
-        //         product_images_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        //         category_name TEXT NOT NULL,
-        //         img_url TEXT
-        //     );
-        // `);
-        /*
-                await db.execSync(`
+
+
+        await db.execSync(`
                     CREATE TABLE IF NOT EXISTS cart (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         product_id INTEGER NOT NULL,
@@ -105,7 +99,7 @@ export const createTables = async (db) => {
                         img_url TEXT NOT NULL
                     );
                 `);
-
+        /*
                 await db.execSync(`
                     CREATE TABLE IF NOT EXISTS products_homescreen (
                         product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -128,7 +122,11 @@ export const createTables = async (db) => {
 const deleteAllHomescreenProducts = async (db) => {
     await db.withExclusiveTransactionAsync((tx) => {
         tx.execSync("DELETE FROM category");
-        tx.execSync("DELETE FROM products_homescreen");
+        tx.execSync("DELETE FROM sub_category");
+        tx.execSync("DELETE FROM product_images");
+        tx.execSync("DELETE FROM product_attributes");
+        tx.execSync("DELETE FROM product_sub_categories");
+        tx.execSync("DELETE FROM product");
     });
 };
 
@@ -136,6 +134,10 @@ const deleteAllHomescreenProducts = async (db) => {
 const deleteAllProducts = async (db) => {
     await db.withExclusiveTransactionAsync((tx) => {
         tx.execSync("DELETE FROM category");
+        tx.execSync("DELETE FROM sub_category");
+        tx.execSync("DELETE FROM product_images");
+        tx.execSync("DELETE FROM product_attributes");
+        tx.execSync("DELETE FROM product_sub_categories");
         tx.execSync("DELETE FROM product");
     });
 };
@@ -156,7 +158,7 @@ const getAllCategory = async (db, callback) => {
 // Function to get all products on the home screen
 const getAllProductsHomeScreen = async (db, callback) => {
     await db.withExclusiveTransactionAsync((tx) => {
-        tx.execSync("SELECT * FROM products_homescreen", [], (tx, results) => {
+        tx.execSync("SELECT * FROM product", [], (tx, results) => {
             const products = [];
             for (let i = 0; i < results.rows.length; i++) {
                 products.push(results.rows.item(i));

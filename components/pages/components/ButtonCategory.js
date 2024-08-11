@@ -7,7 +7,7 @@ function ButtonCategory(props) {
     const data = props.data;
     if (data.bgColor === true) {
         return (
-            <Button backgroundColor='#1f2937' onPress={() => data.action(data.category_id)} style={styles.btn}
+            <Button key={data.category_id} backgroundColor='#1f2937' onPress={() => data.action(data.category_id)} style={styles.btn}
                     size={'md'}
                     variant="outline" _text={{
                 color: '#fff',
@@ -15,7 +15,7 @@ function ButtonCategory(props) {
         );
     } else {
         return (
-            <Button onPress={() => data.action(data.category_id)} style={styles.btn} variant="outline" size={'md'}
+            <Button key={data.category_id} onPress={() => data.action(data.category_id)} style={styles.btn} variant="outline" size={'md'}
                     _text={{
                         color: '#1f2937',
                     }}><Text>{data.btnText}</Text></Button>

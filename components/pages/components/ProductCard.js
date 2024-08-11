@@ -16,20 +16,27 @@ function ProductCard(props) {
 
         const product = data.product;
 
-        const product_price = "K" + numbro(parseInt(product.price)).format({
+        // const product_price = "K" + numbro(parseInt(product.price)).format({
+        //     thousandSeparated: true,
+        //     mantissa: 2,
+        // });
+
+        const product_price = "K" + numbro(parseInt(20000)).format({
             thousandSeparated: true,
             mantissa: 2,
         });
 
+        // console.log(product)
+        // console.log("\n")
 
         return (
-            <TouchableOpacity onPress={() => data.action(product)} style={styles.card}>
+            <TouchableOpacity key={product.product_id} onPress={() => data.action(product)} style={styles.card}>
                 <Image
                     alt={"Product Image"}
                     style={styles.thumb}
                     // source={product.img_url}
                     source={{
-                        uri: base_urlImages + "/products/" + product.img_url,
+                        uri: product.cover,
                     }}
                 />
                 <View style={styles.infoContainer}>
