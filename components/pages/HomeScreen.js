@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, Dimensions } from "react-native";
+import React, { useContext, useEffect, useState, useCallback } from "react";
+import { View,  StyleSheet,ScrollView, FlatList, Dimensions, TouchableOpacity, Text, ActivityIndicator } from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import ProductCard from "./components/ProductCard";
 import { AppContext, CartContext } from "@/app_contexts/AppContext";
@@ -7,13 +7,12 @@ import { Box } from "@/components/ui/box";
 import { Button } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
-import { Text } from "@/components/ui/text";
-import { Heading } from "@/components/ui/heading";
 import ContentLoader from "react-native-easy-content-loader";
 import { Divider } from "@/components/ui/divider";
 import Toast from "react-native-toast-message";
 import { connectToDatabase } from "@/components/config/sqlite_db_service";
 import { getHomeScreen } from "../config/API";
+import {Heading} from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -25,11 +24,13 @@ function HomeScreen(props) {
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
     const [isAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
-
     const [categories, setCategories] = useState([]);
-    const [productsFirstRow, setProductsFirstRow] = useState([]);
+    const [products, setProducts] = useState([]);
     const [flashProducts, setFlashProducts] = useState([]);
     const [db, setDb] = useState(null);
+    const [page, setPage] = useState(1);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
     const btnCategoryAction = (categoryId) => {
         setCategoryActive(categoryId);
@@ -39,12 +40,49 @@ function HomeScreen(props) {
         props.navigation.navigate("ProductDetails", { data: product });
     };
 
-    const setCartCounterNumber = async () => {
-        if (db) {
-            const cartItems = await db.getAllAsync('SELECT * FROM cart');
-            setCartItemsCount(cartItems.length);
+    const fetchProducts = async (pageNumber) => {
+        setIsFetchingMore(true);
+        try {
+            const fetchedProducts = await db.getAllAsync(`SELECT * FROM product ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+            if (fetchedProducts.length === 0) {
+                setHasMore(false);
+            }
+            setProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            setHasMore(false);
+        } finally {
+            setIsFetchingMore(false);
         }
     };
+
+    const fetchData = useCallback(async () => {
+        if (db) {
+            setLoggedInStatus(isLoggedIn);
+            await getHomeScreen({ homeScreenLoading });
+        }
+    }, [db]);
+
+    useEffect(() => {
+        if (db) {
+            fetchData();
+            fetchProducts(page - 1); // Load initial products
+        }
+    }, [db, page]);
+
+    useEffect(() => {
+        const initialize = async () => {
+            if (!db) {
+                try {
+                    const database = await connectToDatabase();
+                    setDb(database);
+                } catch (error) {
+                    console.error("Error during initialization:", error);
+                }
+            }
+        };
+        initialize();
+    }, [db]);
 
     const homeScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
@@ -63,7 +101,7 @@ function HomeScreen(props) {
                 setCategories(categories);
 
                 const productsFirstRow = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 10");
-                setProductsFirstRow(productsFirstRow);
+                setProducts(productsFirstRow);
 
                 const productsHome = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 20");
                 setFlashProducts(productsHome);
@@ -77,41 +115,20 @@ function HomeScreen(props) {
         }
     };
 
-    useEffect(() => {
-        if (db) {
-            const fetchLoad = async () => {
-                await setCartCounterNumber();
-                setLoggedInStatus(isLoggedIn);
-                await getHomeScreen({ homeScreenLoading });
-            };
-            fetchLoad();
+    const loadMoreProducts = () => {
+        if (!isFetchingMore && hasMore) {
+            setPage(prevPage => prevPage + 1);
         }
-    }, [db]);
-
-    useEffect(() => {
-        const initialize = async () => {
-            if (!db) {
-                try {
-                    const database = await connectToDatabase();
-                    setDb(database);
-                } catch (error) {
-                    console.error("Error during initialization:", error);
-                }
-            }
-        };
-        initialize();
-    }, [db]);
+    };
 
     const renderCategoryList = ({ item }) => (
-        <ButtonCategory
+        <TouchableOpacity
             key={item.sub_category_id}
-            data={{
-                btnText: item.sub_category_name,
-                category_id: item.sub_category_id,
-                action: btnCategoryAction,
-                bgColor: item.sub_category_id === categoryActive,
-            }}
-        />
+            style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
+            onPress={() => btnCategoryAction(item.sub_category_id)}
+        >
+            <Text style={styles.categoryText}>{item.sub_category_name}</Text>
+        </TouchableOpacity>
     );
 
     const renderProductList = ({ item }) => (
@@ -124,17 +141,26 @@ function HomeScreen(props) {
     );
 
     const renderFlashProduct = ({ item }) => (
-        <Box style={styles.productBox} py="2">
+        <Box style={styles.flashProductBox} py="2">
             <ProductCard
                 key={item.product_id}
                 data={{
                     product: item,
                     action: productCardAction,
-                    cardWidth: 200,
+                    cardWidth: (width - 30) / 2 - 15,
                 }}
             />
         </Box>
     );
+
+    const renderFooter = () => {
+        if (!isFetchingMore) return null;
+        return (
+            <View style={styles.footer}>
+                <ActivityIndicator size="large" color="#000" />
+            </View>
+        );
+    };
 
     if (isAppDataFetchLoading) {
         return (
@@ -152,20 +178,20 @@ function HomeScreen(props) {
         return (
             <View style={styles.container}>
                 <Heading style={styles.errorText} size="sm" fontWeight="bold">
-                    {appDataFetchMsg}
+                    <Text>{appDataFetchMsg}</Text>
                 </Heading>
             </View>
         );
     } else {
         return (
             <FlatList
-                data={[{ type: 'header' }, { type: 'categories', data: categories }, { type: 'productsFirstRow', data: productsFirstRow }, { type: 'flashProducts', data: flashProducts }]}
+                data={[{ type: 'header' }, { type: 'categories', data: categories }, { type: 'productsFirstRow', data: products }, { type: 'flashProducts', data: flashProducts }]}
                 renderItem={({ item }) => {
                     if (item.type === 'header') {
                         return (
                             <View style={styles.headerContainer}>
-                                <Heading size="md" fontWeight="bold">
-                                    Let's help you find what you want!
+                                <Heading style={styles.headerText} size="md" fontWeight="bold">
+                                    <Text>Let's help you find what you want!</Text>
                                 </Heading>
                             </View>
                         );
@@ -196,7 +222,7 @@ function HomeScreen(props) {
                             <View style={styles.flashProductsContainer}>
                                 <HStack style={styles.flashProductsHeader}>
                                     <Heading size="md" fontWeight="bold">
-                                        Flash Products
+                                        <Text>Flash Products</Text>
                                     </Heading>
                                     <Button
                                         onPress={() => console.log("Go to all products")}
@@ -220,8 +246,9 @@ function HomeScreen(props) {
                     }
                 }}
                 keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={<View style={{ height: 80 }} />} // Add extra space at the bottom
-                contentContainerStyle={styles.contentContainer}
+                ListFooterComponent={renderFooter}
+                onEndReached={loadMoreProducts}
+                onEndReachedThreshold={0.5}
             />
         );
     }
@@ -232,42 +259,67 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
     },
-    contentContainer: {
-        paddingBottom: 80, // Adjust based on your content
+    headerContainer: {
+        padding: 16,
     },
-    horizontalListContainer: {
-        paddingHorizontal: 30,
+    headerText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    categoryButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 20,
+        marginHorizontal: 5,
+    },
+    activeCategory: {
+        backgroundColor: '#000',
+    },
+    categoryText: {
+        color: '#000',
+        fontWeight: 'bold',
     },
     productCardContainer: {
-        width: "8%",
-        marginEnd: 20,
+        width: (width - 30) / 2 - 15,
+        marginHorizontal: 5,
     },
     flashProductsContainer: {
-        marginTop: 15,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        backgroundColor: '#f8f8f8',
     },
     flashProductsHeader: {
-        marginTop: 15,
+        marginBottom: 10,
+        justifyContent: 'space-between',
     },
     viewAllButton: {
-        alignSelf: "flex-end",
-        marginLeft: "auto",
+        marginLeft: 'auto',
+        borderColor: '#000',
+        borderWidth: 1,
+    },
+    flashProductBox: {
+        marginVertical: 10,
+        width: (width - 30) / 2 - 15,
     },
     columnWrapperStyle: {
-        justifyContent: "space-between",
+        justifyContent: 'space-between',
     },
     flashProductsListContainer: {
         paddingBottom: 80,
     },
-    productBox: {
-        width: "45%",
-        height: 200,
-    },
-    headerContainer: {
-        padding: 16,
+    footer: {
+        paddingVertical: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
+        alignItems: 'center',
     },
     errorText: {
         color: "#b60303",
         alignSelf: "center",
+    },
+    horizontalListContainer: {
+        paddingHorizontal: 16,
     },
 });
 
