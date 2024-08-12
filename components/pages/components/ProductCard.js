@@ -25,7 +25,7 @@ function ProductCard(props) {
             mantissa: 2,
         });
 
-        console.log(`${product.cover}?time=${new Date().getTime()}`)
+        // console.log(`${product.cover}?time=${new Date().getTime()}`)
         // console.log("\ n")
 
         return (
