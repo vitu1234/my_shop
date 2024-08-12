@@ -1,21 +1,21 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, ToastAndroid, FlatList, Dimensions, ScrollView } from "react-native";
+import React, {useContext, useEffect, useState} from "react";
+import {View, StyleSheet, ToastAndroid, FlatList, Dimensions, ScrollView} from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import ProductCard from "./components/ProductCard";
-import { AppContext, CartContext } from "@/app_contexts/AppContext";
-import { Box } from "@/components/ui/box";
-import { Button } from "@/components/ui/button";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
-import { Text } from "@/components/ui/text";
-import { Heading } from "@/components/ui/heading";
+import {AppContext, CartContext} from "@/app_contexts/AppContext";
+import {Box} from "@/components/ui/box";
+import {Button} from "@/components/ui/button";
+import {HStack} from "@/components/ui/hstack";
+import {VStack} from "@/components/ui/vstack";
+import {Text} from "@/components/ui/text";
+import {Heading} from "@/components/ui/heading";
 import ContentLoader from "react-native-easy-content-loader";
-import { Divider } from "@/components/ui/divider";
+import {Divider} from "@/components/ui/divider";
 import Toast from "react-native-toast-message";
-import { connectToDatabase } from "@/components/config/sqlite_db_service";
-import { getHomeScreen } from "../config/API";
+import {connectToDatabase} from "@/components/config/sqlite_db_service";
+import {getHomeScreen} from "../config/API";
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get("window");
 
 function HomeScreen(props) {
     // console.log(props.navigation);
@@ -37,15 +37,15 @@ function HomeScreen(props) {
     };
 
     const productCardAction = (product) => {
-        props.navigation.navigate("ProductDetails", { data: product });
+        props.navigation.navigate("ProductDetails", {data: product});
     };
 
     const setCartCounterNumber = async () => {
-        
+
         if (db) {
             const cartItems = await db.getAllAsync('SELECT * FROM cart');
             setCartItemsCount(cartItems.length);
-            
+
             // console.log(cartItems.length)
         }
     };
@@ -69,13 +69,11 @@ function HomeScreen(props) {
                 bottomOffset: 50,
             });
         } else {
-            setIsAppDataFetchError(false);
-            setIsAppDataFetchMsg(message);
 
             console.log("got data")
             console.log(db)
             if (db) {
-                console.log("checked db")
+                console.log("checked db ")
                 const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
                 setCategories(categories);
                 console.log(categories)
@@ -86,8 +84,14 @@ function HomeScreen(props) {
                 const productsHome = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 20");
                 setFlashProducts(productsHome);
 
+                setIsAppDataFetchError(false);
+                setIsAppDataFetchMsg(message);
+
                 // console.log("productsFirstRow");
                 // console.log(productsFirstRow);
+            } else {
+                setIsAppDataFetchError(true);
+                setIsAppDataFetchMsg(" Local Database error...");
             }
         }
     };
@@ -98,14 +102,14 @@ function HomeScreen(props) {
                 const database = await connectToDatabase();
                 setDb(database);
                 console.log(db)
-                console.log("DB INITIALIZATION")
+                console.log("DB INITIALIZATION ")
                 await setCartCounterNumber();
                 if (isLoggedIn) {
                     setLoggedInStatus(true);
                 } else {
                     setLoggedInStatus(false);
                 }
-                await getHomeScreen({ homeScreenLoading });
+                await getHomeScreen({homeScreenLoading});
             } catch (error) {
                 console.error("Error during initialization:", error);
                 // Handle any errors appropriately
@@ -117,22 +121,22 @@ function HomeScreen(props) {
 
     const renderCategoryList = categories.map((category) => (
         <ButtonCategory
-            key={category.category_id}
+            key={category.sub_category_id}
             data={{
-                btnText: category.category_name,
-                category_id: category.category_id,
+                btnText: category.sub_category_name,
+                category_id: category.sub_category_id,
                 action: btnCategoryAction,
-                bgColor: category.category_id === categoryActive,
+                bgColor: category.sub_category_id === categoryActive,
             }}
         />
     ));
 
     const renderProductList = products_first_row.map((product) => (
-        <View key={product.product_id} style={{ width: "8%", marginEnd: 20 }}>
+        <View key={product.product_id} style={{width: "8%", marginEnd: 20}}>
             <ProductCard data={{
                 product: product,
                 action: productCardAction,
-            }} />
+            }}/>
         </View>
     ));
 
@@ -166,7 +170,7 @@ function HomeScreen(props) {
                     ref={(scrollView) => {
                         scrollView = scrollView;
                     }}
-                    marginTop={5}
+                    marginTop={0}
                     showsHorizontalScrollIndicator={false}
                     horizontal={true}
                     decelerationRate={0}
@@ -211,9 +215,9 @@ function HomeScreen(props) {
                         >
                             {renderProductList}
                         </ScrollView>
-                        <Divider style={{ marginTop: 10 }} />
-                        <View style={{ display: "flex", direction: "row" }}>
-                            <HStack style={{ marginTop: 15 }}>
+                        <Divider style={{marginTop: 10}}/>
+                        <View style={{display: "flex", direction: "row"}}>
+                            <HStack style={{marginTop: 15}}>
                                 <Heading size="md" fontWeight="bold">
                                     Flash Products
                                 </Heading>
@@ -221,20 +225,20 @@ function HomeScreen(props) {
                                     onPress={() => console.log("Go to all products")}
                                     variant={"outline"}
                                     size={"sm"}
-                                    style={{ alignSelf: "flex-end", marginLeft: "auto" }}
+                                    style={{alignSelf: "flex-end", marginLeft: "auto"}}
                                 >
                                     <Text>View All</Text>
                                 </Button>
                             </HStack>
-                            <ScrollView horizontal={true} contentContainerStyle={{ width: "100%", height: "100%" }}>
+                            <ScrollView horizontal={true} contentContainerStyle={{width: "100%", height: "100%"}}>
                                 <FlatList
-                                    columnWrapperStyle={{ justifyContent: "space-between" }}
-                                    contentContainerStyle={{ paddingBottom: 80 }}
+                                    columnWrapperStyle={{justifyContent: "space-between"}}
+                                    contentContainerStyle={{paddingBottom: 80}}
                                     numColumns={2}
                                     horizontal={false}
                                     data={flash_products}
-                                    renderItem={({ item }) => (
-                                        <Box style={{ width: "45%" }} py="2">
+                                    renderItem={({item}) => (
+                                        <Box style={{width: "45%", height: "100%"}} py="2">
                                             <ProductCard
                                                 key={item.product_id}
                                                 data={{

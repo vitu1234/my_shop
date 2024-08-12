@@ -1,8 +1,7 @@
 import React from "react";
 import {Button} from "@/components/ui/button"
 import {Card} from "@/components/ui/card"
-import {Image} from "@/components/ui/image"
-import {ImageBackground, Text, View, StyleSheet, TouchableOpacity} from "react-native";
+import {ImageBackground,Image, Text, View, StyleSheet, TouchableOpacity} from "react-native";
 import numbro from "numbro";
 import {base_urlImages} from "../../config/API";
 
@@ -26,8 +25,8 @@ function ProductCard(props) {
             mantissa: 2,
         });
 
-        // console.log(product)
-        // console.log("\n")
+        console.log(`${product.cover}?time=${new Date().getTime()}`)
+        // console.log("\ n")
 
         return (
             <TouchableOpacity key={product.product_id} onPress={() => data.action(product)} style={styles.card}>
@@ -46,7 +45,7 @@ function ProductCard(props) {
             </TouchableOpacity>
         );
     } else {
-        console.log("undf");
+        console.log("undvccf");
     }
 
     return (
@@ -73,12 +72,13 @@ const styles = StyleSheet.create({
         marginEnd: 20,
     },
     thumb: {
-        resizeMode: "center",
+        resizeMode: "cover",  // or "contain" depending on your need
         height: 150,
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         width: "100%",
     },
+
     infoContainer: {
         padding: 16,
     },

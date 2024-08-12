@@ -3,7 +3,7 @@ import React from "react";
 import {connectToDatabase, deleteAllHomescreenProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.0.2:8000/api";
+const base_url = "http://192.168.3.200:8000/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================
@@ -19,9 +19,14 @@ const getHomeScreen = async (props) => {
             throw new Error('Database connection is not initialized.');
         }
 
+        console.log("HERE")
+
         // Delete old data
         await deleteAllHomescreenProducts(db);
 
+        console.log("HERE2")
+        const  results = await db.getAllAsync("PRAGMA table_info(category);")
+        console.log(results)
         // Use Promise.all to wait for all insert operations to complete
         await Promise.all([
             ...data.categories.map(category => db.runAsync("INSERT INTO category(category_id,category_name,category_description) VALUES (?,?,?);", [category.category_id, category.category_name, category.category_description])),
@@ -31,21 +36,21 @@ const getHomeScreen = async (props) => {
 
                 // Insert product subcategories
                 await Promise.all(
-                    product.product_sub_categories.map(product_sub_category => 
+                    product.product_sub_categories.map(product_sub_category =>
                         db.runAsync("INSERT INTO product_sub_categories(product_sub_category_id,sub_category_id,category_id,product_id,sub_category_name,category_name,sub_category_description) VALUES (?,?,?,?,?,?,?);", [product_sub_category.product_sub_category_id, product_sub_category.sub_category_id, product_sub_category.category_id, product_sub_category.product_id, product_sub_category.sub_category_name, product_sub_category.category_name, product_sub_category.sub_category_description])
                     )
                 );
 
                 // Insert product attributes
                 await Promise.all(
-                    product.product_attributes.map(product_attribute => 
+                    product.product_attributes.map(product_attribute =>
                         db.runAsync("INSERT INTO product_attributes(product_attributes_id,product_id,product_attributes_default,product_attributes_name,product_attributes_value,product_attributes_price,product_attributes_stock_qty,product_attributes_summary) VALUES (?,?,?,?,?,?,?,?);", [product_attribute.product_attributes_id, product_attribute.product_id, product_attribute.product_attributes_default, product_attribute.product_attributes_name, product_attribute.product_attributes_value, product_attribute.product_attributes_price, product_attribute.product_attributes_stock_qty, product_attribute.product_attributes_summary])
                     )
                 );
 
                 // Insert product images
                 await Promise.all(
-                    product.product_images.map(product_image => 
+                    product.product_images.map(product_image =>
                         db.runAsync("INSERT INTO product_images(product_images_id,product_id,img_url) VALUES (?,?,?);", [product_image.product_images_id, product_image.product_id, product_image.img_url])
                     )
                 );

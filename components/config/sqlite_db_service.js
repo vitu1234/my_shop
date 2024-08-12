@@ -6,7 +6,7 @@ import * as SQLite from 'expo-sqlite';
 // Function to get the database connection
 export const connectToDatabase = async () => {
 
-    return await SQLite.openDatabaseAsync('databaseNameaaa');
+    return await SQLite.openDatabaseAsync('databaseNamea2aa');
 
 }
 
