@@ -97,27 +97,31 @@ function HomeScreen(props) {
     };
 
     useEffect(() => {
-        const initialize = async () => {
-            try {
-                const database = await connectToDatabase();
-                setDb(database);
-                console.log(db)
-                console.log("DB INITIALIZATION ")
+        if (db) {
+            const fetchLoad = async () => {
                 await setCartCounterNumber();
-                if (isLoggedIn) {
-                    setLoggedInStatus(true);
-                } else {
-                    setLoggedInStatus(false);
+                setLoggedInStatus(isLoggedIn);
+                await getHomeScreen({ homeScreenLoading });
+            };
+            fetchLoad();
+        }
+    }, [db]);
+
+    useEffect(() => {
+        const initialize = async () => {
+            if (!db) {
+                try {
+                    const database = await connectToDatabase();
+                    setDb(database);
+                    console.log("DB INITIALIZATION");
+                } catch (error) {
+                    console.error("Error during initialization:", error);
+                    // Handle any errors appropriately
                 }
-                await getHomeScreen({homeScreenLoading});
-            } catch (error) {
-                console.error("Error during initialization:", error);
-                // Handle any errors appropriately
             }
         };
-
         initialize();
-    }, [isLoggedIn, setCartItemsCount, setLoggedInStatus]);
+    }, [db]);
 
     const renderCategoryList = categories.map((category) => (
         <ButtonCategory
