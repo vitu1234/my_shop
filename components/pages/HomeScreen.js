@@ -109,10 +109,10 @@ function HomeScreen(props) {
                 const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
                 setCategories(categories);
 
-                const productsFirstRow = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 10");
+                const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 10");
                 setProducts(productsFirstRow);
 
-                const productsHome = await db.getAllAsync("SELECT * FROM product ORDER BY RANDOM() LIMIT 20");
+                const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
                 setFlashProducts(productsHome);
 
                 setIsAppDataFetchError(false);
@@ -143,6 +143,7 @@ function HomeScreen(props) {
     const renderProductList = ({item}) => (
         <View key={item.product_id} style={styles.productCardContainer}>
             <ProductCard data={{
+                database: db,
                 product: item,
                 action: productCardAction,
             }}/>
@@ -154,6 +155,7 @@ function HomeScreen(props) {
             <ProductCard
                 key={item.product_id}
                 data={{
+                    database: db,
                     product: item,
                     action: productCardAction,
                     cardWidth: (width - 30) / 2 - 15,
@@ -220,6 +222,7 @@ function HomeScreen(props) {
                                 keyExtractor={item => item.sub_category_id.toString()}
                             />
                         );
+
                     } else if (item.type === 'productsFirstRow') {
                         return (
                             <FlatList
@@ -237,12 +240,12 @@ function HomeScreen(props) {
                             <View style={styles.flashProductsContainer}>
                                 <View style={[styles.flashProductsHeader, {justifyContent: 'space-between'}]}>
                                     <Text style={styles.headerText}>Flash Products</Text>
-                                    <Pressable
+                                    <TouchableOpacity
                                         onPress={() => console.log("Go to all products")}
 
                                     >
-                                        <Text style={{color: '#2780e3',fontWeight:'bold'}}>View All {">>"}</Text>
-                                    </Pressable>
+                                        <Text style={{color: '#2780e3', fontWeight: 'bold'}}>View All {">>"}</Text>
+                                    </TouchableOpacity>
                                 </View>
                                 <FlatList
                                     style={styles.container}
@@ -288,7 +291,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     activeCategory: {
-        backgroundColor: '#000',
+        backgroundColor: '#2780e3'
     },
     categoryText: {
         color: '#000',

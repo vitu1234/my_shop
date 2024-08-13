@@ -88,7 +88,6 @@ export const createTables = async (db) => {
         `);
 
 
-
         await db.execSync(`
                     CREATE TABLE IF NOT EXISTS cart (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -142,6 +141,26 @@ const deleteAllProducts = async (db) => {
     });
 };
 
+
+//get product default attribute/item
+const getProductDefaultAttribute = async (db, product_id) => {
+    const firstRow = await db.getFirstAsync("SELECT * FROM product_attributesproduct_attributes WHERE product_id = $product_id AND product_attributes_default = 1", {$product_id: product_id});
+    const data = {
+        product_id: firstRow.product_id,
+        product_attributes_default: firstRow.product_attributes_default,
+        product_attributes_name: firstRow.product_attributes_name,
+        product_attributes_value: firstRow.product_attributes_value,
+        product_attributes_summary: firstRow.product_attributes_summary,
+        product_attributes_price: firstRow.product_attributes_price,
+        product_attributes_stock_qty: firstRow.product_attributes_stock_qty,
+
+    }
+
+    return data
+    // return firstRow
+};
+
+
 // Function to get all categories
 const getAllCategory = async (db, callback) => {
     await db.withExclusiveTransactionAsync((tx) => {
@@ -194,5 +213,6 @@ export {
     deleteAllProducts,
     deleteAllHomescreenProducts,
     deleteAllUserData,
+    getProductDefaultAttribute,
 };
 
