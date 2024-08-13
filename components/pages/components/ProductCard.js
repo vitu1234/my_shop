@@ -59,21 +59,21 @@ const styles = StyleSheet.create({
     card: {
         width: "100%",
         backgroundColor: "#fff",
-        borderRadius: 10,
-        shadowOpacity: 0.5,
-        shadowRadius: 3,
+        borderRadius: 5,
+        shadowOpacity: 0.09,
+        shadowRadius: 2,
         shadowColor: "black",
         shadowOffset: {
             height: 0,
             width: 0,
         },
-        elevation: 3,
-        marginVertical: 20,
-        marginEnd: 20,
+        elevation: 1,
+        marginVertical: 1,
+        marginEnd: 2,
     },
     thumb: {
         resizeMode: "cover",  // or "contain" depending on your need
-        height: 150,
+        height: 180,
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         width: "100%",

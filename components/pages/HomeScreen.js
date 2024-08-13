@@ -1,20 +1,29 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
-import { View,  StyleSheet,ScrollView, FlatList, Dimensions, TouchableOpacity, Text, ActivityIndicator } from "react-native";
+import React, {useContext, useEffect, useState, useCallback} from "react";
+import {
+    View,
+    StyleSheet,
+    ScrollView,
+    FlatList,
+    Dimensions,
+    TouchableOpacity,
+    Text,
+    ActivityIndicator, Pressable
+} from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import ProductCard from "./components/ProductCard";
-import { AppContext, CartContext } from "@/app_contexts/AppContext";
-import { Box } from "@/components/ui/box";
-import { Button } from "@/components/ui/button";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
+import {AppContext, CartContext} from "@/app_contexts/AppContext";
+import {Box} from "@/components/ui/box";
+import {Button} from "@/components/ui/button";
+import {HStack} from "@/components/ui/hstack";
+import {VStack} from "@/components/ui/vstack";
 import ContentLoader from "react-native-easy-content-loader";
-import { Divider } from "@/components/ui/divider";
+import {Divider} from "@/components/ui/divider";
 import Toast from "react-native-toast-message";
-import { connectToDatabase } from "@/components/config/sqlite_db_service";
-import { getHomeScreen } from "../config/API";
+import {connectToDatabase} from "@/components/config/sqlite_db_service";
+import {getHomeScreen} from "../config/API";
 import {Heading} from "lucide-react-native";
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get("window");
 
 function HomeScreen(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
@@ -37,7 +46,7 @@ function HomeScreen(props) {
     };
 
     const productCardAction = (product) => {
-        props.navigation.navigate("ProductDetails", { data: product });
+        props.navigation.navigate("ProductDetails", {data: product});
     };
 
     const fetchProducts = async (pageNumber) => {
@@ -59,7 +68,7 @@ function HomeScreen(props) {
     const fetchData = useCallback(async () => {
         if (db) {
             setLoggedInStatus(isLoggedIn);
-            await getHomeScreen({ homeScreenLoading });
+            await getHomeScreen({homeScreenLoading});
         }
     }, [db]);
 
@@ -121,7 +130,7 @@ function HomeScreen(props) {
         }
     };
 
-    const renderCategoryList = ({ item }) => (
+    const renderCategoryList = ({item}) => (
         <TouchableOpacity
             key={item.sub_category_id}
             style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
@@ -131,16 +140,16 @@ function HomeScreen(props) {
         </TouchableOpacity>
     );
 
-    const renderProductList = ({ item }) => (
+    const renderProductList = ({item}) => (
         <View key={item.product_id} style={styles.productCardContainer}>
             <ProductCard data={{
                 product: item,
                 action: productCardAction,
-            }} />
+            }}/>
         </View>
     );
 
-    const renderFlashProduct = ({ item }) => (
+    const renderFlashProduct = ({item}) => (
         <Box style={styles.flashProductBox} py="2">
             <ProductCard
                 key={item.product_id}
@@ -157,7 +166,7 @@ function HomeScreen(props) {
         if (!isFetchingMore) return null;
         return (
             <View style={styles.footer}>
-                <ActivityIndicator size="large" color="#000" />
+                <ActivityIndicator size="large" color="#000"/>
             </View>
         );
     };
@@ -185,19 +194,24 @@ function HomeScreen(props) {
     } else {
         return (
             <FlatList
-                data={[{ type: 'header' }, { type: 'categories', data: categories }, { type: 'productsFirstRow', data: products }, { type: 'flashProducts', data: flashProducts }]}
-                renderItem={({ item }) => {
+                style={styles.container}
+                data={[{type: 'header'}, {type: 'categories', data: categories}, {
+                    type: 'productsFirstRow',
+                    data: products
+                }, {type: 'flashProducts', data: flashProducts}]}
+                renderItem={({item}) => {
                     if (item.type === 'header') {
                         return (
                             <View style={styles.headerContainer}>
-                                <Heading style={styles.headerText} size="md" fontWeight="bold">
-                                    <Text>Let's help you find what you want!</Text>
-                                </Heading>
+
+                                <Text style={styles.headerText}>Let's help you find what you want!</Text>
+
                             </View>
                         );
                     } else if (item.type === 'categories') {
                         return (
                             <FlatList
+                                style={styles.container}
                                 data={item.data}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
@@ -209,6 +223,7 @@ function HomeScreen(props) {
                     } else if (item.type === 'productsFirstRow') {
                         return (
                             <FlatList
+                                style={styles.container}
                                 data={item.data}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
@@ -220,20 +235,17 @@ function HomeScreen(props) {
                     } else if (item.type === 'flashProducts') {
                         return (
                             <View style={styles.flashProductsContainer}>
-                                <HStack style={styles.flashProductsHeader}>
-                                    <Heading size="md" fontWeight="bold">
-                                        <Text>Flash Products</Text>
-                                    </Heading>
-                                    <Button
+                                <View style={[styles.flashProductsHeader, {justifyContent: 'space-between'}]}>
+                                    <Text style={styles.headerText}>Flash Products</Text>
+                                    <Pressable
                                         onPress={() => console.log("Go to all products")}
-                                        variant={"outline"}
-                                        size={"sm"}
-                                        style={styles.viewAllButton}
+
                                     >
-                                        <Text>View All</Text>
-                                    </Button>
-                                </HStack>
+                                        <Text style={{color: '#2780e3',fontWeight:'bold'}}>View All {">>"}</Text>
+                                    </Pressable>
+                                </View>
                                 <FlatList
+                                    style={styles.container}
                                     data={item.data}
                                     numColumns={2}
                                     columnWrapperStyle={styles.columnWrapperStyle}
@@ -261,12 +273,14 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         padding: 16,
+        margin: 7
     },
     headerText: {
         fontSize: 18,
         fontWeight: 'bold',
     },
     categoryButton: {
+        marginBottom: 18,
         paddingVertical: 10,
         paddingHorizontal: 20,
         backgroundColor: '#e0e0e0',
@@ -287,20 +301,26 @@ const styles = StyleSheet.create({
     flashProductsContainer: {
         paddingHorizontal: 16,
         paddingVertical: 10,
-        backgroundColor: '#f8f8f8',
+        backgroundColor: 'rgba(250,249,249,0.83)',
     },
     flashProductsHeader: {
-        marginBottom: 10,
-        justifyContent: 'space-between',
+        // marginBottom: 10,
+        // alignItems: 'center',
+        // justifyContent: 'space-between',
+        flexDirection: 'row',
+        margin: 10
     },
     viewAllButton: {
-        marginLeft: 'auto',
-        borderColor: '#000',
-        borderWidth: 1,
+
+        // marginLeft: 'auto',
+        borderColor: '#2780e3',
+
+        // borderWidth: 1,
+        padding: 5
     },
     flashProductBox: {
-        marginVertical: 10,
-        width: (width - 30) / 2 - 15,
+        marginVertical: 5,
+        width: (width - 10) / 2 - 15,
     },
     columnWrapperStyle: {
         justifyContent: 'space-between',
