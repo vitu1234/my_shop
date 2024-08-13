@@ -10,31 +10,17 @@ import {
     View
 } from "react-native";
 import {AppContext, CartContext} from "@/app_contexts/AppContext";
-import ButtonCategory from "./components/ButtonCategory";
 import ProductCard from "./components/ProductCard";
-import Icon from "react-native-vector-icons/AntDesign";
-import SearchFilterScreen from "./components/SearchFilterScreen";
-import {getHomeScreen, getProductsScreen} from "../config/API";
+
 import ContentLoader from "react-native-easy-content-loader";
 
 const {width} = Dimensions.get("window");
 import {connectToDatabase, db} from "../config/sqlite_db_service";
-
-import {Center} from "@/components/ui/center"
-import {Box} from "@/components/ui/box"
-import {Checkbox} from "@/components/ui/checkbox"
-import {Button} from "@/components/ui/button"
-import {HStack} from "@/components/ui/hstack"
-import {VStack} from "@/components/ui/vstack"
 import {Text} from "@/components/ui/text"
-import {Image} from "@/components/ui/image"
 import {useToast, Toast} from "@/components/ui/toast"
-import {Spinner} from "@/components/ui/spinner"
 import {Heading} from "@/components/ui/heading"
-import {Input} from "@/components/ui/input"
-import {Link} from "@/components/ui/link"
-import {Pressable} from "@/components/ui/pressable"
-import {useSQLiteContext} from "expo-sqlite";
+import SearchFilterScreen from "@/components/pages/components/SearchFilterScreen";
+
 
 function Products(props) {
 
