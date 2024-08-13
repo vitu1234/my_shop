@@ -1,15 +1,24 @@
-import React, {useContext, useEffect, useState} from "react";
-import {Dimensions, FlatList, ScrollView, StyleSheet, ToastAndroid, View} from "react-native";
-import {CartContext} from "@/app_contexts/AppContext";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {
+    ActivityIndicator,
+    Dimensions,
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    ToastAndroid,
+    TouchableOpacity,
+    View
+} from "react-native";
+import {AppContext, CartContext} from "@/app_contexts/AppContext";
 import ButtonCategory from "./components/ButtonCategory";
 import ProductCard from "./components/ProductCard";
 import Icon from "react-native-vector-icons/AntDesign";
 import SearchFilterScreen from "./components/SearchFilterScreen";
-import {getProductsScreen} from "../config/API";
+import {getHomeScreen, getProductsScreen} from "../config/API";
 import ContentLoader from "react-native-easy-content-loader";
 
 const {width} = Dimensions.get("window");
-import {db} from "../config/sqlite_db_service";
+import {connectToDatabase, db} from "../config/sqlite_db_service";
 
 import {Center} from "@/components/ui/center"
 import {Box} from "@/components/ui/box"
@@ -25,16 +34,23 @@ import {Heading} from "@/components/ui/heading"
 import {Input} from "@/components/ui/input"
 import {Link} from "@/components/ui/link"
 import {Pressable} from "@/components/ui/pressable"
+import {useSQLiteContext} from "expo-sqlite";
 
 function Products(props) {
-    const [categoryActive, setCategoryActive] = useState(-1);
-    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
 
-    const [IsAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
-    const [IsAppDataFetchError, setIsAppDataFetchError] = useState(false);
+    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+    const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
+
+    const [categoryActive, setCategoryActive] = useState(-1);
+    const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
+    const [isAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
+    const [db, setDb] = useState(null);
+    const [page, setPage] = useState(1);
+    const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
 
     const initialSearchFilters = {
@@ -55,10 +71,10 @@ function Products(props) {
 
     const btnCategoryAction = (category_id) => {
         console.log("GOES TO " + category_id + " CATEGORY");
-        setIsAppDataFetchLoading(true);
-        setIsAppDataFetchError(false);
+        // setIsAppDataFetchLoading(true);
+        // setIsAppDataFetchError(false);
         setCategoryActive(category_id);
-        getProductsScreen({productsScreenLoading, category_id});
+        // getProductsScreen({productsScreenLoading, category_id});
     };
 
     const productCardAction = (product) => {
@@ -66,110 +82,120 @@ function Products(props) {
         props.navigation.navigate("ProductDetails", {data: product});
     };
 
-    const setCartCounterNumber = () => {
-        //update cart counter
-        /*
-         db.transaction((tx) => {
-           tx.executeSql(
-             "SELECT * FROM cart",
-             [],
-             (tx, results) => {
-               const len = results.rows.length;
-               setCartItemsCount(len);
-
-             },
-           );
-         });
-         */
+    const fetchProducts = async (pageNumber) => {
+        setIsFetchingMore(true);
+        try {
+            const fetchedProducts = await db.getAllAsync(`SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+            if (fetchedProducts.length === 0) {
+                setHasMore(false);
+            }
+            setProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            setHasMore(false);
+        } finally {
+            setIsFetchingMore(false);
+        }
     };
 
-    const productsScreenLoading = (isFetchingDataError, message) => {
+    const fetchData = useCallback(async () => {
+        if (db) {
+            setLoggedInStatus(isLoggedIn);
+            productsScreenLoading(false, "Fetched data")
+        }
+    }, [db]);
+
+    useEffect(() => {
+        if (db) {
+            fetchData();
+            fetchProducts(page - 1); // Load initial products
+        }
+    }, [db, page]);
+
+    useEffect(() => {
+        const initialize = async () => {
+            if (!db) {
+                try {
+                    const database = await connectToDatabase();
+                    setDb(database);
+                } catch (error) {
+                    console.error("Error during initialization:", error);
+                }
+            }
+        };
+        initialize();
+    }, [db]);
+
+
+    const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
-            ToastAndroid.showWithGravityAndOffset(
-                message,
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-                25,
-                50,
-            );
+            Toast.show({
+                text1: 'Error',
+                text2: message,
+                position: 'bottom',
+                bottomOffset: 50,
+            });
         } else {
-            setIsAppDataFetchError(false);
-            setIsAppDataFetchMsg(message);
+            if (db) {
+                const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+                setCategories(categoriesFetch);
 
-            //get data from database
-            /*
-                  db.transaction((tx) => {
-                    tx.executeSql(
-                      "SELECT * FROM category",
-                      [],
-                      (tx, results) => {
-                        const len = results.rows.length;
-                        const temp = [];
+                const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
+                setProducts(productsFetch);
 
-                        for (let i = 0; i < results.rows.length; ++i) {
-                          temp.push(results.rows.item(i));
-                        }
-                        setCategories(temp);
 
-                      },
-                    );
-                  });
-                  db.transaction((tx) => {
-                    tx.executeSql(
-                      "SELECT * FROM product",
-                      [],
-                      (tx, results) => {
-                        const len = results.rows.length;
-                        const temp = [];
-
-                        for (let i = 0; i < results.rows.length; ++i) {
-                          temp.push(results.rows.item(i));
-                        }
-                        setProducts(temp);
-
-                      },
-                    );
-                  });
-                  */
+                setIsAppDataFetchError(false);
+                setIsAppDataFetchMsg(message);
+            } else {
+                setIsAppDataFetchError(true);
+                setIsAppDataFetchMsg("Local Database error...");
+            }
         }
     };
 
-    useEffect(() => {
-        setCartCounterNumber();
-        getProductsScreen({productsScreenLoading, categoryActive});
-    }, []);
-
-    const renderCategoryList = categories.map((category) => {
-        console.log(category);
-        if (category.category_id === categoryActive) {
-            return (
-                <ButtonCategory key={category.category_id} data={{
-                    btnText: category.category_name,
-                    category_id: category.category_id,
-                    action: btnCategoryAction,
-                    bgColor: true,
-                }}></ButtonCategory>
-            );
-        } else {
-            return (
-
-                <ButtonCategory key={category.category_id} data={{
-                    btnText: category.category_name,
-                    category_id: category.category_id,
-                    action: btnCategoryAction,
-                    bgColor: false,
-                }}></ButtonCategory>
-            );
+    const loadMoreProducts = () => {
+        console.log("loading more function")
+        if (!isFetchingMore && hasMore) {
+            setPage(prevPage => prevPage + 1);
         }
+    };
 
+    const renderCategoryList = ({item}) => (
+        <View>
+            <TouchableOpacity
+                key={item.sub_category_id}
+                style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
+                onPress={() => btnCategoryAction(item.sub_category_id)}
+            >
+                <Text
+                    style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>
+            </TouchableOpacity>
+        </View>
+    )
 
-    });
+    const renderProductList = ({item}) => (
+        <View key={item.product_id} style={styles.productCardContainer}>
+            <ProductCard data={{
+                database: db,
+                product: item,
+                action: productCardAction,
+            }}/>
+        </View>
+    );
 
-    if (IsAppDataFetchLoading) {
-        console.log("loadingd");
+    const renderFooter = () => {
+        if (!isFetchingMore) return null;
+        return (
+            <View style={styles.footer}>
+                <ActivityIndicator size="large" color="#000"/>
+            </View>
+        );
+    };
+
+    if (isAppDataFetchLoading) {
         return (
             <View style={styles.container}>
                 <ContentLoader
@@ -181,123 +207,158 @@ function Products(props) {
                 />
             </View>
         );
+    } else if (isAppDataFetchError) {
+        return (
+            <View style={styles.container}>
+                <Heading style={styles.errorText} size="sm" fontWeight="bold">
+                    <Text>{appDataFetchMsg}</Text>
+                </Heading>
+            </View>
+        );
     } else {
-        console.log("finished loading");
-        if (IsAppDataFetchError) {
-            return (
-                <View style={styles.container}>
-                    <Heading style={styles.errorText} size="sm" fontWeight="bold">
-                        {appDataFetchMsg}
-                    </Heading>
-                </View>
-            );
-        } else {
-            return (
-                <View style={styles.container}>
-                    <Heading size="lg" fontWeight="900">
-                        Your One Stop Shop!
-                        {/*<Text color="emerald.500"> React Ecosystem</Text>*/}
-                    </Heading>
-                    <Input mt={5} InputLeftElement={<Icon style={{margin: 15}} name="search1"
-                                                          size={18} ml="2" color="#000"/>}
-                           placeholder="Search Products..."/>
-                    <ScrollView
-                        ref={(scrollView) => {
-                            scrollView = scrollView;
-                        }}
-                        // style={s.container}
-                        //pagingEnabled={true}
-                        marginTop={5}
-                        marginBottom={5}
-                        showsHorizontalScrollIndicator={false}
-                        horizontal={true}
-                        decelerationRate={0}
-                        snapToInterval={width - 60}
-                        snapToAlignment={"center"}
-                        contentInset={{
-                            top: 0,
-                            left: 30,
-                            bottom: 0,
-                            right: 30,
-                        }}>
+        return (
+            <FlatList
+                style={styles.container}
+                data={[{type: 'header'}, {type: 'categories', data: categories}, {
+                    type: 'products',
+                    data: products
+                }]}
+                renderItem={({item}) => {
+                    if (item.type === 'header') {
+                        return (
+                            <View style={styles.headerContainer}>
 
-                        {
-                            (categoryActive === -1) ?
-                                <ButtonCategory
-                                    data={{btnText: "All", category_id: -1, action: btnCategoryAction, bgColor: true}}/>
-                                :
-                                <ButtonCategory
-                                    data={{
-                                        btnText: "All",
-                                        category_id: -1,
-                                        action: btnCategoryAction,
-                                        bgColor: false,
-                                    }}/>
-                        }
+                                <Text style={styles.headerText}>Let's help you find what you want!</Text>
 
-                        {renderCategoryList}
-                    </ScrollView>
-
-                    <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
-                        <VStack>
-
-
-                            {/*<Divider style={{marginTop: 5}}/>*/}
-                            <View style={{display: "flex", direction: "row"}}>
-
-                                <ScrollView
-                                    horizontal={true}
-                                    contentContainerStyle={{width: "100%", height: "100%"}}>
-                                    <FlatList
-                                        columnWrapperStyle={{justifyContent: "space-between"}}
-                                        contentContainerStyle={{paddingBottom: 190}}
-
-                                        numColumns={2} horizontal={false}
-                                        data={products}
-                                        renderItem={({item}) =>
-                                            <Box style={{width: "45%"}}
-                                                 py="1">
-                                                <ProductCard key={item.product_id} data={{
-                                                    product: item,
-                                                    action: productCardAction,
-                                                    cardWidth: 200,
-                                                }}/>
-                                            </Box>
-                                        } keyExtractor={item => item.product_id}/>
-                                </ScrollView>
                             </View>
+                        );
+                    } else if (item.type === 'categories') {
+                        return (
+                            <FlatList
+                                ListHeaderComponent={
+                                    <TouchableOpacity
+                                        key={-1}
+                                        style={[styles.categoryButton, -1 === categoryActive && styles.activeCategory]}
+                                        onPress={() => btnCategoryAction(-1)}
+                                    >
+                                        <Text
+                                            style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]}>All</Text>
+                                    </TouchableOpacity>
+                                }
+                                style={styles.container}
+                                data={item.data}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.horizontalListContainer}
+                                renderItem={renderCategoryList}
+                                keyExtractor={item => item.sub_category_id.toString()}
+                            />
+                        );
 
-                            <SearchFilterScreen data={{newFilters: setFilters1}} searchStates={[searchFilters]}/>
+                    } else if (item.type === 'products') {
+                        return (
+                            <View style={styles.flashProductsContainer}>
 
-                        </VStack>
-                    </ScrollView>
-                </View>
-            );
-        }
+                                <FlatList
+                                    style={styles.container}
+                                    data={item.data}
+                                    numColumns={2}
+                                    columnWrapperStyle={styles.columnWrapperStyle}
+                                    contentContainerStyle={styles.flashProductsListContainer}
+                                    renderItem={renderProductList}
+                                    keyExtractor={item => item.product_id.toString()}
+                                />
+                            </View>
+                        );
+                    }
+                }}
+                keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={renderFooter}
+                onEndReached={loadMoreProducts}
+                onEndReachedThreshold={0.5}
+            />
+        );
     }
-
-
 }
 
 const styles = StyleSheet.create({
     container: {
-        padding: 16,
+        flex: 1,
         backgroundColor: "#fff",
-        marginTop: 5,
+    },
+    headerContainer: {
+        padding: 16,
+        margin: 7
+    },
+    headerText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    categoryButton: {
+        marginBottom: 18,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 20,
+        marginHorizontal: 5,
+    },
+    activeCategory: {
+        backgroundColor: '#2780e3'
+    },
+    activeCategoryText: {
+        color: '#fff'
+    },
+    categoryText: {
+        color: '#000',
+        fontWeight: 'bold',
+    },
+    productCardContainer: {
+        width: (width - 30) / 2 - 15,
+        marginHorizontal: 5,
+    },
+    flashProductsContainer: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        backgroundColor: 'rgba(250,249,249,0.83)',
+    },
+    flashProductsHeader: {
+        // marginBottom: 10,
+        // alignItems: 'center',
+        // justifyContent: 'space-between',
+        flexDirection: 'row',
+        margin: 10
+    },
+    viewAllButton: {
+
+        // marginLeft: 'auto',
+        borderColor: '#2780e3',
+
+        // borderWidth: 1,
+        padding: 5
+    },
+    flashProductBox: {
+        marginVertical: 5,
+        width: (width - 10) / 2 - 15,
+    },
+    columnWrapperStyle: {
+        justifyContent: 'space-between',
+    },
+    flashProductsListContainer: {
+        paddingBottom: 80,
+    },
+    footer: {
+        paddingVertical: 20,
+        borderTopWidth: 1,
+        borderTopColor: '#e0e0e0',
+        alignItems: 'center',
     },
     errorText: {
         color: "#b60303",
         alignSelf: "center",
     },
-    cardContainer: {
-        flex: 1,
-        flexDirection: "column",
-    },
-
-    card: {
-        flex: 1,
-        margin: 10,
-        flexBasis: "50%",
+    horizontalListContainer: {
+        paddingHorizontal: 16,
     },
 });
+
 export default Products;
