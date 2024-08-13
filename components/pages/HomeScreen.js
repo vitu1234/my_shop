@@ -137,7 +137,8 @@ function HomeScreen(props) {
                 style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
                 onPress={() => btnCategoryAction(item.sub_category_id)}
             >
-                <Text style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]} >{item.sub_category_name}</Text>
+                <Text
+                    style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -221,7 +222,8 @@ function HomeScreen(props) {
                                         style={[styles.categoryButton, -1 === categoryActive && styles.activeCategory]}
                                         onPress={() => btnCategoryAction(-1)}
                                     >
-                                        <Text style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]} >All</Text>
+                                        <Text
+                                            style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]}>All</Text>
                                     </TouchableOpacity>
                                 }
                                 style={styles.container}
