@@ -131,14 +131,16 @@ function HomeScreen(props) {
     };
 
     const renderCategoryList = ({item}) => (
-        <TouchableOpacity
-            key={item.sub_category_id}
-            style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
-            onPress={() => btnCategoryAction(item.sub_category_id)}
-        >
-            <Text style={styles.categoryText}>{item.sub_category_name}</Text>
-        </TouchableOpacity>
-    );
+        <View>
+            <TouchableOpacity
+                key={item.sub_category_id}
+                style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
+                onPress={() => btnCategoryAction(item.sub_category_id)}
+            >
+                <Text style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]} >{item.sub_category_name}</Text>
+            </TouchableOpacity>
+        </View>
+    )
 
     const renderProductList = ({item}) => (
         <View key={item.product_id} style={styles.productCardContainer}>
@@ -213,6 +215,15 @@ function HomeScreen(props) {
                     } else if (item.type === 'categories') {
                         return (
                             <FlatList
+                                ListHeaderComponent={
+                                    <TouchableOpacity
+                                        key={-1}
+                                        style={[styles.categoryButton, -1 === categoryActive && styles.activeCategory]}
+                                        onPress={() => btnCategoryAction(-1)}
+                                    >
+                                        <Text style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]} >All</Text>
+                                    </TouchableOpacity>
+                                }
                                 style={styles.container}
                                 data={item.data}
                                 horizontal
@@ -292,6 +303,9 @@ const styles = StyleSheet.create({
     },
     activeCategory: {
         backgroundColor: '#2780e3'
+    },
+    activeCategoryText: {
+        color: '#fff'
     },
     categoryText: {
         color: '#000',
