@@ -12,7 +12,7 @@ const SearchSuggestions = (props) => {
                 FROM product
                 INNER JOIN product_attributes ON product.product_id = product_attributes.product_id
                 WHERE product_attributes.product_attributes_default = 1
-                AND (product.product_name LIKE '%${searchText}%' OR product_attributes.product_attributes_value LIKE '%${searchText}%')
+                AND (product.product_name LIKE '%${searchText}%' OR product_attributes.product_attributes_name LIKE '%${searchText}%' OR product_attributes.product_attributes_value LIKE '%${searchText}%')
                 
                 UNION
                 
