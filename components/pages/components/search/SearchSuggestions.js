@@ -41,10 +41,14 @@ const SearchSuggestions = (props) => {
     }, [searchText]);
 
     const searchTheItem = (searchText, itemId, itemName, resultType) => {
-        console.log('Item Name:', itemName);
-        console.log('Result Type:', resultType);
         props.setIsSearchButton(true);
         props.setIsTyping(false);
+        console.log('Item Name:', itemName);
+        console.log('Result Type:', resultType);
+        props.setSearchSuggestionitemId(itemId)
+        props.setSearchSuggestionItemName(itemName)
+        props.setSearchSuggestionType(resultType)
+
     };
 
 

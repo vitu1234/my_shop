@@ -14,6 +14,9 @@ const SearchScreen = (props) => {
     const [isTyping, setIsTyping] = React.useState(false);
     const [isSearchButton, setIsSearchButton] = React.useState(false);
     const [searchText, setSearchText] = React.useState('');
+    const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
+    const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
+    const [searchSuggestionItemName, setSearchSuggestionItemName] = React.useState('');
     const [products, setProducts] = useState([]);
 
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
@@ -77,36 +80,40 @@ const SearchScreen = (props) => {
 
     if (isAppDataFetchLoading) {
         return (<SafeAreaView style={styles.container}>
-                <ContentLoader
-                    active={true}
-                    loading={true}
-                    pRows={5}
-                    pHeight={[70, 100, 50, 70, 160, 77]}
-                    pWidth={[100, 300, 70, 200, 300, 300]}
-                />
-            </SafeAreaView>);
+            <ContentLoader
+                active={true}
+                loading={true}
+                pRows={5}
+                pHeight={[70, 100, 50, 70, 160, 77]}
+                pWidth={[100, 300, 70, 200, 300, 300]}
+            />
+        </SafeAreaView>);
     } else if (isAppDataFetchError) {
         return (<SafeAreaView style={styles.container}>
-                <Heading style={styles.errorText} size="sm" fontWeight="bold">
-                    <Text>{appDataFetchMsg}</Text>
-                </Heading>
-            </SafeAreaView>);
+            <Heading style={styles.errorText} size="sm" fontWeight="bold">
+                <Text>{appDataFetchMsg}</Text>
+            </Heading>
+        </SafeAreaView>);
     } else {
         return (<SafeAreaView style={styles.container}>
-                <SearchBarInput
-                    setIsTyping={setIsTyping}
-                    setIsSearchButton={setIsSearchButton}
-                    setSearchText={setSearchText}
-                    props={props}
-                    data={"ddd"}
-                    goBack={navigateBack}
-                />
-                {isTyping && searchText.length > 0 ? (
+            <SearchBarInput
+                setIsTyping={setIsTyping}
+                setIsSearchButton={setIsSearchButton}
+                setSearchText={setSearchText}
+                props={props}
+                data={"ddd"}
+                goBack={navigateBack}
+            />
+            {isTyping && searchText.length > 0 ? (
                     <SearchSuggestions db={db} searchText={searchText} setIsSearchButton={setIsSearchButton}
-                                       setIsTyping={setIsTyping}/>)
-                    : isSearchButton && searchText.length > 0 ? (
-                    <SearchResults db={db} searchText={searchText}/>) : (<SearchHistory/>)}
-            </SafeAreaView>);
+                                       setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
+                                       setSearchSuggestionItemName={setSearchSuggestionItemName}
+                                       setSearchSuggestionType={setSearchSuggestionType}/>)
+                : isSearchButton && searchText.length > 0 ? (
+                    <SearchResults db={db} searchText={searchText} searchSuggestionItemId={searchSuggestionItemId}
+                                   searchSuggestionItemName={searchSuggestionItemName}
+                                   searchSuggestionType={searchSuggestionType}/>) : (<SearchHistory/>)}
+        </SafeAreaView>);
     }
 };
 const styles = StyleSheet.create({
