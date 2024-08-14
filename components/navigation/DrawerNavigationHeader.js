@@ -8,9 +8,7 @@ import { navibar_profile_styles } from "@/styles/AllStyles";
 //import { deleteAllUserData } from "../config/sqlite_db_service";
 import ToastComponent from "../pages/components/ToastComponent";
 
-import { Button } from "@/components/ui/button"
-import { HStack } from "@/components/ui/hstack"
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert"
+
 import { Text } from "@/components/ui/text"
 import { useToast, Toast } from "@/components/ui/toast"
 import { Image } from "@/components/ui/image"
@@ -46,6 +44,14 @@ function DrawerNavigationHeader(props) {
     // }
     navigator.navigate("Products");
   };
+
+  const gotToSearch = () => {
+    // if (navigator.getState().routes[1].name !== 'Cart') {
+    //    console.log('djdjdjdjjdjd')
+    // }
+    navigator.navigate("Search");
+  };
+
   const gotToLogout = () => {
     setLoggedInStatus(false);
     // deleteAllUserData();
@@ -83,7 +89,7 @@ function DrawerNavigationHeader(props) {
       {/*remove search icon from nav bar*/}
       {
         (route.name !== "Products") ?
-          <TouchableOpacity onPress={gotToProducts} style={{ margin: 12 }}>
+          <TouchableOpacity onPress={gotToSearch} style={{ margin: 12 }}>
             <Icon
               name="search1"
               color={"#000"}

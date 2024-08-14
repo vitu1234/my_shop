@@ -19,7 +19,7 @@ import {connectToDatabase, db} from "../config/sqlite_db_service";
 import {Text} from "@/components/ui/text"
 import {useToast, Toast} from "@/components/ui/toast"
 import {Heading} from "@/components/ui/heading"
-import SearchFilterScreen from "@/components/pages/components/SearchFilterScreen";
+import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
 
 
 function Products(props) {
