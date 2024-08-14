@@ -52,7 +52,7 @@ export default function App() {
     return (
         <View style={styles.container}>
         <GluestackUIProvider >
-
+            <StatusBar barStyle="dark-content" backgroundColor={backgroundStyle.backgroundColor} />
             <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
                 <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
                     <ProductFilterModalContext.Provider value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
