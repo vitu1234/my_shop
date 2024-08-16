@@ -1,5 +1,6 @@
+import '@/components/pages/components/sheets/sheets';
 import {StatusBar} from 'expo-status-bar';
-// import "global.css";
+
 import {GluestackUIProvider} from "@/components/ui/gluestack-ui-provider";
 import {AppContext, ProductFilterModalContext, CartContext} from "./app_contexts/AppContext";
 import StackNavigator from "components/navigation/StackNavigator";
@@ -18,11 +19,13 @@ import {
     connectToDatabase,
     createTables,
 } from "@/components/config/sqlite_db_service";
-
+import {SheetProvider} from "react-native-actions-sheet";
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 Colors.darker = undefined;
 export default function App() {
-    const loadData =   async (db) => {
+    const loadData = async (db) => {
         try {
             const db = await connectToDatabase()
             await createTables(db)
@@ -50,19 +53,31 @@ export default function App() {
     };
 
     return (
-        <View style={styles.container}>
-        <GluestackUIProvider >
-            <StatusBar barStyle="dark-content" backgroundColor={backgroundStyle.backgroundColor} />
-            <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
-                <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
-                    <ProductFilterModalContext.Provider value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
-                        <StackNavigator/>
-                    </ProductFilterModalContext.Provider>
-                </CartContext.Provider>
-            </AppContext.Provider>
+        <>
+            <SafeAreaProvider>
+                <GestureHandlerRootView
+                    style={{
+                        flex: 1,
+                    }}>
+                    <SheetProvider context="global">
+                <View style={styles.container}>
+                    <GluestackUIProvider>
+                        <StatusBar barStyle="dark-content" backgroundColor={backgroundStyle.backgroundColor}/>
+                        <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
+                            <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+                                <ProductFilterModalContext.Provider
+                                    value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
+                                    <StackNavigator/>
+                                </ProductFilterModalContext.Provider>
+                            </CartContext.Provider>
+                        </AppContext.Provider>
 
-        </GluestackUIProvider>
-        </View>
+                    </GluestackUIProvider>
+                </View>
+                    </SheetProvider>
+                </GestureHandlerRootView>
+            </SafeAreaProvider>
+        </>
     );
 }
 
