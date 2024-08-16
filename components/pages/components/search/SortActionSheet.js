@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import ActionSheet, { SheetManager } from 'react-native-actions-sheet';
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, {useState} from 'react';
+import ActionSheet, {SheetManager} from 'react-native-actions-sheet';
+import {View, Text, TouchableOpacity, StyleSheet} from "react-native";
 
 const SortActionSheet = (props) => {
-    console.log("SHEET");
 
     const logObject = props.payload;
 
@@ -17,28 +16,28 @@ const SortActionSheet = (props) => {
     const [selectedOption, setSelectedOption] = useState(initialSortingOption);
 
     const options = [
-        { label: 'Our ranking', value: 'our_ranking' },
-        { label: 'High to low price', value: 'high_first' },
-        { label: 'Low to high price', value: 'low_first' },
-        { label: 'By sales volume', value: 'volume' },
-        { label: 'Latest', value: 'latest' },
-        { label: 'Rating', value: 'rating' }
+        {label: 'Our ranking', value: 'our_ranking'},
+        {label: 'High to low price', value: 'high_first'},
+        {label: 'Low to high price', value: 'low_first'},
+        {label: 'By sales volume', value: 'volume'},
+        {label: 'Latest', value: 'latest'},
+        {label: 'Rating', value: 'rating'}
     ];
 
     function selectAndClose(value) {
         setSelectedOption(value);
         setTimeout(() => {
             SheetManager.hide(props.sheetId, {
-                payload: { 'selected_sorting': value }
+                payload: {'selected_sorting': value}
             });
         }, 600);
     }
 
     return (
         <ActionSheet
-            payload={{ 'selected_sorting': selectedOption }}
+            payload={{'selected_sorting': selectedOption}}
             gestureEnabled={true}
-            indicatorStyle={{ width: 100 }}
+            indicatorStyle={{width: 100}}
         >
             <View style={styles.container}>
                 <Text style={styles.title}>Sorting</Text>

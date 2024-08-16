@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { Alert, Button, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
-import { Filter, ChevronDown } from "lucide-react-native";
+import React, {useState} from 'react';
+import {Alert, Button, StyleSheet, Switch, Text, TouchableOpacity, View} from "react-native";
+import {Filter, ChevronDown} from "lucide-react-native";
 import SortActionSheet from "@/components/pages/components/search/SortActionSheet";
-import { SheetManager } from "react-native-actions-sheet";
+import {SheetManager} from "react-native-actions-sheet";
 
 const SearchResults = (props) => {
     const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
 
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+    const toggleSwitch = () => {
+        setIsEnabled(previousState => !previousState)
+    };
 
     const openActionSheetSorting = async () => {
 
@@ -18,7 +20,6 @@ const SearchResults = (props) => {
             }
         });
 
-        console.log("Returned from action sheet: ", selectedSortOption);
         if (selectedSortOption && selectedSortOption.selected_sorting) {
             setSortingOption(selectedSortOption.selected_sorting);
         }
@@ -30,7 +31,7 @@ const SearchResults = (props) => {
                 <View style={styles.leftPart}>
                     <Switch
                         style={styles.switchStyle}
-                        trackColor={{ false: '#767577', true: '#2780e3' }}
+                        trackColor={{false: '#767577', true: '#2780e3'}}
                         thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
                         ios_backgroundColor="#3e3e3e"
                         onValueChange={toggleSwitch}
@@ -39,11 +40,11 @@ const SearchResults = (props) => {
                     <Text style={styles.textStyle}>Free Shipping</Text>
                 </View>
                 <TouchableOpacity
-                    style={[styles.buttonContainer, { backgroundColor: '#767577' }]}
+                    style={[styles.buttonContainer, {backgroundColor: '#767577'}]}
                     onPress={openActionSheetSorting}
                 >
-                    <Text style={{ marginTop: 4 }}><ChevronDown color={'#fff'} size={18} /></Text>
-                    <Text style={[styles.textStyle, { color: '#fff' }]}>
+                    <Text style={{marginTop: 4}}><ChevronDown color={'#fff'} size={18}/></Text>
+                    <Text style={[styles.textStyle, {color: '#fff'}]}>
                         Sorting
                     </Text>
                 </TouchableOpacity>
@@ -51,14 +52,14 @@ const SearchResults = (props) => {
                     style={styles.buttonContainer}
                     onPress={() => Alert.alert('Simple Button pressed')}
                 >
-                    <Text style={{ marginTop: 4 }}><Filter color={'#fff'} size={18} /></Text>
-                    <Text style={[styles.textStyle, { color: '#fff' }]}>
+                    <Text style={{marginTop: 4}}><Filter color={'#fff'} size={18}/></Text>
+                    <Text style={[styles.textStyle, {color: '#fff'}]}>
                         Filters
                     </Text>
                 </TouchableOpacity>
             </View>
             <Text>Search results</Text>
-            <SortActionSheet />
+            <SortActionSheet/>
         </View>
     );
 };
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between', // Pushes the button to the far right
     },
     switchStyle: {
-        transform: [{ scaleX: 0.9 }, { scaleY: 0.8 }],
+        transform: [{scaleX: 0.9}, {scaleY: 0.8}],
     },
     leftPart: {
         flexDirection: 'row', // Arrange Switch and Text horizontally
