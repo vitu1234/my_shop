@@ -7,7 +7,12 @@ registerSheet('sort-action-sheet', SortActionSheet);
 // across the app for all registered sheets.
 declare module 'react-native-actions-sheet' {
     export interface Sheets {
-        'sort-action-sheet': SheetDefinition;
+        'sort-action-sheet': SheetDefinition<{
+            payload: {
+                initialSortingOption: string
+            }
+            returnValue: string;
+        }>;
     }
 }
 

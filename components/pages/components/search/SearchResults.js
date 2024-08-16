@@ -5,9 +5,21 @@ import SortActionSheet from "@/components/pages/components/search/SortActionShee
 import {SheetManager} from "react-native-actions-sheet";
 
 const SearchResults = (props) => {
-    console.log(props)
+    const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
+    const openActionSheetSorting = async () => {
+        console.log("Presses show action sheet")
+        const selectedSortOption = await SheetManager.show('sort-action-sheet', {
+            payload: {
+                initialSortingOption: sortingOption
+            }
+        });
+        console.log("Returned show action sheet")
+        console.log(selectedSortOption)
+        setSortingOption(sortingOption)
+    }
 
     return (
         <View style={styles.contentContainer}>
@@ -25,7 +37,7 @@ const SearchResults = (props) => {
                 </View>
                 <TouchableOpacity
                     style={[styles.buttonContainer, {backgroundColor: '#767577'}]}
-                    onPress={() => {SheetManager.show('sort-action-sheet'); console.log("Presses")}}
+                    onPress={openActionSheetSorting}
                 >
                     <Text style={{marginTop: 4}}><ChevronDown color={'#fff'} size={18}/></Text>
                     <Text style={[styles.textStyle, {color: '#fff'}]}>

@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
-import ActionSheet from 'react-native-actions-sheet';
+import ActionSheet, {SheetManager} from 'react-native-actions-sheet';
 import {View, Text, TouchableOpacity, StyleSheet} from "react-native";
+import {SheetProps} from "react-native-actions-sheet";
 
 
-const SortActionSheet = () => {
+const SortActionSheet = (props) => {
+
     const [selectedOption, setSelectedOption] = useState('our_ranking');
 
     const options = [
@@ -15,8 +17,17 @@ const SortActionSheet = () => {
         {label: 'Rating', value: 'rating'}
     ];
 
+    function selectAndClose(value) {
+        console.log(value);
+        setSelectedOption(value);
+        SheetManager.hide(props.sheetId, {
+            payload: {'selected_sorting': value}
+        });
+    }
+
     return (
         <ActionSheet
+            payload={{'selected_sorting': selectedOption}}
             gestureEnabled={true}
             indicatorStyle={{
                 width: 100,
@@ -42,7 +53,7 @@ const SortActionSheet = () => {
                         <TouchableOpacity
                             key={option.value}
                             style={styles.radioOption}
-                            onPress={() => setSelectedOption(option.value)}
+                            onPress={() => selectAndClose(option.value)}
                         >
                             <View
                                 style={[
