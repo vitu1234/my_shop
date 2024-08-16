@@ -13,6 +13,7 @@ const SearchScreen = (props) => {
     const [db, setDb] = useState(null);
     const [isTyping, setIsTyping] = React.useState(false);
     const [isSearchButton, setIsSearchButton] = React.useState(false);
+    const [isSearchButtonPressed, setSearchButtonPressed] = React.useState(false);
     const [searchText, setSearchText] = React.useState('');
     const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
     const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
@@ -99,6 +100,7 @@ const SearchScreen = (props) => {
             <SearchBarInput
                 setIsTyping={setIsTyping}
                 setIsSearchButton={setIsSearchButton}
+                setSearchButtonPressed={setSearchButtonPressed}
                 setSearchText={setSearchText}
                 props={props}
                 data={"ddd"}
@@ -110,10 +112,16 @@ const SearchScreen = (props) => {
                                        setSearchSuggestionItemName={setSearchSuggestionItemName}
                                        setSearchSuggestionType={setSearchSuggestionType}/>)
                 : isSearchButton && searchText.length > 0 ? (
-                    <SearchResults db={db} searchText={searchText} searchSuggestionItemId={searchSuggestionItemId}
-                                   searchSuggestionItemName={searchSuggestionItemName}
-                                   searchSuggestionType={searchSuggestionType}/>) : (<SearchHistory/>)}
-        </SafeAreaView>);
+
+                <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
+                              searchSuggestionItemId={searchSuggestionItemId}
+                              searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
+                              searchSuggestionType={searchSuggestionType}/>)
+    :
+        (<SearchHistory/>)
+    }
+    </SafeAreaView>)
+        ;
     }
 };
 const styles = StyleSheet.create({

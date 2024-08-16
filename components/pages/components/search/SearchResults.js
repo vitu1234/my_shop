@@ -5,6 +5,13 @@ import SortActionSheet from "@/components/pages/components/search/SortActionShee
 import {SheetManager} from "react-native-actions-sheet";
 
 const SearchResults = (props) => {
+    console.log(props)
+
+    if (!props.isSearchButtonPressed) {
+        console.log("NOT button press")
+        props.setSearchText(props.searchSuggestionItemName)
+    }
+
     const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
 

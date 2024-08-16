@@ -10,12 +10,15 @@ export const SearchBarInput = (props) => {
         setSearchString(text);
         props.setSearchText(text);
         props.setIsTyping(true)
+        props.setSearchButtonPressed(false)
     };
 
     const onSubmitSearchString = (event) => {
         console.log("hehehe");
+        console.log(props)
         props.setIsTyping(false)
         props.setIsSearchButton(true)
+        props.setSearchButtonPressed(true)
     };
 
 
