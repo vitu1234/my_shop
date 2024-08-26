@@ -69,9 +69,7 @@ const SearchScreen = (props) => {
 
     useEffect(() => {
         if (!isSearchButtonPressed) {
-            console.log("NOT button press | !searchButtonPressed | Search sCREEN");
             setSearchText(searchSuggestionItemName)
-            console.log("SET SEARHC TEXT: "+searchSuggestionItemName);
         }
     }, [searchSuggestionItemName]);
 

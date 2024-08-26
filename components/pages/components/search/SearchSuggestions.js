@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
         padding: 16
     },
     itemContainer: {
-        padding: 10,
+        padding: 16,
         alignItems: 'center',
         borderBottomWidth: 1,
         borderColor: 'rgba(129,129,129,0.24)'
