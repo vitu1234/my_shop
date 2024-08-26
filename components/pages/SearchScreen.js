@@ -28,6 +28,8 @@ const SearchScreen = (props) => {
         props.navigation.goBack();
     }
 
+
+
     const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
         if (isFetchingDataError) {
@@ -66,6 +68,14 @@ const SearchScreen = (props) => {
     }, [db]);
 
     useEffect(() => {
+        if (!isSearchButtonPressed) {
+            console.log("NOT button press | !searchButtonPressed | Search sCREEN");
+            setSearchText(searchSuggestionItemName)
+            console.log("SET SEARHC TEXT: "+searchSuggestionItemName);
+        }
+    }, [searchSuggestionItemName]);
+
+    useEffect(() => {
         const initialize = async () => {
             if (!db) {
                 try {
@@ -102,26 +112,28 @@ const SearchScreen = (props) => {
                 setIsSearchButton={setIsSearchButton}
                 setSearchButtonPressed={setSearchButtonPressed}
                 setSearchText={setSearchText}
+                searchText={searchText}
                 props={props}
                 data={"ddd"}
                 goBack={navigateBack}
             />
             {isTyping && searchText.length > 0 ? (
-                    <SearchSuggestions db={db} searchText={searchText} setIsSearchButton={setIsSearchButton}
+                    <SearchSuggestions db={db} searchText={searchText} setSearchText={setSearchText}
+                                       setIsSearchButton={setIsSearchButton}
                                        setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
                                        setSearchSuggestionItemName={setSearchSuggestionItemName}
                                        setSearchSuggestionType={setSearchSuggestionType}/>)
                 : isSearchButton && searchText.length > 0 ? (
 
-                <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
-                              searchSuggestionItemId={searchSuggestionItemId}
-                              searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
-                              searchSuggestionType={searchSuggestionType}/>)
-    :
-        (<SearchHistory/>)
-    }
-    </SafeAreaView>)
-        ;
+                        <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
+                                       searchSuggestionItemId={searchSuggestionItemId}
+                                       searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
+                                       searchSuggestionType={searchSuggestionType}/>)
+                    :
+                    (<SearchHistory/>)
+            }
+        </SafeAreaView>)
+            ;
     }
 };
 const styles = StyleSheet.create({

@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, TextInput, Text, StyleSheet, SafeAreaView, TouchableOpacity} from 'react-native';
 import {ChevronLeft} from 'lucide-react-native';
 
 export const SearchBarInput = (props) => {
 
-    const [searchString, setSearchString] = useState('');
+    const [searchString, setSearchString] = useState(props.searchText);
     const onChangeSearchString = (event) => {
         const {text} = event.nativeEvent;
         setSearchString(text);
@@ -14,12 +14,16 @@ export const SearchBarInput = (props) => {
     };
 
     const onSubmitSearchString = (event) => {
-        console.log("hehehe");
-        console.log(props)
+        // console.log("hehehe");
+        // console.log(props)
         props.setIsTyping(false)
         props.setIsSearchButton(true)
         props.setSearchButtonPressed(true)
     };
+
+    useEffect(() => {
+        setSearchString(props.searchText);
+    }, [props.searchText]);
 
 
     return (<View style={styles.searchBarContainer}>

@@ -9,7 +9,7 @@ const SearchResults = (props) => {
 
     if (!props.isSearchButtonPressed) {
         console.log("NOT button press")
-        props.setSearchText(props.searchSuggestionItemName)
+        // props.setSearchText(props.searchSuggestionItemName)
     }
 
     const [sortingOption, setSortingOption] = useState('our_ranking');
