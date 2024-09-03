@@ -67,7 +67,30 @@ const SearchResults = (props) => {
         console.log("searchSuggestionItemId : RESULTS", searchSuggestionItemId);
         try {
             if (searchSuggestionItemId !== -1) {
-                const fetchedProducts = await db.getAllAsync(`SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+                const fetchedProducts = await db.getAllAsync(`
+                        SELECT DISTINCT(product.product_id),
+                            product_attributes.product_attributes_id, 
+                            product_name, 
+                            product_description,
+                            cover,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        WHERE
+                            product_attributes.product_attributes_default = 1
+                        AND 
+                            (product.product_name LIKE '%${searchText}%' 
+                            OR product_attributes.product_attributes_name LIKE '%${searchText}%' 
+                            OR product_attributes.product_attributes_value LIKE '%${searchText}%')
+                        LIMIT 20 OFFSET ${pageNumber * 20}`);
                 if (fetchedProducts.length === 0) {
                     setHasMore(false);
                 }
@@ -112,7 +135,32 @@ const SearchResults = (props) => {
         } else {
             if (db) {
                 if (searchSuggestionItemId !== -1) {
-                    const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
+                    const productsFetch = await db.getAllAsync(`
+                        SELECT DISTINCT(product.product_id),
+                            product_attributes.product_attributes_id, 
+                            product_name, 
+                            product_description,
+                            cover,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        WHERE
+                            product_attributes.product_attributes_default = 1
+                        AND 
+                            (product.product_name LIKE '%${searchText}%' 
+                            OR product_attributes.product_attributes_name LIKE '%${searchText}%' 
+                            OR product_attributes.product_attributes_value LIKE '%${searchText}%')
+                        LIMIT 20
+                    `);
+
                     setSearchProducts(productsFetch);
                 } else {
                     console.log("productsScreenLoading with search criteria not selected")
