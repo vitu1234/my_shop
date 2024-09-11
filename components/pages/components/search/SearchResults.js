@@ -27,7 +27,15 @@ const SearchResults = (props) => {
     const [isEnabled, setIsEnabled] = useState(false);
 
     const [searchProducts, setSearchProducts] = useState([]);
-    const {db, searchText, searchSuggestionType, searchSuggestionItemId, searchSuggestionItemName} = props;
+    const {
+        db,
+        searchText,
+        isSearchButtonPressed,
+        searchSuggestionType,
+        searchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchText
+    } = props;
     //FROM PRODUCTS PAGE
     const [page, setPage] = useState(1);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -66,37 +74,43 @@ const SearchResults = (props) => {
         setIsFetchingMore(true);
         console.log("searchSuggestionItemId : RESULTS", searchSuggestionItemId);
         try {
-            if (searchSuggestionItemId !== -1) {
+            if (isSearchButtonPressed) {
+                console.log('pageNumber:', pageNumber, 'Offset:', pageNumber * 20);
                 const fetchedProducts = await db.getAllAsync(`
-                        SELECT DISTINCT(product.product_id),
-                            product_attributes.product_attributes_id, 
-                            product_name, 
-                            product_description,
-                            cover,
-                            product_attributes.product_attributes_default,
-                            product_attributes.product_attributes_name, 
-                            product_attributes.product_attributes_value, 
-                            product_attributes.product_attributes_summary, 
-                            product_attributes.product_attributes_price, 
-                            product_attributes.product_attributes_stock_qty
-                        FROM product
-                        INNER JOIN product_attributes 
-                            ON product.product_id = product_attributes.product_id
-                        INNER JOIN product_images 
-                            ON product.product_id = product_images.product_id
-                        WHERE
-                            product_attributes.product_attributes_default = 1
-                        AND 
-                            (product.product_name LIKE '%${searchText}%' 
-                            OR product_attributes.product_attributes_name LIKE '%${searchText}%' 
-                            OR product_attributes.product_attributes_value LIKE '%${searchText}%')
-                        LIMIT 20 OFFSET ${pageNumber * 20}`);
+                    SELECT product.product_id,
+                        product_attributes.product_attributes_id, 
+                        product_name, 
+                        product_description,
+                        cover,
+                        product_attributes.product_attributes_default,
+                        product_attributes.product_attributes_name, 
+                        product_attributes.product_attributes_value, 
+                        product_attributes.product_attributes_summary, 
+                        product_attributes.product_attributes_price, 
+                        product_attributes.product_attributes_stock_qty
+                    FROM product
+                    INNER JOIN product_attributes 
+                        ON product.product_id = product_attributes.product_id
+                    INNER JOIN product_images 
+                        ON product.product_id = product_images.product_id
+                    WHERE
+                        product_attributes.product_attributes_default = 1
+                    AND 
+                        (product.product_name LIKE $1 
+                        OR product_attributes.product_attributes_name LIKE $1 
+                        OR product_attributes.product_attributes_value LIKE $1)
+                        GROUP BY product.product_id
+                    LIMIT 20 OFFSET $2
+                    
+                `, [`%${searchText}%`, pageNumber * 20]);
+
                 if (fetchedProducts.length === 0) {
                     setHasMore(false);
                 }
                 setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
             } else {
                 console.log("fetchProducts with search criteria not selected")
+                console.log("!search button")
             }
 
         } catch (error) {
@@ -134,9 +148,9 @@ const SearchResults = (props) => {
             });
         } else {
             if (db) {
-                if (searchSuggestionItemId !== -1) {
+                if (isSearchButtonPressed) {
                     const productsFetch = await db.getAllAsync(`
-                        SELECT DISTINCT(product.product_id),
+                        SELECT product.product_id,
                             product_attributes.product_attributes_id, 
                             product_name, 
                             product_description,
@@ -154,16 +168,18 @@ const SearchResults = (props) => {
                             ON product.product_id = product_images.product_id
                         WHERE
                             product_attributes.product_attributes_default = 1
-                        AND 
-                            (product.product_name LIKE '%${searchText}%' 
-                            OR product_attributes.product_attributes_name LIKE '%${searchText}%' 
-                            OR product_attributes.product_attributes_value LIKE '%${searchText}%')
-                        LIMIT 20
-                    `);
+                       AND 
+                        (product.product_name LIKE $1 
+                        OR product_attributes.product_attributes_name LIKE $1 
+                        OR product_attributes.product_attributes_value LIKE $1)
+                        GROUP BY product.product_id
+                            LIMIT 20 
+                        `, [`%${searchText}%`]);
 
                     setSearchProducts(productsFetch);
                 } else {
                     console.log("productsScreenLoading with search criteria not selected")
+                    console.log("!search button2")
                 }
 
                 setIsAppDataFetchError(false);
@@ -182,8 +198,8 @@ const SearchResults = (props) => {
         }
     };
 
-    const renderProductList = ({item}) => (
-        <View key={item.product_id} style={styles.productCardContainer}>
+    const renderProductList = ({item, index}) => (
+        <View key={`${item.product_id}-${index}-${item.product_attributes_id}`} style={styles.productCardContainer}>
             <ProductCard data={{
                 database: db,
                 product: item,
@@ -279,7 +295,7 @@ const SearchResults = (props) => {
                                     columnWrapperStyle={styles.columnWrapperStyle}
                                     contentContainerStyle={styles.flashProductsListContainer}
                                     renderItem={renderProductList}
-                                    keyExtractor={item => item.product_id.toString()}
+                                    keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
                                 />
                             </View>
                         );
