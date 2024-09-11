@@ -148,7 +148,47 @@ const SearchResults = (props) => {
                     }
                     setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
                 } else {
+                    const fetchedProducts = await db.getAllAsync(`
+                        SELECT product.product_id,
+                            product_attributes.product_attributes_id, 
+                            category.category_id,
+                            product_name, 
+                            product_description,
+                            cover,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        INNER JOIN product_sub_category 
+                            ON product.product_id = product_sub_category.product_id
+                        INNER JOIN sub_category
+                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
+                        INNER JOIN category
+                        ON sub_category.category_id = category.category_id
+                        WHERE
+                            product_attributes.product_attributes_default = 1
+                        AND
+                            product.product_id = $1
+                        OR 
+                            (product.product_name LIKE $2 
+                            OR product_attributes.product_attributes_name LIKE $2 
+                            OR product_attributes.product_attributes_value LIKE $2)
+                            GROUP BY product.product_id
+                        LIMIT 20 OFFSET $3
+                    
+                `, [searchSuggestionItemId, `%${searchText}%`, pageNumber * 20]);
 
+                    if (fetchedProducts.length === 0) {
+                        setHasMore(false);
+                    }
+                    setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
                 }
             }
 
@@ -259,7 +299,47 @@ const SearchResults = (props) => {
                         }
                         setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
                     } else {
+                        const fetchedProducts = await db.getAllAsync(`
+                        SELECT product.product_id,
+                            product_attributes.product_attributes_id, 
+                            category.category_id,
+                            product_name, 
+                            product_description,
+                            cover,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        INNER JOIN product_sub_category 
+                            ON product.product_id = product_sub_category.product_id
+                        INNER JOIN sub_category
+                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
+                        INNER JOIN category
+                        ON sub_category.category_id = category.category_id
+                        WHERE
+                            product_attributes.product_attributes_default = 1
+                        AND
+                            product.product_id = $1
+                        OR 
+                            (product.product_name LIKE $2 
+                            OR product_attributes.product_attributes_name LIKE $2 
+                            OR product_attributes.product_attributes_value LIKE $2)
+                            GROUP BY product.product_id
+                        LIMIT 20
+                    
+                `, [searchSuggestionItemId, `%${searchText}%`]);
 
+                        if (fetchedProducts.length === 0) {
+                            setHasMore(false);
+                        }
+                        setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
                     }
 
                 }
@@ -289,90 +369,90 @@ const SearchResults = (props) => {
     const renderFooter = () => {
         if (!isFetchingMore) return null;
         return (<View style={styles.footer}>
-                <ActivityIndicator size="large" color="#000"/>
-            </View>);
+            <ActivityIndicator size="large" color="#000"/>
+        </View>);
     };
 
 
     if (isAppDataFetchLoading) {
         return (<View style={styles.container}>
-                <ContentLoader
-                    active={true}
-                    loading={true}
-                    pRows={5}
-                    pHeight={[70, 100, 50, 70, 160, 77]}
-                    pWidth={[100, 300, 70, 200, 300, 300]}
-                />
-            </View>);
+            <ContentLoader
+                active={true}
+                loading={true}
+                pRows={5}
+                pHeight={[70, 100, 50, 70, 160, 77]}
+                pWidth={[100, 300, 70, 200, 300, 300]}
+            />
+        </View>);
     } else if (isAppDataFetchError) {
         return (<View style={styles.container}>
-                <Heading style={styles.errorText} size="sm" fontWeight="bold">
-                    <Text>{appDataFetchMsg}</Text>
-                </Heading>
-            </View>);
+            <Heading style={styles.errorText} size="sm" fontWeight="bold">
+                <Text>{appDataFetchMsg}</Text>
+            </Heading>
+        </View>);
     } else {
         return (<FlatList
-                style={styles.container}
-                data={[{type: 'header'}, {
-                    type: 'products', data: searchProducts
-                }]}
-                renderItem={({item}) => {
-                    if (item.type === 'header') {
-                        return (<View style={styles.contentContainer}>
-                                <View style={styles.topPartContainer}>
-                                    <View style={styles.leftPart}>
-                                        <Switch
-                                            style={styles.switchStyle}
-                                            trackColor={{false: '#767577', true: '#2780e3'}}
-                                            thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
-                                            ios_backgroundColor="#3e3e3e"
-                                            onValueChange={toggleSwitch}
-                                            value={isEnabled}
-                                        />
-                                        <Text style={styles.textStyle}>Free Shipping</Text>
-                                    </View>
-                                    <TouchableOpacity
-                                        style={[styles.buttonContainer, {backgroundColor: '#767577'}]}
-                                        onPress={openActionSheetSorting}
-                                    >
-                                        <Text style={{marginTop: 4}}><ChevronDown color={'#fff'} size={18}/></Text>
-                                        <Text style={[styles.textStyle, {color: '#fff'}]}>
-                                            Sorting
-                                        </Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={styles.buttonContainer}
-                                        onPress={() => Alert.alert('Simple Button pressed')}
-                                    >
-                                        <Text style={{marginTop: 4}}><Filter color={'#fff'} size={18}/></Text>
-                                        <Text style={[styles.textStyle, {color: '#fff'}]}>
-                                            Filters
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <Text>Search results</Text>
-                                <SortActionSheet/>
-                            </View>);
-                    } else if (item.type === 'products') {
-                        return (<View style={styles.flashProductsContainer}>
-
-                                <FlatList
-                                    style={styles.container}
-                                    data={item.data}
-                                    numColumns={2}
-                                    columnWrapperStyle={styles.columnWrapperStyle}
-                                    contentContainerStyle={styles.flashProductsListContainer}
-                                    renderItem={renderProductList}
-                                    keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
+            style={styles.container}
+            data={[{type: 'header'}, {
+                type: 'products', data: searchProducts
+            }]}
+            renderItem={({item}) => {
+                if (item.type === 'header') {
+                    return (<View style={styles.contentContainer}>
+                        <View style={styles.topPartContainer}>
+                            <View style={styles.leftPart}>
+                                <Switch
+                                    style={styles.switchStyle}
+                                    trackColor={{false: '#767577', true: '#2780e3'}}
+                                    thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
+                                    ios_backgroundColor="#3e3e3e"
+                                    onValueChange={toggleSwitch}
+                                    value={isEnabled}
                                 />
-                            </View>);
-                    }
-                }}
-                keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={renderFooter}
-                onEndReached={loadMoreProducts}
-                onEndReachedThreshold={0.5}
-            />);
+                                <Text style={styles.textStyle}>Free Shipping</Text>
+                            </View>
+                            <TouchableOpacity
+                                style={[styles.buttonContainer, {backgroundColor: '#767577'}]}
+                                onPress={openActionSheetSorting}
+                            >
+                                <Text style={{marginTop: 4}}><ChevronDown color={'#fff'} size={18}/></Text>
+                                <Text style={[styles.textStyle, {color: '#fff'}]}>
+                                    Sorting
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.buttonContainer}
+                                onPress={() => Alert.alert('Simple Button pressed')}
+                            >
+                                <Text style={{marginTop: 4}}><Filter color={'#fff'} size={18}/></Text>
+                                <Text style={[styles.textStyle, {color: '#fff'}]}>
+                                    Filters
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Text>Search results</Text>
+                        <SortActionSheet/>
+                    </View>);
+                } else if (item.type === 'products') {
+                    return (<View style={styles.flashProductsContainer}>
+
+                        <FlatList
+                            style={styles.container}
+                            data={item.data}
+                            numColumns={2}
+                            columnWrapperStyle={styles.columnWrapperStyle}
+                            contentContainerStyle={styles.flashProductsListContainer}
+                            renderItem={renderProductList}
+                            keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
+                        />
+                    </View>);
+                }
+            }}
+            keyExtractor={(item, index) => index.toString()}
+            ListFooterComponent={renderFooter}
+            onEndReached={loadMoreProducts}
+            onEndReachedThreshold={0.5}
+        />);
     }
 
     //END HERE
