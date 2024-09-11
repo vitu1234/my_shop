@@ -6,7 +6,7 @@ import * as SQLite from 'expo-sqlite';
 // Function to get the database connection
 export const connectToDatabase = async () => {
 
-    return await SQLite.openDatabaseAsync('databaseNamea2aa');
+    return await SQLite.openDatabaseAsync('databaa');
 
 }
 
@@ -40,7 +40,7 @@ export const createTables = async (db) => {
             );
         `);
         await db.execSync(`
-            CREATE TABLE IF NOT EXISTS product_sub_categories (
+            CREATE TABLE IF NOT EXISTS product_sub_category (
                 product_sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 sub_category_id INTEGER NOT NULL,
                 category_id INTEGER NOT NULL,
@@ -124,7 +124,7 @@ const deleteAllHomescreenProducts = async (db) => {
         tx.execSync("DELETE FROM sub_category");
         tx.execSync("DELETE FROM product_images");
         tx.execSync("DELETE FROM product_attributes");
-        tx.execSync("DELETE FROM product_sub_categories");
+        tx.execSync("DELETE FROM product_sub_category");
         tx.execSync("DELETE FROM product");
     });
 };
@@ -136,7 +136,7 @@ const deleteAllProducts = async (db) => {
         tx.execSync("DELETE FROM sub_category");
         tx.execSync("DELETE FROM product_images");
         tx.execSync("DELETE FROM product_attributes");
-        tx.execSync("DELETE FROM product_sub_categories");
+        tx.execSync("DELETE FROM product_sub_category");
         tx.execSync("DELETE FROM product");
     });
 };

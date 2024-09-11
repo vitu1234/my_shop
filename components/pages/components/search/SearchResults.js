@@ -111,6 +111,53 @@ const SearchResults = (props) => {
             } else {
                 console.log("fetchProducts with search criteria not selected")
                 console.log("!search button")
+
+                console.log(props)
+                if (searchSuggestionType ==='category'){
+                    const fetchedProducts = await db.getAllAsync(`
+                        SELECT product.product_id,
+                            product_attributes.product_attributes_id, 
+                            category.category_id,
+                            product_name, 
+                            product_description,
+                            cover,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        INNER JOIN product_sub_category 
+                            ON product.product_id = product_sub_category.product_id
+                        INNER JOIN sub_category
+                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
+                        INNER JOIN category
+                        ON sub_category.category_id = category.category_id
+                        WHERE
+                            product_attributes.product_attributes_default = 1
+                        AND
+                            category.category_id = $1
+                        OR 
+                            (product.product_name LIKE $2 
+                            OR product_attributes.product_attributes_name LIKE $2 
+                            OR product_attributes.product_attributes_value LIKE $2)
+                            GROUP BY product.product_id
+                        LIMIT 20 OFFSET $3
+                    
+                `, [searchSuggestionItemId,`%${searchText}%`, pageNumber * 20]);
+
+                    if (fetchedProducts.length === 0) {
+                        setHasMore(false);
+                    }
+                    setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+                }else{
+
+                }
             }
 
         } catch (error) {
@@ -180,6 +227,8 @@ const SearchResults = (props) => {
                 } else {
                     console.log("productsScreenLoading with search criteria not selected")
                     console.log("!search button2")
+
+
                 }
 
                 setIsAppDataFetchError(false);
