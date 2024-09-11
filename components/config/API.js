@@ -36,7 +36,7 @@ const getHomeScreen = async (props) => {
 
                 // Insert product subcategories
                 await Promise.all(
-                    product.product_sub_category.map(product_sub_category =>
+                    product.product_sub_categories.map(product_sub_category =>
                         db.runAsync("INSERT INTO product_sub_category(product_sub_category_id,sub_category_id,category_id,product_id,sub_category_name,category_name,sub_category_description) VALUES (?,?,?,?,?,?,?);", [product_sub_category.product_sub_category_id, product_sub_category.sub_category_id, product_sub_category.category_id, product_sub_category.product_id, product_sub_category.sub_category_name, product_sub_category.category_name, product_sub_category.sub_category_description])
                     )
                 );

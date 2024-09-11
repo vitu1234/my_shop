@@ -1,14 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Button, Dimensions,
-    FlatList,
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View
+    ActivityIndicator, Alert, Button, Dimensions, FlatList, StyleSheet, Switch, Text, TouchableOpacity, View
 } from "react-native";
 import {Filter, ChevronDown} from "lucide-react-native";
 import SortActionSheet from "@/components/pages/components/search/SortActionSheet";
@@ -113,7 +105,7 @@ const SearchResults = (props) => {
                 console.log("!search button")
 
                 console.log(props)
-                if (searchSuggestionType ==='category'){
+                if (searchSuggestionType === 'category') {
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -149,13 +141,13 @@ const SearchResults = (props) => {
                             GROUP BY product.product_id
                         LIMIT 20 OFFSET $3
                     
-                `, [searchSuggestionItemId,`%${searchText}%`, pageNumber * 20]);
+                `, [searchSuggestionItemId, `%${searchText}%`, pageNumber * 20]);
 
                     if (fetchedProducts.length === 0) {
                         setHasMore(false);
                     }
                     setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
-                }else{
+                } else {
 
                 }
             }
@@ -188,10 +180,7 @@ const SearchResults = (props) => {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
             Toast.show({
-                text1: 'Error',
-                text2: message,
-                position: 'bottom',
-                bottomOffset: 50,
+                text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50,
             });
         } else {
             if (db) {
@@ -227,7 +216,51 @@ const SearchResults = (props) => {
                 } else {
                     console.log("productsScreenLoading with search criteria not selected")
                     console.log("!search button2")
+                    if (searchSuggestionType === 'category') {
+                        const fetchedProducts = await db.getAllAsync(`
+                        SELECT product.product_id,
+                            product_attributes.product_attributes_id, 
+                            category.category_id,
+                            product_name, 
+                            product_description,
+                            cover,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        INNER JOIN product_sub_category 
+                            ON product.product_id = product_sub_category.product_id
+                        INNER JOIN sub_category
+                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
+                        INNER JOIN category
+                        ON sub_category.category_id = category.category_id
+                        WHERE
+                            product_attributes.product_attributes_default = 1
+                        AND
+                            category.category_id = $1
+                        OR 
+                            (product.product_name LIKE $2 
+                            OR product_attributes.product_attributes_name LIKE $2 
+                            OR product_attributes.product_attributes_value LIKE $2)
+                            GROUP BY product.product_id
+                        LIMIT 20
+                    
+                `, [searchSuggestionItemId, `%${searchText}%`]);
 
+                        if (fetchedProducts.length === 0) {
+                            setHasMore(false);
+                        }
+                        setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+                    } else {
+
+                    }
 
                 }
 
@@ -250,25 +283,19 @@ const SearchResults = (props) => {
     const renderProductList = ({item, index}) => (
         <View key={`${item.product_id}-${index}-${item.product_attributes_id}`} style={styles.productCardContainer}>
             <ProductCard data={{
-                database: db,
-                product: item,
-                action: productCardAction,
+                database: db, product: item, action: productCardAction,
             }}/>
-        </View>
-    );
+        </View>);
     const renderFooter = () => {
         if (!isFetchingMore) return null;
-        return (
-            <View style={styles.footer}>
+        return (<View style={styles.footer}>
                 <ActivityIndicator size="large" color="#000"/>
-            </View>
-        );
+            </View>);
     };
 
 
     if (isAppDataFetchLoading) {
-        return (
-            <View style={styles.container}>
+        return (<View style={styles.container}>
                 <ContentLoader
                     active={true}
                     loading={true}
@@ -276,28 +303,22 @@ const SearchResults = (props) => {
                     pHeight={[70, 100, 50, 70, 160, 77]}
                     pWidth={[100, 300, 70, 200, 300, 300]}
                 />
-            </View>
-        );
+            </View>);
     } else if (isAppDataFetchError) {
-        return (
-            <View style={styles.container}>
+        return (<View style={styles.container}>
                 <Heading style={styles.errorText} size="sm" fontWeight="bold">
                     <Text>{appDataFetchMsg}</Text>
                 </Heading>
-            </View>
-        );
+            </View>);
     } else {
-        return (
-            <FlatList
+        return (<FlatList
                 style={styles.container}
                 data={[{type: 'header'}, {
-                    type: 'products',
-                    data: searchProducts
+                    type: 'products', data: searchProducts
                 }]}
                 renderItem={({item}) => {
                     if (item.type === 'header') {
-                        return (
-                            <View style={styles.contentContainer}>
+                        return (<View style={styles.contentContainer}>
                                 <View style={styles.topPartContainer}>
                                     <View style={styles.leftPart}>
                                         <Switch
@@ -331,11 +352,9 @@ const SearchResults = (props) => {
                                 </View>
                                 <Text>Search results</Text>
                                 <SortActionSheet/>
-                            </View>
-                        );
+                            </View>);
                     } else if (item.type === 'products') {
-                        return (
-                            <View style={styles.flashProductsContainer}>
+                        return (<View style={styles.flashProductsContainer}>
 
                                 <FlatList
                                     style={styles.container}
@@ -346,16 +365,14 @@ const SearchResults = (props) => {
                                     renderItem={renderProductList}
                                     keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
                                 />
-                            </View>
-                        );
+                            </View>);
                     }
                 }}
                 keyExtractor={(item, index) => index.toString()}
                 ListFooterComponent={renderFooter}
                 onEndReached={loadMoreProducts}
                 onEndReachedThreshold={0.5}
-            />
-        );
+            />);
     }
 
     //END HERE
@@ -366,48 +383,32 @@ const SearchResults = (props) => {
 const styles = StyleSheet.create({
     contentContainer: {
         padding: 10,
-    },
-    topPartContainer: {
+    }, topPartContainer: {
         flexDirection: 'row', // Arrange children horizontally
         alignItems: 'center', // Center items vertically
         justifyContent: 'space-between', // Pushes the button to the far right
-    },
-    switchStyle: {
+    }, switchStyle: {
         transform: [{scaleX: 0.9}, {scaleY: 0.8}],
-    },
-    leftPart: {
+    }, leftPart: {
         flexDirection: 'row', // Arrange Switch and Text horizontally
         alignItems: 'center', // Center items vertically
-    },
-    textStyle: {
+    }, textStyle: {
         fontWeight: 'bold'
-    },
-    buttonContainer: {
+    }, buttonContainer: {
         flexDirection: 'row', // Arrange children horizontally
         alignItems: 'center', // Center items vertically
-        justifyContent: 'space-between',
-        backgroundColor: '#2780e3',
-        padding: 6,
-        borderRadius: 5
-    },
-    // FROM PRODUCTS
+        justifyContent: 'space-between', backgroundColor: '#2780e3', padding: 6, borderRadius: 5
+    }, // FROM PRODUCTS
     productCardContainer: {
-        width: (width - 30) / 2 - 15,
-        marginHorizontal: 5,
-    },
-    flashProductsContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        backgroundColor: 'rgba(250,249,249,0.83)',
-    },
-    flashProductsHeader: {
+        width: (width - 30) / 2 - 15, marginHorizontal: 5,
+    }, flashProductsContainer: {
+        paddingHorizontal: 16, paddingVertical: 10, backgroundColor: 'rgba(250,249,249,0.83)',
+    }, flashProductsHeader: {
         // marginBottom: 10,
         // alignItems: 'center',
         // justifyContent: 'space-between',
-        flexDirection: 'row',
-        margin: 10
-    },
-    flashProductsListContainer: {
+        flexDirection: 'row', margin: 10
+    }, flashProductsListContainer: {
         paddingBottom: 80,
     },
 });
