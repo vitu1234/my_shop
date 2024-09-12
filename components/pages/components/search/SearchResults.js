@@ -106,6 +106,7 @@ const SearchResults = (props) => {
 
                 console.log(props)
                 if (searchSuggestionType === 'category') {
+                    setSearchProducts([])
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -148,6 +149,7 @@ const SearchResults = (props) => {
                     }
                     setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
                 } else {
+                    setSearchProducts([])
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
