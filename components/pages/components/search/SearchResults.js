@@ -235,6 +235,7 @@ const SearchResults = (props) => {
                             product_name, 
                             product_description,
                             cover,
+                            likes,
                             product_attributes.product_attributes_default,
                             product_attributes.product_attributes_name, 
                             product_attributes.product_attributes_value, 
@@ -253,7 +254,6 @@ const SearchResults = (props) => {
                         OR product_attributes.product_attributes_name LIKE $1 
                         OR product_attributes.product_attributes_value LIKE $1)
                         GROUP BY product.product_id
-                            LIMIT 20 
                         `, [`%${searchText}%`]);
 
                     setSearchProducts(productsFetch);
@@ -268,6 +268,7 @@ const SearchResults = (props) => {
                             product_name, 
                             product_description,
                             cover,
+                            likes,
                             product_attributes.product_attributes_default,
                             product_attributes.product_attributes_name, 
                             product_attributes.product_attributes_value, 
@@ -309,6 +310,7 @@ const SearchResults = (props) => {
                             product_name, 
                             product_description,
                             cover,
+                            likes,
                             product_attributes.product_attributes_default,
                             product_attributes.product_attributes_name, 
                             product_attributes.product_attributes_value, 
