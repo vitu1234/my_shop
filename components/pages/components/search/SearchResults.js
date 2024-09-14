@@ -13,7 +13,6 @@ import ContentLoader from "react-native-easy-content-loader";
 import {Heading} from "@/components/ui/heading";
 
 const SearchResults = (props) => {
-    // console.log(props)
 
     const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
@@ -59,6 +58,7 @@ const SearchResults = (props) => {
 
     // GET FROM PRODUCTS PAGE
     const productCardAction = (product) => {
+        console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
         // console.log(product);
         props.navigation.navigate("ProductDetails", {data: product});
     };
@@ -207,7 +207,7 @@ const SearchResults = (props) => {
         if (db) {
             productsScreenLoading(false, "Fetched data")
         }
-    }, [db]);
+    }, [db, searchProducts]);
 
     useEffect(() => {
         if (db) {
@@ -301,7 +301,7 @@ const SearchResults = (props) => {
                         if (fetchedProducts.length === 0) {
                             setHasMore(false);
                         }
-                        setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+                        setSearchProducts(fetchedProducts);
                     } else {
                         const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
@@ -343,7 +343,7 @@ const SearchResults = (props) => {
                         if (fetchedProducts.length === 0) {
                             setHasMore(false);
                         }
-                        setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+                        setSearchProducts(fetchedProducts);
                     }
 
                 }

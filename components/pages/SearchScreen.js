@@ -116,17 +116,17 @@ const SearchScreen = (props) => {
                 goBack={navigateBack}
             />
             {isTyping && searchText.length > 0 ? (
-                    <SearchSuggestions db={db} searchText={searchText} setSearchText={setSearchText}
+                    <SearchSuggestions  db={db} searchText={searchText} setSearchText={setSearchText}
                                        setIsSearchButton={setIsSearchButton}
                                        setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
                                        setSearchSuggestionItemName={setSearchSuggestionItemName}
-                                       setSearchSuggestionType={setSearchSuggestionType}/>)
+                                       setSearchSuggestionType={setSearchSuggestionType} navigation={props.navigation}/>)
                 : isSearchButton && searchText.length > 0 ? (
 
-                        <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
+                        <SearchResults  db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
                                        searchSuggestionItemId={searchSuggestionItemId}
                                        searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
-                                       searchSuggestionType={searchSuggestionType}/>)
+                                       searchSuggestionType={searchSuggestionType} navigation={props.navigation}/>)
                     :
                     (<SearchHistory/>)
             }

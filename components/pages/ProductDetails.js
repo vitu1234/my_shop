@@ -21,7 +21,7 @@ const windowHeight = Dimensions.get("window").height;
 
 
 function ProductDetails(props) {
-
+  console.log(props)
   const product = props.route.params.data;
   const [productQty, setProductQty] = useState(1);
   const [price, setProductPrice] = useState(product.price);
