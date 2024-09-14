@@ -72,6 +72,14 @@ export const createTables = async (db) => {
             );
         `);
 
+        await db.execSync(`
+            CREATE TABLE IF NOT EXISTS product_like (
+                product_like_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                product_id INTEGER NOT NULL,
+                user_id  INTEGER NOT NULL
+            );
+        `);
+
 
         await db.execSync(`
             CREATE TABLE IF NOT EXISTS user (

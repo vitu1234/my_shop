@@ -64,6 +64,7 @@ const SearchResults = (props) => {
     };
     const fetchProducts = async (pageNumber) => {
         setIsFetchingMore(true);
+        setSearchProducts([])
         console.log("searchSuggestionItemId : RESULTS", searchSuggestionItemId);
         try {
             if (isSearchButtonPressed) {
@@ -106,7 +107,7 @@ const SearchResults = (props) => {
 
                 console.log(props)
                 if (searchSuggestionType === 'category') {
-                    setSearchProducts([])
+
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -211,13 +212,14 @@ const SearchResults = (props) => {
     useEffect(() => {
         if (db) {
             fetchData();
-            fetchProducts(page - 1); // Load initial products
+            // fetchProducts(page - 1); // Load initial products
         }
     }, [db, page]);
 
 
     const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
+        setSearchProducts([])
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
@@ -292,7 +294,6 @@ const SearchResults = (props) => {
                             OR product_attributes.product_attributes_name LIKE $2 
                             OR product_attributes.product_attributes_value LIKE $2)
                             GROUP BY product.product_id
-                        LIMIT 20
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
@@ -334,7 +335,6 @@ const SearchResults = (props) => {
                             OR product_attributes.product_attributes_name LIKE $2 
                             OR product_attributes.product_attributes_value LIKE $2)
                             GROUP BY product.product_id
-                        LIMIT 20
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
@@ -374,7 +374,6 @@ const SearchResults = (props) => {
             <ActivityIndicator size="large" color="#000"/>
         </View>);
     };
-
 
     if (isAppDataFetchLoading) {
         return (<View style={styles.container}>
@@ -446,14 +445,23 @@ const SearchResults = (props) => {
                             contentContainerStyle={styles.flashProductsListContainer}
                             renderItem={renderProductList}
                             keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
+
+                            removeClippedSubviews={true}
+                            maxToRenderPerBatch={10}
+                            windowSize={11}
+                            initialNumToRender={10}
+
+                            ListFooterComponent={renderFooter}
+                            // onEndReached={loadMoreProducts}
+                            onEndReachedThreshold={0.5}
                         />
                     </View>);
                 }
             }}
             keyExtractor={(item, index) => index.toString()}
-            ListFooterComponent={renderFooter}
-            onEndReached={loadMoreProducts}
-            onEndReachedThreshold={0.5}
+            // ListFooterComponent={renderFooter}
+            // onEndReached={loadMoreProducts}
+            // onEndReachedThreshold={0.5}
         />);
     }
 

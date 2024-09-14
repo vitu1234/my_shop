@@ -75,7 +75,7 @@ function HomeScreen(props) {
     useEffect(() => {
         if (db) {
             fetchData();
-            fetchProducts(page - 1); // Load initial products
+            // fetchProducts(page - 1); // Load initial products
         }
     }, [db, page]);
 
@@ -109,10 +109,10 @@ function HomeScreen(props) {
                 const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
                 setCategories(categories);
 
-                const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 10");
+                const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
                 setProducts(productsFirstRow);
 
-                const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20 ");
+                const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
                 setFlashProducts(productsHome);
 
                 setIsAppDataFetchError(false);
@@ -267,16 +267,25 @@ function HomeScreen(props) {
                                     columnWrapperStyle={styles.columnWrapperStyle}
                                     contentContainerStyle={styles.flashProductsListContainer}
                                     renderItem={renderFlashProduct}
-                                    keyExtractor={item => item.product_id.toString()}
+                                    keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
+
+                                    removeClippedSubviews={true}
+                                    maxToRenderPerBatch={10}
+                                    windowSize={11}
+                                    initialNumToRender={10}
+
+                                    ListFooterComponent={renderFooter}
+                                    // onEndReached={loadMoreProducts}
+                                    onEndReachedThreshold={0.5}
                                 />
                             </View>
                         );
                     }
                 }}
                 keyExtractor={(item, index) => index.toString()}
-                ListFooterComponent={renderFooter}
-                onEndReached={loadMoreProducts}
-                onEndReachedThreshold={0.5}
+                // ListFooterComponent={renderFooter}
+                // onEndReached={loadMoreProducts}
+                // onEndReachedThreshold={0.5}
             />
         );
     }
