@@ -60,7 +60,7 @@ const SearchResults = (props) => {
     const productCardAction = (product) => {
         console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
         // console.log(product);
-        props.navigation.navigate("ProductDetails", {data: product});
+        props.navigation.navigate("ProductDetails", {product_id: product.product_id, db: props.db});
     };
     const fetchProducts = async (pageNumber) => {
         setIsFetchingMore(true);
