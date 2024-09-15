@@ -27,21 +27,19 @@ export const SBImageItem: React.FC<Props> = ({
                                                  img
                                              }) => {
     const index = _index ?? 0;
-    const source = React.useRef<ImageURISource>({
-        uri: `https://picsum.photos/id/${index}/400/300`,
-    }).current;
+
 
     return (
-        <View style={[styles.container, style]}>
+        <View style={[styles.container]}>
             <ActivityIndicator size="small" />
-            <Image cachePolicy={'memory-disk'} key={index} style={styles.image} source={img ?? source} />
+            <Image  cachePolicy={'memory-disk'} key={index} style={styles.image} source={img ?? source} />
             {
                 showIndex && <Text
                     style={{
                         position: "absolute",
                         color: "#6E6E6E",
                         fontSize: 40,
-                        backgroundColor: "#EAEAEA",
+                        backgroundColor: "#fff",
                         borderRadius: 5,
                         overflow: "hidden",
                         paddingHorizontal: 10,
@@ -63,10 +61,11 @@ const styles = StyleSheet.create({
         backgroundColor: "transparent",
         borderRadius: 8,
         overflow: "hidden",
+
     },
     image: {
         width: "100%",
-        height: "100%",
+        height: '100%',
         position: "absolute",
     },
 });

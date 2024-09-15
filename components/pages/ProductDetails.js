@@ -18,7 +18,6 @@ const PAGE_WIDTH = window.width;
 
 
 function ProductDetails(props) {
-    console.log("PROPERRRR")
     // console.log(props.route.params.db)
     const db = props.route.params.db;
     const product_id = props.route.params.product_id;
@@ -266,7 +265,7 @@ function ProductDetails(props) {
     const [data, setData] = React.useState([...new Array(4).keys()]);
     const [isVertical, setIsVertical] = React.useState(false);
     const [isFast, setIsFast] = React.useState(false);
-    const [isAutoPlay, setIsAutoPlay] = React.useState(false);
+    const [isAutoPlay, setIsAutoPlay] = React.useState(true);
     const [isPagingEnabled, setIsPagingEnabled] = React.useState(true);
     const ref = React.useRef(null);
 
@@ -279,18 +278,20 @@ function ProductDetails(props) {
         : ({
             vertical: false,
             width: windowWidth,
-            height: PAGE_WIDTH / 2,
+            // height: PAGE_WIDTH / 2,
         });
     return (
         <SafeAreaView edges={["bottom"]} style={{flex: 1}}>
             <Carousel
+
+
                 {...baseOptions}
-                loop
+
                 enabled // Default is true, just for demo
                 ref={ref}
-                defaultScrollOffsetValue={scrollOffsetValue}
+                // defaultScrollOffsetValue={scrollOffsetValue}
                 testID={"xxx"}
-                style={{width: "100%"}}
+                style={{width: "100%", backgroundColor: '#fff'}}
                 autoPlay={true}
                 autoPlayInterval={isFast ? 100 : 2000}
                 data={productImages}
@@ -300,11 +301,11 @@ function ProductDetails(props) {
                 onScrollEnd={() => {
                     console.log('===2')
                 }}
-
+                snapEnabled={false}
                 onConfigurePanGesture={g => g.enabled(false)}
                 pagingEnabled={isPagingEnabled}
                 onSnapToItem={index => console.log("current index:", index)}
-                renderItem={({index}) => <SBItem key={index} index={index}/>}
+                renderItem={({index}) => <SBItem img_url={productImages[index]} key={index} index={index}/>}
             />
             <ScrollView style={{flex: 1}}>
                 <SButton
