@@ -3,18 +3,9 @@ import "react-native-gesture-handler";
 import * as SQLite from 'expo-sqlite';
 
 
-// Function to get the database connection
-export const connectToDatabase = async () => {
-
-    return await SQLite.openDatabaseAsync('databaa');
-
-}
-
-// const db = await connectToDatabase()
-// Function to create tables
 export const createTables = async (db) => {
-    await db.withExclusiveTransactionAsync(async () => {
-        await db.execSync(`
+
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product (
                 product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_name TEXT NOT NULL,
@@ -24,14 +15,14 @@ export const createTables = async (db) => {
             );
         `);
 
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS category (
                 category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_name TEXT NOT NULL,
                 category_description TEXT           
             );
         `);
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS sub_category (
                 sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_id INTEGER NOT NULL,
@@ -39,7 +30,7 @@ export const createTables = async (db) => {
                 sub_category_description TEXT           
             );
         `);
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_sub_category (
                 product_sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 sub_category_id INTEGER NOT NULL,
@@ -51,7 +42,7 @@ export const createTables = async (db) => {
             );
         `);
 
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_attributes (
                 product_attributes_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_id INTEGER NOT NULL,
@@ -64,7 +55,7 @@ export const createTables = async (db) => {
             );
         `);
 
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_images (
                 product_images_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_id INTEGER NOT NULL,
@@ -72,7 +63,7 @@ export const createTables = async (db) => {
             );
         `);
 
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_like (
                 product_like_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_id INTEGER NOT NULL,
@@ -81,7 +72,7 @@ export const createTables = async (db) => {
         `);
 
 
-        await db.execSync(`
+    await db.execAsync(`
             CREATE TABLE IF NOT EXISTS user (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 first_name TEXT NOT NULL,
@@ -96,7 +87,7 @@ export const createTables = async (db) => {
         `);
 
 
-        await db.execSync(`
+    await db.execAsync(`
                     CREATE TABLE IF NOT EXISTS cart (
                         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                         product_id INTEGER NOT NULL,
@@ -106,53 +97,50 @@ export const createTables = async (db) => {
                         img_url TEXT NOT NULL
                     );
                 `);
-        /*
-                await db.execSync(`
-                    CREATE TABLE IF NOT EXISTS products_homescreen (
-                        product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        category_id INTEGER NOT NULL,
-                        product_name TEXT NOT NULL,
-                        qty INTEGER NOT NULL,
-                        price TEXT NOT NULL,
-                        img_url TEXT NOT NULL DEFAULT "noimage.jpg",
-                        product_description TEXT
-                    );
-                `);
+    /*
+            await db.execAsync(`
+                CREATE TABLE IF NOT EXISTS products_homescreen (
+                    product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    category_id INTEGER NOT NULL,
+                    product_name TEXT NOT NULL,
+                    qty INTEGER NOT NULL,
+                    price TEXT NOT NULL,
+                    img_url TEXT NOT NULL DEFAULT "noimage.jpg",
+                    product_description TEXT
+                );
+            `);
 
 
-         */
-    });
+     */
+
 
 
 };
-// Function to delete all home screen products
-const deleteAllHomescreenProducts = async (db) => {
-    await db.withExclusiveTransactionAsync((tx) => {
-        tx.execSync("DELETE FROM category");
-        tx.execSync("DELETE FROM sub_category");
-        tx.execSync("DELETE FROM product_images");
-        tx.execSync("DELETE FROM product_attributes");
-        tx.execSync("DELETE FROM product_sub_category");
-        tx.execSync("DELETE FROM product");
-    });
-};
+
 
 // Function to delete all products
-const deleteAllProducts = async (db) => {
-    await db.withExclusiveTransactionAsync((tx) => {
-        tx.execSync("DELETE FROM category");
-        tx.execSync("DELETE FROM sub_category");
-        tx.execSync("DELETE FROM product_images");
-        tx.execSync("DELETE FROM product_attributes");
-        tx.execSync("DELETE FROM product_sub_category");
-        tx.execSync("DELETE FROM product");
-    });
+const deleteProducts = async (db) => {
+    try {
+        const queries = [
+            "DELETE FROM category",
+            "DELETE FROM sub_category",
+            "DELETE FROM product_images",
+            "DELETE FROM product_attributes",
+            "DELETE FROM product_sub_category",
+            "DELETE FROM product"
+        ];
+        for (const query of queries) {
+            await db.execAsync(query);
+        }
+    } catch (error) {
+        console.error("Error deleting products: ", error);
+    }
 };
 
 
 //get product default attribute/item
 const getProductDefaultAttribute = async (db, product_id) => {
-    const firstRow = await db.getFirstAsync("SELECT * FROM product_attributesproduct_attributes WHERE product_id = $product_id AND product_attributes_default = 1", {$product_id: product_id});
+    const firstRow = await db.getFirstAsync("SELECT * FROM product_attributesproduct_attributes WHERE product_id = $product_id AND product_attributes_default = 1", { $product_id: product_id });
     const data = {
         product_id: firstRow.product_id,
         product_attributes_default: firstRow.product_attributes_default,
@@ -171,45 +159,39 @@ const getProductDefaultAttribute = async (db, product_id) => {
 
 // Function to get all categories
 const getAllCategory = async (db, callback) => {
-    await db.withExclusiveTransactionAsync((tx) => {
-        tx.execSync("SELECT * FROM category", [], (tx, results) => {
+        await db.execAsync("SELECT * FROM category", [], (tx, results) => {
             const categories = [];
             for (let i = 0; i < results.rows.length; i++) {
                 categories.push(results.rows.item(i));
             }
             callback(categories);
         });
-    });
 };
 
 // Function to get all products on the home screen
 const getAllProductsHomeScreen = async (db, callback) => {
-    await db.withExclusiveTransactionAsync((tx) => {
-        tx.execSync("SELECT * FROM product", [], (tx, results) => {
+        await db.execAsync("SELECT * FROM product", [], (tx, results) => {
             const products = [];
             for (let i = 0; i < results.rows.length; i++) {
                 products.push(results.rows.item(i));
             }
             callback(products);
         });
-    });
 };
 
 // Function to delete all user data
 const deleteAllUserData = async (db) => {
-    db.execSync("DELETE FROM user");
+    db.execAsync("DELETE FROM user");
 };
 
 // Function to save logged-in user data
 const saveLoggedInUser = async (db, user_data) => {
     await deleteAllUserData(db);
-    await db.withExclusiveTransactionAsync((tx) => {
-        tx.prepareAsync(
+        await db.prepareAsync(
             `INSERT INTO user (user_id, first_name, last_name, phone, email, profile_img, is_active, is_verified, access_token)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
             [user_data.user_id, user_data.first_name, user_data.last_name, user_data.phone, user_data.email, user_data.profile_img, user_data.is_active, user_data.is_verified, user_data.access_token]
         );
-    });
 };
 
 // Export functions
@@ -218,8 +200,7 @@ export {
     saveLoggedInUser,
     getAllCategory,
     getAllProductsHomeScreen,
-    deleteAllProducts,
-    deleteAllHomescreenProducts,
+    deleteProducts,
     deleteAllUserData,
     getProductDefaultAttribute,
 };

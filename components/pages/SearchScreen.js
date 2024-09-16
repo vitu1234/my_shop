@@ -1,16 +1,19 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, ScrollView} from "react-native";
-import {SearchBarInput} from "@/components/pages/components/search/SearchBarInput";
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
+import { SearchBarInput } from "@/components/pages/components/search/SearchBarInput";
 import SearchHistory from "@/components/pages/components/search/SearchHistory";
 import SearchResults from "@/components/pages/components/search/SearchResults";
 import SearchSuggestions from "@/components/pages/components/search/SearchSuggestions";
-import {connectToDatabase} from "@/components/config/sqlite_db_service";
-import {Toast} from "@/components/ui/toast";
+import { connectToDatabase } from "@/components/config/sqlite_db_service";
+import { Toast } from "@/components/ui/toast";
 import ContentLoader from "react-native-easy-content-loader";
-import {Heading} from "@/components/ui/heading";
+import { Heading } from "@/components/ui/heading";
+
+import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
+
 
 const SearchScreen = (props) => {
-    const [db, setDb] = useState(null);
+    const db = useSQLiteContext();
     const [isTyping, setIsTyping] = React.useState(false);
     const [isSearchButton, setIsSearchButton] = React.useState(false);
     const [isSearchButtonPressed, setSearchButtonPressed] = React.useState(false);
@@ -39,33 +42,25 @@ const SearchScreen = (props) => {
                 text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50,
             });
         } else {
-            if (db) {
 
 
-                const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM()");
-                setProducts(productsFetch);
+            const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM()");
+            setProducts(productsFetch);
 
 
-                setIsAppDataFetchError(false);
-                setIsAppDataFetchMsg(message);
-            } else {
-                setIsAppDataFetchError(true);
-                setIsAppDataFetchMsg("Local Database error...");
-            }
+            setIsAppDataFetchError(false);
+            setIsAppDataFetchMsg(message);
+
         }
     };
 
     const fetchData = useCallback(async () => {
-        if (db) {
-            productsScreenLoading(false, "Fetched data")
-        }
-    }, [db]);
+        productsScreenLoading(false, "Fetched data")
+    });
 
     useEffect(() => {
-        if (db) {
-            fetchData();
-        }
-    }, [db]);
+        fetchData();
+    });
 
     useEffect(() => {
         if (!isSearchButtonPressed) {
@@ -73,19 +68,6 @@ const SearchScreen = (props) => {
         }
     }, [searchSuggestionItemName]);
 
-    useEffect(() => {
-        const initialize = async () => {
-            if (!db) {
-                try {
-                    const database = await connectToDatabase();
-                    setDb(database);
-                } catch (error) {
-                    console.error("Error during initialization:", error);
-                }
-            }
-        };
-        initialize();
-    }, [db]);
 
     if (isAppDataFetchLoading) {
         return (<SafeAreaView style={styles.container}>
@@ -116,19 +98,19 @@ const SearchScreen = (props) => {
                 goBack={navigateBack}
             />
             {isTyping && searchText.length > 0 ? (
-                    <SearchSuggestions  db={db} searchText={searchText} setSearchText={setSearchText}
-                                       setIsSearchButton={setIsSearchButton}
-                                       setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
-                                       setSearchSuggestionItemName={setSearchSuggestionItemName}
-                                       setSearchSuggestionType={setSearchSuggestionType} navigation={props.navigation}/>)
+                <SearchSuggestions db={db} searchText={searchText} setSearchText={setSearchText}
+                    setIsSearchButton={setIsSearchButton}
+                    setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
+                    setSearchSuggestionItemName={setSearchSuggestionItemName}
+                    setSearchSuggestionType={setSearchSuggestionType} navigation={props.navigation} />)
                 : isSearchButton && searchText.length > 0 ? (
 
-                        <SearchResults  db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
-                                       searchSuggestionItemId={searchSuggestionItemId}
-                                       searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
-                                       searchSuggestionType={searchSuggestionType} navigation={props.navigation}/>)
+                    <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
+                        searchSuggestionItemId={searchSuggestionItemId}
+                        searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
+                        searchSuggestionType={searchSuggestionType} navigation={props.navigation} />)
                     :
-                    (<SearchHistory/>)
+                    (<SearchHistory />)
             }
         </SafeAreaView>)
             ;

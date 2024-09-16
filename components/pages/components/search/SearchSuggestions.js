@@ -1,8 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity} from 'react-native';
+import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
+
 
 const SearchSuggestions = (props) => {
-    const {db, searchText} = props;
+    const db = useSQLiteContext();
+    const {searchText} = props;
     const [results, setResults] = useState([]);
 
     const searchProducts = async () => {

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState, useCallback} from "react";
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import {
     View,
     StyleSheet,
@@ -11,23 +11,27 @@ import {
 } from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
 import ProductCard from "./components/ProductCard";
-import {AppContext, CartContext} from "@/app_contexts/AppContext";
-import {Box} from "@/components/ui/box";
-import {Button} from "@/components/ui/button";
-import {HStack} from "@/components/ui/hstack";
-import {VStack} from "@/components/ui/vstack";
+import { AppContext, CartContext } from "@/app_contexts/AppContext";
+import { Box } from "@/components/ui/box";
+import { Button } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
 import ContentLoader from "react-native-easy-content-loader";
-import {Divider} from "@/components/ui/divider";
+import { Divider } from "@/components/ui/divider";
 import Toast from "react-native-toast-message";
-import {connectToDatabase} from "@/components/config/sqlite_db_service";
-import {getHomeScreen} from "../config/API";
-import {Heading} from "lucide-react-native";
+import { getHomeScreen } from "../config/API";
+import { Heading } from "lucide-react-native";
 
-const {width} = Dimensions.get("window");
+import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
+
+
+const { width } = Dimensions.get("window");
 
 function HomeScreen(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
+    const db = useSQLiteContext();
+
 
     const [categoryActive, setCategoryActive] = useState(-1);
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
@@ -36,62 +40,29 @@ function HomeScreen(props) {
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [flashProducts, setFlashProducts] = useState([]);
-    const [db, setDb] = useState(null);
-    const [page, setPage] = useState(1);
+
+
     const [isFetchingMore, setIsFetchingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
 
     const btnCategoryAction = (categoryId) => {
         setCategoryActive(categoryId);
     };
 
     const productCardAction = (product) => {
-        props.navigation.navigate("ProductDetails", {product_id: product.product_id, db: props.db});
-    };
-
-    const fetchProducts = async (pageNumber) => {
-        setIsFetchingMore(true);
-        try {
-            const fetchedProducts = await db.getAllAsync(`SELECT * FROM product ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
-            if (fetchedProducts.length === 0) {
-                setHasMore(false);
-            }
-            setProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            setHasMore(false);
-        } finally {
-            setIsFetchingMore(false);
-        }
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id, db: props.db });
     };
 
     const fetchData = useCallback(async () => {
-        if (db) {
-            setLoggedInStatus(isLoggedIn);
-            await getHomeScreen({homeScreenLoading});
-        }
-    }, [db]);
+        setLoggedInStatus(isLoggedIn);
+        await getHomeScreen({ homeScreenLoading, db: db });
+
+    });
 
     useEffect(() => {
-        if (db) {
-            fetchData();
-            // fetchProducts(page - 1); // Load initial products
-        }
-    }, [db, page]);
+        fetchData();
+    }, []);
 
-    useEffect(() => {
-        const initialize = async () => {
-            if (!db) {
-                try {
-                    const database = await connectToDatabase();
-                    setDb(database);
-                } catch (error) {
-                    console.error("Error during initialization:", error);
-                }
-            }
-        };
-        initialize();
-    }, [db]);
+
 
     const homeScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
@@ -105,32 +76,22 @@ function HomeScreen(props) {
                 bottomOffset: 50,
             });
         } else {
-            if (db) {
-                const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
-                setCategories(categories);
+            const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+            const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
+            const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
 
-                const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
-                setProducts(productsFirstRow);
+            setCategories(categories);
+            setProducts(productsFirstRow);
+            setFlashProducts(productsHome);
+            setIsAppDataFetchError(false);
+            setIsAppDataFetchMsg(message);
 
-                const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
-                setFlashProducts(productsHome);
-
-                setIsAppDataFetchError(false);
-                setIsAppDataFetchMsg(message);
-            } else {
-                setIsAppDataFetchError(true);
-                setIsAppDataFetchMsg("Local Database error...");
-            }
         }
     };
 
-    const loadMoreProducts = () => {
-        if (!isFetchingMore && hasMore) {
-            setPage(prevPage => prevPage + 1);
-        }
-    };
 
-    const renderCategoryList = ({item}) => (
+
+    const renderCategoryList = ({ item }) => (
         <View>
             <TouchableOpacity
                 key={item.sub_category_id}
@@ -143,17 +104,17 @@ function HomeScreen(props) {
         </View>
     )
 
-    const renderProductList = ({item}) => (
+    const renderProductList = ({ item }) => (
         <View key={item.product_id} style={styles.productCardContainer}>
             <ProductCard data={{
                 database: db,
                 product: item,
                 action: productCardAction,
-            }}/>
+            }} />
         </View>
     );
 
-    const renderFlashProduct = ({item}) => (
+    const renderFlashProduct = ({ item }) => (
         <Box style={styles.flashProductBox} py="2">
             <ProductCard
                 key={item.product_id}
@@ -171,7 +132,7 @@ function HomeScreen(props) {
         if (!isFetchingMore) return null;
         return (
             <View style={styles.footer}>
-                <ActivityIndicator size="large" color="#000"/>
+                <ActivityIndicator size="large" color="#000" />
             </View>
         );
     };
@@ -200,11 +161,11 @@ function HomeScreen(props) {
         return (
             <FlatList
                 style={styles.container}
-                data={[{type: 'header'}, {type: 'categories', data: categories}, {
+                data={[{ type: 'header' }, { type: 'categories', data: categories }, {
                     type: 'productsFirstRow',
                     data: products
-                }, {type: 'flashProducts', data: flashProducts}]}
-                renderItem={({item}) => {
+                }, { type: 'flashProducts', data: flashProducts }]}
+                renderItem={({ item }) => {
                     if (item.type === 'header') {
                         return (
                             <View style={styles.headerContainer}>
@@ -251,13 +212,13 @@ function HomeScreen(props) {
                     } else if (item.type === 'flashProducts') {
                         return (
                             <View style={styles.flashProductsContainer}>
-                                <View style={[styles.flashProductsHeader, {justifyContent: 'space-between'}]}>
+                                <View style={[styles.flashProductsHeader, { justifyContent: 'space-between' }]}>
                                     <Text style={styles.headerText}>Flash Products</Text>
                                     <TouchableOpacity
                                         onPress={() => console.log("Go to all products")}
 
                                     >
-                                        <Text style={{color: '#2780e3', fontWeight: 'bold'}}>View All {">>"}</Text>
+                                        <Text style={{ color: '#2780e3', fontWeight: 'bold' }}>View All {">>"}</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <FlatList
@@ -283,9 +244,9 @@ function HomeScreen(props) {
                     }
                 }}
                 keyExtractor={(item, index) => index.toString()}
-                // ListFooterComponent={renderFooter}
-                // onEndReached={loadMoreProducts}
-                // onEndReachedThreshold={0.5}
+            // ListFooterComponent={renderFooter}
+            // onEndReached={loadMoreProducts}
+            // onEndReachedThreshold={0.5}
             />
         );
     }

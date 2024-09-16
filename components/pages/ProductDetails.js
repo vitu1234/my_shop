@@ -70,9 +70,8 @@ function ProductDetails(props) {
     }, [product]);
 
     const getProduct = async (product_id) => {
-        await Promise.all([
+        // await Promise.all([F
             // 1. A new transaction begins
-            db.withExclusiveTransactionAsync(async () => {
 
                 const product = await db.getFirstAsync('SELECT * FROM product');
                 const product_attributes = await db.getFirstAsync('SELECT * FROM product_attributes');
@@ -86,9 +85,9 @@ function ProductDetails(props) {
                 setProductImages(product_images)
                 console.log(product_images);
 
-            }),
+            // }),
 
-        ]);
+        // ]);
     }
 
 

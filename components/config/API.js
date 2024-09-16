@@ -1,9 +1,9 @@
 import "react-native-gesture-handler";
 import React from "react";
-import {connectToDatabase, deleteAllHomescreenProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
+import {connectToDatabase, deleteProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.3.200:8000/api";
+const base_url = "http://192.168.0.104:8000/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================
@@ -13,20 +13,18 @@ const getHomeScreen = async (props) => {
     try {
         const response = await fetch(`${base_url}/homescreen`, { method: "GET" });
         const data = await response.json();
-        const db = await connectToDatabase();
+        const db = props.db;
 
         if (db == null) {
             throw new Error('Database connection is not initialized.');
         }
 
-        console.log("HERE")
-
         // Delete old data
-        await deleteAllHomescreenProducts(db);
+        await deleteProducts(db);
 
-        console.log("HERE2")
+        // console.log("HERE2")
         const  results = await db.getAllAsync("PRAGMA table_info(category);")
-        console.log(results)
+        // console.log(results)
         // Use Promise.all to wait for all insert operations to complete
         await Promise.all([
             ...data.categories.map(category => db.runAsync("INSERT INTO category(category_id,category_name,category_description) VALUES (?,?,?);", [category.category_id, category.category_name, category.category_description])),
@@ -55,7 +53,7 @@ const getHomeScreen = async (props) => {
                     )
                 );
 
-                console.log('Product processed');
+                // console.log('Product processed');
             })
         ]);
 
@@ -66,6 +64,7 @@ const getHomeScreen = async (props) => {
     } catch (error) {
         // Handle error
         await props.homeScreenLoading(true, error.message);
+        // console.error(error.message)
     }
 };
 

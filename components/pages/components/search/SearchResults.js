@@ -1,25 +1,28 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator, Alert, Button, Dimensions, FlatList, StyleSheet, Switch, Text, TouchableOpacity, View
 } from "react-native";
-import {Filter, ChevronDown} from "lucide-react-native";
+import { Filter, ChevronDown } from "lucide-react-native";
 import SortActionSheet from "@/components/pages/components/search/SortActionSheet";
-import {SheetManager} from "react-native-actions-sheet";
+import { SheetManager } from "react-native-actions-sheet";
 
-const {width} = Dimensions.get("window");
-import {Toast} from "@/components/ui/toast";
+const { width } = Dimensions.get("window");
+import { Toast } from "@/components/ui/toast";
 import ProductCard from "@/components/pages/components/ProductCard";
 import ContentLoader from "react-native-easy-content-loader";
-import {Heading} from "@/components/ui/heading";
+import { Heading } from "@/components/ui/heading";
+import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
+
+
 
 const SearchResults = (props) => {
-
+    const db = useSQLiteContext();
     const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
 
     const [searchProducts, setSearchProducts] = useState([]);
     const {
-        db,
+
         searchText,
         isSearchButtonPressed,
         searchSuggestionType,
@@ -60,161 +63,19 @@ const SearchResults = (props) => {
     const productCardAction = (product) => {
         console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
         // console.log(product);
-        props.navigation.navigate("ProductDetails", {product_id: product.product_id, db: props.db});
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id, db: props.db });
     };
-    const fetchProducts = async (pageNumber) => {
-        setIsFetchingMore(true);
-        setSearchProducts([])
-        console.log("searchSuggestionItemId : RESULTS", searchSuggestionItemId);
-        try {
-            if (isSearchButtonPressed) {
-                console.log('pageNumber:', pageNumber, 'Offset:', pageNumber * 20);
-                const fetchedProducts = await db.getAllAsync(`
-                    SELECT product.product_id,
-                        product_attributes.product_attributes_id, 
-                        product_name, 
-                        product_description,
-                        cover,
-                        product_attributes.product_attributes_default,
-                        product_attributes.product_attributes_name, 
-                        product_attributes.product_attributes_value, 
-                        product_attributes.product_attributes_summary, 
-                        product_attributes.product_attributes_price, 
-                        product_attributes.product_attributes_stock_qty
-                    FROM product
-                    INNER JOIN product_attributes 
-                        ON product.product_id = product_attributes.product_id
-                    INNER JOIN product_images 
-                        ON product.product_id = product_images.product_id
-                    WHERE
-                        product_attributes.product_attributes_default = 1
-                    AND 
-                        (product.product_name LIKE $1 
-                        OR product_attributes.product_attributes_name LIKE $1 
-                        OR product_attributes.product_attributes_value LIKE $1)
-                        GROUP BY product.product_id
-                    LIMIT 20 OFFSET $2
-                    
-                `, [`%${searchText}%`, pageNumber * 20]);
 
-                if (fetchedProducts.length === 0) {
-                    setHasMore(false);
-                }
-                setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
-            } else {
-                console.log("fetchProducts with search criteria not selected")
-                console.log("!search button")
-
-                console.log(props)
-                if (searchSuggestionType === 'category') {
-
-                    const fetchedProducts = await db.getAllAsync(`
-                        SELECT product.product_id,
-                            product_attributes.product_attributes_id, 
-                            category.category_id,
-                            product_name, 
-                            product_description,
-                            cover,
-                            product_attributes.product_attributes_default,
-                            product_attributes.product_attributes_name, 
-                            product_attributes.product_attributes_value, 
-                            product_attributes.product_attributes_summary, 
-                            product_attributes.product_attributes_price, 
-                            product_attributes.product_attributes_stock_qty
-                        FROM product
-                        INNER JOIN product_attributes 
-                            ON product.product_id = product_attributes.product_id
-                        INNER JOIN product_images 
-                            ON product.product_id = product_images.product_id
-                        INNER JOIN product_sub_category 
-                            ON product.product_id = product_sub_category.product_id
-                        INNER JOIN sub_category
-                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
-                        INNER JOIN category
-                        ON sub_category.category_id = category.category_id
-                        WHERE
-                            product_attributes.product_attributes_default = 1
-                        AND
-                            category.category_id = $1
-                        OR 
-                            (product.product_name LIKE $2 
-                            OR product_attributes.product_attributes_name LIKE $2 
-                            OR product_attributes.product_attributes_value LIKE $2)
-                            GROUP BY product.product_id
-                        LIMIT 20 OFFSET $3
-                    
-                `, [searchSuggestionItemId, `%${searchText}%`, pageNumber * 20]);
-
-                    if (fetchedProducts.length === 0) {
-                        setHasMore(false);
-                    }
-                    setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
-                } else {
-                    setSearchProducts([])
-                    const fetchedProducts = await db.getAllAsync(`
-                        SELECT product.product_id,
-                            product_attributes.product_attributes_id, 
-                            category.category_id,
-                            product_name, 
-                            product_description,
-                            cover,
-                            product_attributes.product_attributes_default,
-                            product_attributes.product_attributes_name, 
-                            product_attributes.product_attributes_value, 
-                            product_attributes.product_attributes_summary, 
-                            product_attributes.product_attributes_price, 
-                            product_attributes.product_attributes_stock_qty
-                        FROM product
-                        INNER JOIN product_attributes 
-                            ON product.product_id = product_attributes.product_id
-                        INNER JOIN product_images 
-                            ON product.product_id = product_images.product_id
-                        INNER JOIN product_sub_category 
-                            ON product.product_id = product_sub_category.product_id
-                        INNER JOIN sub_category
-                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
-                        INNER JOIN category
-                        ON sub_category.category_id = category.category_id
-                        WHERE
-                            product_attributes.product_attributes_default = 1
-                        AND
-                            product.product_id = $1
-                        OR 
-                            (product.product_name LIKE $2 
-                            OR product_attributes.product_attributes_name LIKE $2 
-                            OR product_attributes.product_attributes_value LIKE $2)
-                            GROUP BY product.product_id
-                        LIMIT 20 OFFSET $3
-                    
-                `, [searchSuggestionItemId, `%${searchText}%`, pageNumber * 20]);
-
-                    if (fetchedProducts.length === 0) {
-                        setHasMore(false);
-                    }
-                    setSearchProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
-                }
-            }
-
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            setHasMore(false);
-        } finally {
-            setIsFetchingMore(false);
-        }
-    };
 
     const fetchData = useCallback(async () => {
-        if (db) {
-            productsScreenLoading(false, "Fetched data")
-        }
-    }, [db, searchProducts]);
+        productsScreenLoading(false, "Fetched data")
+
+    });
 
     useEffect(() => {
-        if (db) {
-            fetchData();
-            // fetchProducts(page - 1); // Load initial products
-        }
-    }, [db, page]);
+        fetchData();
+        // fetchProducts(page - 1); // Load initial products
+    }, []);
 
 
     const productsScreenLoading = async (isFetchingDataError, message) => {
@@ -227,9 +88,8 @@ const SearchResults = (props) => {
                 text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50,
             });
         } else {
-            if (db) {
-                if (isSearchButtonPressed) {
-                    const productsFetch = await db.getAllAsync(`
+            if (isSearchButtonPressed) {
+                const productsFetch = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
                             product_name, 
@@ -256,12 +116,12 @@ const SearchResults = (props) => {
                         GROUP BY product.product_id
                         `, [`%${searchText}%`]);
 
-                    setSearchProducts(productsFetch);
-                } else {
-                    console.log("productsScreenLoading with search criteria not selected")
-                    console.log("!search button2")
-                    if (searchSuggestionType === 'category') {
-                        const fetchedProducts = await db.getAllAsync(`
+                setSearchProducts(productsFetch);
+            } else {
+                console.log("productsScreenLoading with search criteria not selected")
+                console.log("!search button2")
+                if (searchSuggestionType === 'category') {
+                    const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
                             category.category_id,
@@ -298,12 +158,12 @@ const SearchResults = (props) => {
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
-                        if (fetchedProducts.length === 0) {
-                            setHasMore(false);
-                        }
-                        setSearchProducts(fetchedProducts);
-                    } else {
-                        const fetchedProducts = await db.getAllAsync(`
+                    if (fetchedProducts.length === 0) {
+                        setHasMore(false);
+                    }
+                    setSearchProducts(fetchedProducts);
+                } else {
+                    const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
                             category.category_id,
@@ -340,20 +200,17 @@ const SearchResults = (props) => {
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
-                        if (fetchedProducts.length === 0) {
-                            setHasMore(false);
-                        }
-                        setSearchProducts(fetchedProducts);
+                    if (fetchedProducts.length === 0) {
+                        setHasMore(false);
                     }
-
+                    setSearchProducts(fetchedProducts);
                 }
 
-                setIsAppDataFetchError(false);
-                setIsAppDataFetchMsg(message);
-            } else {
-                setIsAppDataFetchError(true);
-                setIsAppDataFetchMsg("Local Database error...");
             }
+
+            setIsAppDataFetchError(false);
+            setIsAppDataFetchMsg(message);
+
         }
     };
 
@@ -364,16 +221,15 @@ const SearchResults = (props) => {
         }
     };
 
-    const renderProductList = ({item, index}) => (
+    const renderProductList = ({ item, index }) => (
         <View key={`${item.product_id}-${index}-${item.product_attributes_id}`} style={styles.productCardContainer}>
-            <ProductCard data={{
-                database: db, product: item, action: productCardAction,
-            }}/>
+            <ProductCard data={{product: item, action: productCardAction,
+            }} />
         </View>);
     const renderFooter = () => {
         if (!isFetchingMore) return null;
         return (<View style={styles.footer}>
-            <ActivityIndicator size="large" color="#000"/>
+            <ActivityIndicator size="large" color="#000" />
         </View>);
     };
 
@@ -396,17 +252,17 @@ const SearchResults = (props) => {
     } else {
         return (<FlatList
             style={styles.container}
-            data={[{type: 'header'}, {
+            data={[{ type: 'header' }, {
                 type: 'products', data: searchProducts
             }]}
-            renderItem={({item}) => {
+            renderItem={({ item }) => {
                 if (item.type === 'header') {
                     return (<View style={styles.contentContainer}>
                         <View style={styles.topPartContainer}>
                             <View style={styles.leftPart}>
                                 <Switch
                                     style={styles.switchStyle}
-                                    trackColor={{false: '#767577', true: '#2780e3'}}
+                                    trackColor={{ false: '#767577', true: '#2780e3' }}
                                     thumbColor={isEnabled ? '#fff' : '#f4f3f4'}
                                     ios_backgroundColor="#3e3e3e"
                                     onValueChange={toggleSwitch}
@@ -415,11 +271,11 @@ const SearchResults = (props) => {
                                 <Text style={styles.textStyle}>Free Shipping</Text>
                             </View>
                             <TouchableOpacity
-                                style={[styles.buttonContainer, {backgroundColor: '#767577'}]}
+                                style={[styles.buttonContainer, { backgroundColor: '#767577' }]}
                                 onPress={openActionSheetSorting}
                             >
-                                <Text style={{marginTop: 4}}><ChevronDown color={'#fff'} size={18}/></Text>
-                                <Text style={[styles.textStyle, {color: '#fff'}]}>
+                                <Text style={{ marginTop: 4 }}><ChevronDown color={'#fff'} size={18} /></Text>
+                                <Text style={[styles.textStyle, { color: '#fff' }]}>
                                     Sorting
                                 </Text>
                             </TouchableOpacity>
@@ -427,14 +283,14 @@ const SearchResults = (props) => {
                                 style={styles.buttonContainer}
                                 onPress={() => Alert.alert('Simple Button pressed')}
                             >
-                                <Text style={{marginTop: 4}}><Filter color={'#fff'} size={18}/></Text>
-                                <Text style={[styles.textStyle, {color: '#fff'}]}>
+                                <Text style={{ marginTop: 4 }}><Filter color={'#fff'} size={18} /></Text>
+                                <Text style={[styles.textStyle, { color: '#fff' }]}>
                                     Filters
                                 </Text>
                             </TouchableOpacity>
                         </View>
                         <Text>Search results</Text>
-                        <SortActionSheet/>
+                        <SortActionSheet />
                     </View>);
                 } else if (item.type === 'products') {
                     return (<View style={styles.flashProductsContainer}>
@@ -461,9 +317,9 @@ const SearchResults = (props) => {
                 }
             }}
             keyExtractor={(item, index) => index.toString()}
-            // ListFooterComponent={renderFooter}
-            // onEndReached={loadMoreProducts}
-            // onEndReachedThreshold={0.5}
+        // ListFooterComponent={renderFooter}
+        // onEndReached={loadMoreProducts}
+        // onEndReachedThreshold={0.5}
         />);
     }
 
@@ -480,7 +336,7 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Center items vertically
         justifyContent: 'space-between', // Pushes the button to the far right
     }, switchStyle: {
-        transform: [{scaleX: 0.9}, {scaleY: 0.8}],
+        transform: [{ scaleX: 0.9 }, { scaleY: 0.8 }],
     }, leftPart: {
         flexDirection: 'row', // Arrange Switch and Text horizontally
         alignItems: 'center', // Center items vertically
