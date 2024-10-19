@@ -32,34 +32,10 @@ const SearchScreen = (props) => {
     }
 
 
-
-    const productsScreenLoading = async (isFetchingDataError, message) => {
-        setIsAppDataFetchLoading(false);
-        if (isFetchingDataError) {
-            setIsAppDataFetchError(true);
-            setIsAppDataFetchMsg(message);
-            Toast.show({
-                text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50,
-            });
-        } else {
-
-
-            const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM()");
-            setProducts(productsFetch);
-
-
-            setIsAppDataFetchError(false);
-            setIsAppDataFetchMsg(message);
-
-        }
-    };
-
-    const fetchData = useCallback(async () => {
-        productsScreenLoading(false, "Fetched data")
-    });
-
     useEffect(() => {
-        fetchData();
+        // fetchData();
+        setIsAppDataFetchError(false);
+        setIsAppDataFetchLoading(false);
     });
 
     useEffect(() => {
