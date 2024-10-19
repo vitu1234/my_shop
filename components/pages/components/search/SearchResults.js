@@ -146,15 +146,13 @@ const SearchResults = (props) => {
                         ON product_sub_category.sub_category_id = sub_category.sub_category_id
                         INNER JOIN category
                         ON sub_category.category_id = category.category_id
-                        WHERE
-                            product_attributes.product_attributes_default = 1
-                        AND
-                            category.category_id = $1
-                        OR 
+                        WHERE 
+                            (product_attributes.product_attributes_default = 1 AND category.category_id = $1) 
+                            OR 
                             (product.product_name LIKE $2 
                             OR product_attributes.product_attributes_name LIKE $2 
                             OR product_attributes.product_attributes_value LIKE $2)
-                            GROUP BY product.product_id
+                        GROUP BY product.product_id
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
@@ -188,15 +186,13 @@ const SearchResults = (props) => {
                         ON product_sub_category.sub_category_id = sub_category.sub_category_id
                         INNER JOIN category
                         ON sub_category.category_id = category.category_id
-                        WHERE
-                            product_attributes.product_attributes_default = 1
-                        AND
-                            product.product_id = $1
-                        OR 
+                        WHERE 
+                            (product.product_id = $1 OR 
+                            (product_attributes.product_attributes_default = 1 AND 
                             (product.product_name LIKE $2 
                             OR product_attributes.product_attributes_name LIKE $2 
-                            OR product_attributes.product_attributes_value LIKE $2)
-                            GROUP BY product.product_id
+                            OR product_attributes.product_attributes_value LIKE $2)))
+                        GROUP BY product.product_id
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
