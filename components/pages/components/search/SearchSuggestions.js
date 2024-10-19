@@ -4,11 +4,14 @@ import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 
 
 const SearchSuggestions = (props) => {
+    console.log('SUGGESTIONS')
+    console.log(props)
     const db = useSQLiteContext();
-    const {searchText} = props;
+    const [searchText, setSearchText]=useState(props.searchText)
     const [results, setResults] = useState([]);
-
+    
     const searchProducts = async () => {
+        console.log("SEARCH: "+ props.searchText)
         try {
             const resultsFetch = await db.getAllAsync(`
                 SELECT 'product' AS result_type, product.product_id AS id, product.product_name AS name, NULL AS description
@@ -41,9 +44,10 @@ const SearchSuggestions = (props) => {
         if (searchText) {
             searchProducts();
         }
-    }, [searchText]);
+    }, [props.searchText]);
 
     const searchTheItem = (searchText, itemId, itemName, resultType) => {
+        console.log(searchText)
         props.setIsSearchButton(true);
         props.setIsTyping(false);
         // console.log('Item Name:', itemName);
@@ -57,6 +61,7 @@ const SearchSuggestions = (props) => {
 
     const renderItem = ({item}) => {
         const handlePress = () => {
+            console.log("HANDLE PRESS")
             searchTheItem(searchText, item.id, item.name, item.result_type);
         };
         switch (item.result_type) {

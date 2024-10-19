@@ -38,9 +38,11 @@ const SearchResults = (props) => {
     const [isAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
 
+    
+
     //END FROM PRODUCTS PAGE
 
-
+    // console.log(props)
     const toggleSwitch = () => {
         setIsEnabled(previousState => !previousState)
     };
@@ -63,11 +65,12 @@ const SearchResults = (props) => {
     const productCardAction = (product) => {
         console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
         // console.log(product);
-        props.navigation.navigate("ProductDetails", { product_id: product.product_id, db: props.db });
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id});
     };
 
 
     const fetchData = useCallback(async () => {
+        // setSearchProducts([])
         productsScreenLoading(false, "Fetched data")
 
     });
@@ -80,7 +83,6 @@ const SearchResults = (props) => {
 
     const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
-        setSearchProducts([])
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
@@ -121,6 +123,7 @@ const SearchResults = (props) => {
                 console.log("productsScreenLoading with search criteria not selected")
                 console.log("!search button2")
                 if (searchSuggestionType === 'category') {
+                    console.log('SEARCH BY CATEGORY')
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -156,11 +159,10 @@ const SearchResults = (props) => {
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
-                    if (fetchedProducts.length === 0) {
-                        setHasMore(false);
-                    }
                     setSearchProducts(fetchedProducts);
                 } else {
+                    console.log("SEARCH BY PRODUCT")
+                    console.log(searchText)
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -187,35 +189,27 @@ const SearchResults = (props) => {
                         INNER JOIN category
                         ON sub_category.category_id = category.category_id
                         WHERE 
+                            product_attributes.product_attributes_default = 1 AND
                             (product.product_id = $1 OR 
-                            (product_attributes.product_attributes_default = 1 AND 
+                             
                             (product.product_name LIKE $2 
                             OR product_attributes.product_attributes_name LIKE $2 
-                            OR product_attributes.product_attributes_value LIKE $2)))
+                            OR product_attributes.product_attributes_value LIKE $2))
                         GROUP BY product.product_id
                     
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
-                    if (fetchedProducts.length === 0) {
-                        setHasMore(false);
-                    }
                     setSearchProducts(fetchedProducts);
                 }
 
             }
 
-            setIsAppDataFetchError(false);
-            setIsAppDataFetchMsg(message);
+            // setIsAppDataFetchError(false);
+            // setIsAppDataFetchMsg(message);
 
         }
     };
 
-    const loadMoreProducts = () => {
-        console.log("loading more function")
-        if (!isFetchingMore && hasMore) {
-            setPage(prevPage => prevPage + 1);
-        }
-    };
 
     const renderProductList = ({ item, index }) => (
         <View key={`${item.product_id}-${index}-${item.product_attributes_id}`} style={styles.productCardContainer}>

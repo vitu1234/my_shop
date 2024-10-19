@@ -71,6 +71,25 @@ export const createTables = async (db) => {
             );
         `);
 
+    // await db.execAsync(`
+    //         CREATE TABLE IF NOT EXISTS shipping_company (
+    //             shipping_company_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    //             shipping_company_name TEXT NOT NULL,
+    //             shipping_company_address TEXT NULL
+    //         );
+    //     `);
+
+    await db.execAsync(`
+            CREATE TABLE IF NOT EXISTS product_shipping (
+                product_shipping_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                product_id INTEGER NOT NULL,
+                shipping_company_id INTEGER NOT NULL,
+                shipping_type TEXT NOT NULL,
+                shipping_amount TEXT NOT NULL,
+                shipping_company_name TEXT NOT NULL,
+                shipping_company_address TEXT NULL
+            );
+        `);
 
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS user (
@@ -123,6 +142,7 @@ const deleteProducts = async (db) => {
     try {
         const queries = [
             "DELETE FROM category",
+            "DELETE FROM product_shipping",
             "DELETE FROM sub_category",
             "DELETE FROM product_images",
             "DELETE FROM product_attributes",
@@ -159,24 +179,24 @@ const getProductDefaultAttribute = async (db, product_id) => {
 
 // Function to get all categories
 const getAllCategory = async (db, callback) => {
-        await db.execAsync("SELECT * FROM category", [], (tx, results) => {
-            const categories = [];
-            for (let i = 0; i < results.rows.length; i++) {
-                categories.push(results.rows.item(i));
-            }
-            callback(categories);
-        });
+    await db.execAsync("SELECT * FROM category", [], (tx, results) => {
+        const categories = [];
+        for (let i = 0; i < results.rows.length; i++) {
+            categories.push(results.rows.item(i));
+        }
+        callback(categories);
+    });
 };
 
 // Function to get all products on the home screen
 const getAllProductsHomeScreen = async (db, callback) => {
-        await db.execAsync("SELECT * FROM product", [], (tx, results) => {
-            const products = [];
-            for (let i = 0; i < results.rows.length; i++) {
-                products.push(results.rows.item(i));
-            }
-            callback(products);
-        });
+    await db.execAsync("SELECT * FROM product", [], (tx, results) => {
+        const products = [];
+        for (let i = 0; i < results.rows.length; i++) {
+            products.push(results.rows.item(i));
+        }
+        callback(products);
+    });
 };
 
 // Function to delete all user data
@@ -187,11 +207,11 @@ const deleteAllUserData = async (db) => {
 // Function to save logged-in user data
 const saveLoggedInUser = async (db, user_data) => {
     await deleteAllUserData(db);
-        await db.prepareAsync(
-            `INSERT INTO user (user_id, first_name, last_name, phone, email, profile_img, is_active, is_verified, access_token)
+    await db.prepareAsync(
+        `INSERT INTO user (user_id, first_name, last_name, phone, email, profile_img, is_active, is_verified, access_token)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-            [user_data.user_id, user_data.first_name, user_data.last_name, user_data.phone, user_data.email, user_data.profile_img, user_data.is_active, user_data.is_verified, user_data.access_token]
-        );
+        [user_data.user_id, user_data.first_name, user_data.last_name, user_data.phone, user_data.email, user_data.profile_img, user_data.is_active, user_data.is_verified, user_data.access_token]
+    );
 };
 
 // Export functions

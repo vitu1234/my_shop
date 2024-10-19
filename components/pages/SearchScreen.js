@@ -32,17 +32,32 @@ const SearchScreen = (props) => {
     }
 
 
-    useEffect(() => {
-        // fetchData();
-        setIsAppDataFetchError(false);
-        setIsAppDataFetchLoading(false);
-    });
+
+
+    // useEffect(() => {
+    //     if (!isSearchButtonPressed) {
+    //         setSearchText(searchSuggestionItemName)
+    //     }
+    // }, [searchSuggestionItemName, searchText]);
+
+
 
     useEffect(() => {
-        if (!isSearchButtonPressed) {
-            setSearchText(searchSuggestionItemName)
+        // Example to mimic data fetching setup
+        setIsAppDataFetchError(false);
+        setIsAppDataFetchLoading(false);
+    }, []);
+
+    useEffect(() => {
+        if (!isSearchButtonPressed && searchSuggestionItemName) {
+            setSearchText(searchSuggestionItemName);
         }
-    }, [searchSuggestionItemName]);
+    }, [searchSuggestionItemName, isSearchButtonPressed]);
+
+    const handleSearchTextChange = useCallback((text) => {
+        setSearchText(text);
+        setIsTyping(text.length > 0);
+    }, []);
 
 
     if (isAppDataFetchLoading) {
@@ -67,14 +82,14 @@ const SearchScreen = (props) => {
                 setIsTyping={setIsTyping}
                 setIsSearchButton={setIsSearchButton}
                 setSearchButtonPressed={setSearchButtonPressed}
-                setSearchText={setSearchText}
+                setSearchText={handleSearchTextChange}
                 searchText={searchText}
                 props={props}
                 data={"ddd"}
                 goBack={navigateBack}
             />
             {isTyping && searchText.length > 0 ? (
-                <SearchSuggestions db={db} searchText={searchText} setSearchText={setSearchText}
+                <SearchSuggestions db={db} searchText={searchText} setSearchText={handleSearchTextChange}
                     setIsSearchButton={setIsSearchButton}
                     setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
                     setSearchSuggestionItemName={setSearchSuggestionItemName}
@@ -83,7 +98,7 @@ const SearchScreen = (props) => {
 
                     <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
                         searchSuggestionItemId={searchSuggestionItemId}
-                        searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
+                        searchSuggestionItemName={searchSuggestionItemName} setSearchText={handleSearchTextChange}
                         searchSuggestionType={searchSuggestionType} navigation={props.navigation} />)
                     :
                     (<SearchHistory />)

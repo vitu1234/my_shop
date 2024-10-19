@@ -1,25 +1,26 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
-import {Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View} from "react-native";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
 
-import {AppContext, CartContext} from "@/app_contexts/AppContext";
-import {ScrollView} from "react-native-gesture-handler";
-import {ICarouselInstance} from "react-native-reanimated-carousel";
+import { AppContext, CartContext } from "@/app_contexts/AppContext";
+import { ScrollView } from "react-native-gesture-handler";
+import { ICarouselInstance } from "react-native-reanimated-carousel";
 import Carousel from "react-native-reanimated-carousel";
-import {SafeAreaView} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import {SBItem} from "@/components/carousel/SBItem";
+import { SBItem } from "@/components/carousel/SBItem";
 import SButton from "@/components/carousel/SButton";
-import {ElementsText, window} from "@/components/carousel/constants";
-import {useWindowDimensions} from "react-native";
-import {useSharedValue} from "react-native-reanimated";
-import {Toast} from "@/components/ui/toast";
+import { ElementsText, window } from "@/components/carousel/constants";
+import { useWindowDimensions } from "react-native";
+import { useSharedValue } from "react-native-reanimated";
+import { Toast } from "@/components/ui/toast";
+import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 
 const PAGE_WIDTH = window.width;
 
 
 function ProductDetails(props) {
     // console.log(props.route.params.db)
-    const db = props.route.params.db;
+    const db = useSQLiteContext();
     const product_id = props.route.params.product_id;
     const [productQty, setProductQty] = useState(1);
 
@@ -71,31 +72,30 @@ function ProductDetails(props) {
 
     const getProduct = async (product_id) => {
         // await Promise.all([F
-            // 1. A new transaction begins
+        // 1. A new transaction begins
 
-                const product = await db.getFirstAsync('SELECT * FROM product');
-                const product_attributes = await db.getFirstAsync('SELECT * FROM product_attributes');
-                const product_images = [];
-                const product_sub_category = await db.getFirstAsync('SELECT * FROM product_sub_category');
-                for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
-                    product_images.push(row.img_url);
-                }
+        const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
+        const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
+        const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
+        
+        const product_images = [];
+        for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
+            product_images.push(row.img_url);
+        }
 
-                setProduct(product)
-                setProductImages(product_images)
-                console.log(product_images);
+        setProduct(ProductDetails)
+        setProductImages(product_images)
+        console.log(product_images);
 
-            // }),
+        // }),
 
         // ]);
     }
 
 
     useEffect(() => {
-        if (db) {
-            fetchProductData();
-        }
-    }, [db]);
+        fetchProductData();
+    }, []);
 
 
     useEffect(() => {
@@ -280,7 +280,7 @@ function ProductDetails(props) {
             // height: PAGE_WIDTH / 2,
         });
     return (
-        <SafeAreaView edges={["bottom"]} style={{flex: 1}}>
+        <SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
             <Carousel
 
 
@@ -290,7 +290,7 @@ function ProductDetails(props) {
                 ref={ref}
                 // defaultScrollOffsetValue={scrollOffsetValue}
                 testID={"xxx"}
-                style={{width: "100%", backgroundColor: '#fff'}}
+                style={{ width: "100%", backgroundColor: '#fff' }}
                 autoPlay={true}
                 autoPlayInterval={isFast ? 100 : 2000}
                 data={productImages}
@@ -304,9 +304,9 @@ function ProductDetails(props) {
                 onConfigurePanGesture={g => g.enabled(false)}
                 pagingEnabled={isPagingEnabled}
                 onSnapToItem={index => console.log("current index:", index)}
-                renderItem={({index}) => <SBItem img_url={productImages[index]} key={index} index={index}/>}
+                renderItem={({ index }) => <SBItem img_url={productImages[index]} key={index} index={index} />}
             />
-            <ScrollView style={{flex: 1}}>
+            <ScrollView style={{ flex: 1 }}>
                 <SButton
                     onPress={() => {
                         setData([...new Array(5).keys()]);
@@ -369,14 +369,14 @@ function ProductDetails(props) {
                 </SButton>
                 <SButton
                     onPress={() => {
-                        ref.current?.scrollTo({count: -1, animated: true});
+                        ref.current?.scrollTo({ count: -1, animated: true });
                     }}
                 >
                     prev
                 </SButton>
                 <SButton
                     onPress={() => {
-                        ref.current?.scrollTo({count: 1, animated: true});
+                        ref.current?.scrollTo({ count: 1, animated: true });
                     }}
                 >
                     next

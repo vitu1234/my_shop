@@ -7,10 +7,14 @@ export const SearchBarInput = (props) => {
     const [searchString, setSearchString] = useState(props.searchText);
     const onChangeSearchString = (event) => {
         const {text} = event.nativeEvent;
-        setSearchString(text);
-        props.setSearchText(text);
-        props.setIsTyping(true)
-        props.setSearchButtonPressed(false)
+        setTimeout(() => {
+            
+            setSearchString(text);
+            props.setSearchText(text);
+            props.setIsTyping(true)
+            props.setSearchButtonPressed(false)
+          }, 0);
+        
     };
 
     const onSubmitSearchString = (event) => {
@@ -22,7 +26,10 @@ export const SearchBarInput = (props) => {
     };
 
     useEffect(() => {
-        setSearchString(props.searchText);
+        // Update local state only if it differs from the prop value to prevent unnecessary re-renders
+        if (searchString !== props.searchText) {
+            setSearchString(props.searchText);
+        }
     }, [props.searchText]);
 
 
