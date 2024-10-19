@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState,useContext } from 'react';
 import {
     ActivityIndicator, Alert, Button, Dimensions, FlatList, StyleSheet, Switch, Text, TouchableOpacity, View
 } from "react-native";
@@ -12,6 +12,7 @@ import ProductCard from "@/components/pages/components/ProductCard";
 import ContentLoader from "react-native-easy-content-loader";
 import { Heading } from "@/components/ui/heading";
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
+import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 
 
@@ -19,16 +20,17 @@ const SearchResults = (props) => {
     const db = useSQLiteContext();
     const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
+    const [searchText, setSearchText] = useContext(SearchInputTextContext);
 
     const [searchProducts, setSearchProducts] = useState([]);
     const {
 
-        searchText,
+        // searchText,
         isSearchButtonPressed,
         searchSuggestionType,
         searchSuggestionItemId,
         searchSuggestionItemName,
-        setSearchText
+        // setSearchText
     } = props;
     //FROM PRODUCTS PAGE
     const [page, setPage] = useState(1);

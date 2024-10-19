@@ -1,20 +1,15 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {View, TextInput, Text, StyleSheet, SafeAreaView, TouchableOpacity} from 'react-native';
 import {ChevronLeft} from 'lucide-react-native';
+import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 export const SearchBarInput = (props) => {
 
-    const [searchString, setSearchString] = useState(props.searchText);
-    const onChangeSearchString = (event) => {
-        const {text} = event.nativeEvent;
-        setTimeout(() => {
-            
-            setSearchString(text);
-            props.setSearchText(text);
-            props.setIsTyping(true)
-            props.setSearchButtonPressed(false)
-          }, 0);
-        
+    const [searchText, setSearchText] = useContext(SearchInputTextContext);
+    const onChangeSearchString = (text) => {
+        setSearchText(text);
+        props.setIsTyping(true);
+        props.setSearchButtonPressed(false);
     };
 
     const onSubmitSearchString = (event) => {
@@ -26,11 +21,8 @@ export const SearchBarInput = (props) => {
     };
 
     useEffect(() => {
-        // Update local state only if it differs from the prop value to prevent unnecessary re-renders
-        if (searchString !== props.searchText) {
-            setSearchString(props.searchText);
-        }
-    }, [props.searchText]);
+        setSearchString(searchText);
+    }, [searchText]);
 
 
     return (<View style={styles.searchBarContainer}>
@@ -41,7 +33,7 @@ export const SearchBarInput = (props) => {
             <TextInput
 
                 value={searchString}
-                onChange={onChangeSearchString}
+                onChangeText={onChangeSearchString}
                 onSubmitEditing={onSubmitSearchString}
 
                 clearButtonMode={'while-editing'}

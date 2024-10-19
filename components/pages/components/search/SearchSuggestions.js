@@ -1,17 +1,18 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity} from 'react-native';
+import React, { useEffect, useState,useContext } from 'react';
+import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
-
+import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 const SearchSuggestions = (props) => {
+
     console.log('SUGGESTIONS')
     console.log(props)
     const db = useSQLiteContext();
-    const [searchText, setSearchText]=useState(props.searchText)
+    const [searchText, setSearchText] = useContext(SearchInputTextContext);
     const [results, setResults] = useState([]);
-    
+
     const searchProducts = async () => {
-        console.log("SEARCH: "+ props.searchText)
+        console.log("SEARCH: " + props.searchText)
         try {
             const resultsFetch = await db.getAllAsync(`
                 SELECT 'product' AS result_type, product.product_id AS id, product.product_name AS name, NULL AS description
@@ -59,7 +60,7 @@ const SearchSuggestions = (props) => {
     };
 
 
-    const renderItem = ({item}) => {
+    const renderItem = ({ item }) => {
         const handlePress = () => {
             console.log("HANDLE PRESS")
             searchTheItem(searchText, item.id, item.name, item.result_type);
@@ -70,7 +71,7 @@ const SearchSuggestions = (props) => {
                     <TouchableOpacity onPress={handlePress}>
                         <View style={styles.itemContainer}>
                             <Text style={styles.itemTitle}
-                                  numberOfLines={1}>{item.name}</Text>
+                                numberOfLines={1}>{item.name}</Text>
                         </View>
                     </TouchableOpacity>
                 );

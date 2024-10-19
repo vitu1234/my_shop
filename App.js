@@ -56,10 +56,12 @@ export default function App() {
 
                                     <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
                                         <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+                                        <SearchInputTextContext.Provider value={[searchText, setSearchText]}>
                                             <ProductFilterModalContext.Provider
                                                 value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
                                                 <StackNavigator />
                                             </ProductFilterModalContext.Provider>
+                                        </SearchInputTextContext.Provider>
                                         </CartContext.Provider>
                                     </AppContext.Provider>
                                 </SQLiteProvider>
