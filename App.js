@@ -32,9 +32,12 @@ export default function App() {
     const [isModalVisibleProducts, setIsModalVisibleProducts] = useState(false);
     const [IsAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
     const [cartItemsCount, setCartItemsCount] = useState(0);
-    const [searchText, setSearchText] = useState(0);
     const [cartItems, setCartItems] = useState([]);
 
+    const [searchText, setSearchText] = useState(''); // Initialize searchText with an empty string
+    const [searchSuggestionType, setSearchSuggestionType] = useState(''); // Initialize searchSuggestionType with an empty string
+    const [searchSuggestionItemId, setSearchSuggestionItemId] = useState(-1); // Initialize searchSuggestionItemId with an empty string
+    const [searchSuggestionItemName, setSearchSuggestionItemName] = useState(''); // Initialize searchSuggestionItemName with an empty string
 
     const isDarkMode = useColorScheme() === "dark";
 
@@ -57,7 +60,16 @@ export default function App() {
 
                                     <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
                                         <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
-                                        <SearchInputTextContext.Provider value={[searchText, setSearchText]}>
+                                        <SearchInputTextContext.Provider value={{
+                                                searchText,
+                                                setSearchText,
+                                                searchSuggestionType,
+                                                setSearchSuggestionType,
+                                                searchSuggestionItemId,
+                                                setSearchSuggestionItemId,
+                                                searchSuggestionItemName,
+                                                setSearchSuggestionItemName
+                                            }}>
                                             <ProductFilterModalContext.Provider
                                                 value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
                                                 <StackNavigator />

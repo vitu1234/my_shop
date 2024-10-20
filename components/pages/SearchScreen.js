@@ -17,10 +17,22 @@ const SearchScreen = (props) => {
     const [isTyping, setIsTyping] = React.useState(false);
     const [isSearchButton, setIsSearchButton] = React.useState(false);
     const [isSearchButtonPressed, setSearchButtonPressed] = React.useState(false);
-    const [searchText, setSearchText] = useContext(SearchInputTextContext);
-    const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
-    const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
-    const [searchSuggestionItemName, setSearchSuggestionItemName] = React.useState('');
+    // const [searchText, setSearchText] = useContext(SearchInputTextContext);
+    // const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
+    // const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
+    // const [searchSuggestionItemName, setSearchSuggestionItemName] = React.useState('');
+
+    const {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    } = useContext(SearchInputTextContext);
+
     const [products, setProducts] = useState([]);
 
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
@@ -29,6 +41,9 @@ const SearchScreen = (props) => {
 
     const navigateBack = () => {
         setSearchText("")
+        setSearchSuggestionType("")
+        setSearchSuggestionItemId(-1)
+        setSearchSuggestionItemName("")
         props.navigation.goBack();
     }
 
@@ -92,15 +107,15 @@ const SearchScreen = (props) => {
             {isTyping && searchText.length > 0 ? (
                 <SearchSuggestions db={db} 
                     setIsSearchButton={setIsSearchButton}
-                    setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
-                    setSearchSuggestionItemName={setSearchSuggestionItemName}
-                    setSearchSuggestionType={setSearchSuggestionType} navigation={props.navigation} />)
+                    setIsTyping={setIsTyping} 
+                    
+                     navigation={props.navigation} />)
                 : isSearchButton && searchText.length > 0 ? (
 
                     <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} 
-                        searchSuggestionItemId={searchSuggestionItemId}
-                        searchSuggestionItemName={searchSuggestionItemName} setSearchText={handleSearchTextChange}
-                        searchSuggestionType={searchSuggestionType} navigation={props.navigation} />)
+                        
+                        
+                        navigation={props.navigation} />)
                     :
                     (<SearchHistory />)
             }

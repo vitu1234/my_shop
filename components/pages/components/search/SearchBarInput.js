@@ -4,8 +4,29 @@ import {ChevronLeft} from 'lucide-react-native';
 import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 export const SearchBarInput = (props) => {
+    console.log('SearchInputTextContext values:', {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    });
 
-    const [searchText, setSearchText] = useContext(SearchInputTextContext);
+
+    const {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    } = useContext(SearchInputTextContext);
+
     const onChangeSearchString = (text) => {
         setSearchText(text);
         props.setIsTyping(true);

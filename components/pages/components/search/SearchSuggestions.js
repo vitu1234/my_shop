@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 import { SearchInputTextContext } from "@/app_contexts/AppContext";
@@ -8,7 +8,16 @@ const SearchSuggestions = (props) => {
     console.log('SUGGESTIONS')
     // console.log(props)
     const db = useSQLiteContext();
-    const [searchText, setSearchText] = useContext(SearchInputTextContext);
+    const {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    } = useContext(SearchInputTextContext);
     const [results, setResults] = useState([]);
 
     const searchProducts = async () => {
@@ -54,16 +63,19 @@ const SearchSuggestions = (props) => {
         props.setIsTyping(false);
         // console.log('Item Name:', itemName);
         // console.log('Result Type:', resultType);
-        props.setSearchSuggestionitemId(itemId)
-        props.setSearchSuggestionItemName(itemName)
-        props.setSearchSuggestionType(resultType)
+        // props.setSearchSuggestionitemId(itemId)
+        setSearchSuggestionItemId(itemId)
+        // props.setSearchSuggestionItemName(itemName)
+        setSearchSuggestionItemName(itemName)
+        // props.setSearchSuggestionType(resultType)
+        setSearchSuggestionType(resultType)
 
     };
 
 
     const renderItem = ({ item }) => {
         const handlePress = () => {
-            console.log("HANDLE PRESS: "+searchText+" <---> "+item.name)
+            console.log("HANDLE PRESS: " + searchText + " <---> " + item.name)
             setSearchText(item.name)
             searchTheItem(searchText, item.id, item.name, item.result_type);
         };

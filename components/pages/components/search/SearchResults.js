@@ -20,16 +20,22 @@ const SearchResults = (props) => {
     const db = useSQLiteContext();
     const [sortingOption, setSortingOption] = useState('our_ranking');
     const [isEnabled, setIsEnabled] = useState(false);
-    const [searchText, setSearchText] = useContext(SearchInputTextContext);
+    const {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    } = useContext(SearchInputTextContext);
 
     const [searchProducts, setSearchProducts] = useState([]);
     const {
 
         // searchText,
-        isSearchButtonPressed,
-        searchSuggestionType,
-        searchSuggestionItemId,
-        searchSuggestionItemName,
+        isSearchButtonPressed
         // setSearchText
     } = props;
     //FROM PRODUCTS PAGE
@@ -123,7 +129,7 @@ const SearchResults = (props) => {
                 setSearchProducts(productsFetch);
             } else {
                 console.log("productsScreenLoading with search criteria not selected")
-                console.log("!search button2")
+                console.log("!search button2: ---->>>" + searchSuggestionType)
                 if (searchSuggestionType === 'category') {
                     console.log('SEARCH BY CATEGORY')
                     const fetchedProducts = await db.getAllAsync(`
