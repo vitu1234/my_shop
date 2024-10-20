@@ -2,7 +2,7 @@ import '@/components/pages/components/sheets/sheets';
 import { StatusBar } from 'expo-status-bar';
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { AppContext, ProductFilterModalContext, CartContext } from "./app_contexts/AppContext";
+import { AppContext, ProductFilterModalContext, CartContext, SearchInputTextContext } from "./app_contexts/AppContext";
 import StackNavigator from "components/navigation/StackNavigator";
 import {
     AppRegistry,
@@ -32,6 +32,7 @@ export default function App() {
     const [isModalVisibleProducts, setIsModalVisibleProducts] = useState(false);
     const [IsAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
     const [cartItemsCount, setCartItemsCount] = useState(0);
+    const [searchText, setSearchText] = useState(0);
     const [cartItems, setCartItems] = useState([]);
 
 

@@ -6,13 +6,13 @@ import { SearchInputTextContext } from "@/app_contexts/AppContext";
 const SearchSuggestions = (props) => {
 
     console.log('SUGGESTIONS')
-    console.log(props)
+    // console.log(props)
     const db = useSQLiteContext();
     const [searchText, setSearchText] = useContext(SearchInputTextContext);
     const [results, setResults] = useState([]);
 
     const searchProducts = async () => {
-        console.log("SEARCH: " + props.searchText)
+        console.log("SEARCH: " + searchText)
         try {
             const resultsFetch = await db.getAllAsync(`
                 SELECT 'product' AS result_type, product.product_id AS id, product.product_name AS name, NULL AS description
@@ -42,10 +42,11 @@ const SearchSuggestions = (props) => {
 
 
     useEffect(() => {
+        console.log(searchText)
         if (searchText) {
             searchProducts();
         }
-    }, [props.searchText]);
+    }, [searchText]);
 
     const searchTheItem = (searchText, itemId, itemName, resultType) => {
         console.log(searchText)
@@ -62,7 +63,8 @@ const SearchSuggestions = (props) => {
 
     const renderItem = ({ item }) => {
         const handlePress = () => {
-            console.log("HANDLE PRESS")
+            console.log("HANDLE PRESS: "+searchText+" <---> "+item.name)
+            setSearchText(item.name)
             searchTheItem(searchText, item.id, item.name, item.result_type);
         };
         switch (item.result_type) {

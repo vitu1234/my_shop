@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { SearchBarInput } from "@/components/pages/components/search/SearchBarInput";
 import SearchHistory from "@/components/pages/components/search/SearchHistory";
@@ -10,14 +10,14 @@ import ContentLoader from "react-native-easy-content-loader";
 import { Heading } from "@/components/ui/heading";
 
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
-
+import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 const SearchScreen = (props) => {
     const db = useSQLiteContext();
     const [isTyping, setIsTyping] = React.useState(false);
     const [isSearchButton, setIsSearchButton] = React.useState(false);
     const [isSearchButtonPressed, setSearchButtonPressed] = React.useState(false);
-    const [searchText, setSearchText] = React.useState('');
+    const [searchText, setSearchText] = useContext(SearchInputTextContext);
     const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
     const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
     const [searchSuggestionItemName, setSearchSuggestionItemName] = React.useState('');
@@ -28,6 +28,7 @@ const SearchScreen = (props) => {
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
 
     const navigateBack = () => {
+        setSearchText("")
         props.navigation.goBack();
     }
 
@@ -82,21 +83,21 @@ const SearchScreen = (props) => {
                 setIsTyping={setIsTyping}
                 setIsSearchButton={setIsSearchButton}
                 setSearchButtonPressed={setSearchButtonPressed}
-                setSearchText={handleSearchTextChange}
-                searchText={searchText}
+                
+                
                 props={props}
                 data={"ddd"}
                 goBack={navigateBack}
             />
             {isTyping && searchText.length > 0 ? (
-                <SearchSuggestions db={db} searchText={searchText} setSearchText={handleSearchTextChange}
+                <SearchSuggestions db={db} 
                     setIsSearchButton={setIsSearchButton}
                     setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
                     setSearchSuggestionItemName={setSearchSuggestionItemName}
                     setSearchSuggestionType={setSearchSuggestionType} navigation={props.navigation} />)
                 : isSearchButton && searchText.length > 0 ? (
 
-                    <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
+                    <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} 
                         searchSuggestionItemId={searchSuggestionItemId}
                         searchSuggestionItemName={searchSuggestionItemName} setSearchText={handleSearchTextChange}
                         searchSuggestionType={searchSuggestionType} navigation={props.navigation} />)

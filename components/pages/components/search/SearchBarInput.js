@@ -10,6 +10,7 @@ export const SearchBarInput = (props) => {
         setSearchText(text);
         props.setIsTyping(true);
         props.setSearchButtonPressed(false);
+        console.log("SET TEXT: "+ text)
     };
 
     const onSubmitSearchString = (event) => {
@@ -21,7 +22,7 @@ export const SearchBarInput = (props) => {
     };
 
     useEffect(() => {
-        setSearchString(searchText);
+        setSearchText(searchText);
     }, [searchText]);
 
 
@@ -32,7 +33,7 @@ export const SearchBarInput = (props) => {
         <SafeAreaView style={styles.inputContainer}>
             <TextInput
 
-                value={searchString}
+                value={searchText}
                 onChangeText={onChangeSearchString}
                 onSubmitEditing={onSubmitSearchString}
 
