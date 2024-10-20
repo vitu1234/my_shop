@@ -168,7 +168,45 @@ const SearchResults = (props) => {
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
                     setSearchProducts(fetchedProducts);
-                } else {
+                } else if(searchSuggestionType === 'sub_category'){
+                    console.log('SEARCH BY SUB_CATEGORY- ID: '+ searchSuggestionItemId)
+                    const fetchedProducts = await db.getAllAsync(`
+                        SELECT product.product_id,
+                            product_attributes.product_attributes_id, 
+                            category.category_id,
+                            product_name, 
+                            product_description,
+                            cover,
+                            likes,
+                            product_attributes.product_attributes_default,
+                            product_attributes.product_attributes_name, 
+                            product_attributes.product_attributes_value, 
+                            product_attributes.product_attributes_summary, 
+                            product_attributes.product_attributes_price, 
+                            product_attributes.product_attributes_stock_qty
+                        FROM product
+                        INNER JOIN product_attributes 
+                            ON product.product_id = product_attributes.product_id
+                        INNER JOIN product_images 
+                            ON product.product_id = product_images.product_id
+                        INNER JOIN product_sub_category 
+                            ON product.product_id = product_sub_category.product_id
+                        INNER JOIN sub_category
+                        ON product_sub_category.sub_category_id = sub_category.sub_category_id
+                        INNER JOIN category
+                        ON sub_category.category_id = category.category_id
+                        WHERE 
+                            (product_attributes.product_attributes_default = 1 AND sub_category.sub_category_id = $1) 
+                            OR 
+                            (product.product_name LIKE $2 
+                            OR product_attributes.product_attributes_name LIKE $2 
+                            OR product_attributes.product_attributes_value LIKE $2)
+                        GROUP BY product.product_id
+                    
+                `, [searchSuggestionItemId, `%${searchText}%`]);
+
+                    setSearchProducts(fetchedProducts);
+                }else {
                     console.log("SEARCH BY PRODUCT")
                     console.log(searchText)
                     const fetchedProducts = await db.getAllAsync(`
