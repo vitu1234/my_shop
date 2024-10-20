@@ -5,7 +5,7 @@ import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 const SearchSuggestions = (props) => {
 
-    console.log('SUGGESTIONS')
+    // console.log('SUGGESTIONS')
     // console.log(props)
     const db = useSQLiteContext();
     const {
@@ -21,7 +21,7 @@ const SearchSuggestions = (props) => {
     const [results, setResults] = useState([]);
 
     const searchProducts = async () => {
-        console.log("SEARCH: " + searchText)
+        // console.log("SEARCH: " + searchText)
         try {
             const resultsFetch = await db.getAllAsync(`
                 SELECT 'product' AS result_type, product.product_id AS id, product.product_name AS name, NULL AS description
@@ -75,7 +75,7 @@ const SearchSuggestions = (props) => {
 
     const renderItem = ({ item }) => {
         const handlePress = () => {
-            console.log("HANDLE PRESS: " + searchText + " <---> " + item.name)
+            // console.log("HANDLE PRESS: " + searchText + " <---> " + item.name)
             setSearchText(item.name)
             searchTheItem(searchText, item.id, item.name, item.result_type);
         };

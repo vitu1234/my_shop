@@ -71,7 +71,7 @@ const SearchResults = (props) => {
 
     // GET FROM PRODUCTS PAGE
     const productCardAction = (product) => {
-        console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
+        // console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
         // console.log(product);
         props.navigation.navigate("ProductDetails", { product_id: product.product_id});
     };
@@ -128,10 +128,10 @@ const SearchResults = (props) => {
 
                 setSearchProducts(productsFetch);
             } else {
-                console.log("productsScreenLoading with search criteria not selected")
-                console.log("!search button2: ---->>>" + searchSuggestionType)
+                // console.log("productsScreenLoading with search criteria not selected")
+                // console.log("!search button2: ---->>>" + searchSuggestionType)
                 if (searchSuggestionType === 'category') {
-                    console.log('SEARCH BY CATEGORY')
+                    // console.log('SEARCH BY CATEGORY')
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -169,7 +169,7 @@ const SearchResults = (props) => {
 
                     setSearchProducts(fetchedProducts);
                 } else if(searchSuggestionType === 'sub_category'){
-                    console.log('SEARCH BY SUB_CATEGORY- ID: '+ searchSuggestionItemId)
+                    // console.log('SEARCH BY SUB_CATEGORY- ID: '+ searchSuggestionItemId)
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
@@ -207,8 +207,8 @@ const SearchResults = (props) => {
 
                     setSearchProducts(fetchedProducts);
                 }else {
-                    console.log("SEARCH BY PRODUCT")
-                    console.log(searchText)
+                    // console.log("SEARCH BY PRODUCT")
+                    // console.log(searchText)
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
                             product_attributes.product_attributes_id, 
