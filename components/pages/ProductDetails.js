@@ -15,6 +15,7 @@ import { Toast } from "@/components/ui/toast";
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 
 import { Heart, Share } from "lucide-react-native";
+import { FlatList } from "react-native-actions-sheet";
 
 const PAGE_WIDTH = window.width;
 
@@ -281,230 +282,135 @@ function ProductDetails(props) {
             width: windowWidth,
             // height: PAGE_WIDTH / 2,
         });
-    return (
-        <SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
-                <Carousel
-                    {...baseOptions}
-                    enabled // Default is true, just for demo
-                    ref={ref}
-                    testID={"xxx"}
-                    style={{ width: "100%", backgroundColor: '#fff' }}
-                    autoPlay={false}
-                    autoPlayInterval={isFast ? 100 : 2000}
-                    data={productImages}
-                    onScrollStart={() => {
-                        console.log('===1');
-                    }}
-                    onScrollEnd={() => {
-                        console.log('===2');
-                    }}
-                    snapEnabled={false}
-                    onConfigurePanGesture={g => g.enabled(false)}
-                    pagingEnabled={isPagingEnabled}
-                    // onSnapToItem={index => console.log("current index:", index)}
-                    onSnapToItem={index => { setCarouselImageIndex(index + 1) }}
-                    renderItem={({ index }) => <SBItem img_url={productImages[index]} key={index} index={index} />}
-                />
-                <View style={{
-                    position: 'absolute',
-                    top: 20, // Adjust to position at bottom of carousel area
-                    right: 20,  // Adjust as desired
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Optional for contrast
-                    padding: 8,
-                    borderRadius: 5,
-                }}>
-                    <Text style={{ color: '#fff' }}>{carouselImageIndex}/{productImages.length}</Text>
-                </View>
 
-                <View style={{
-                    position: 'absolute',
-                    bottom: 20, // Adjust to position at bottom of carousel area
-                    right: 20,  // Adjust as desired
-                    // Optional for contrast
 
-                }}>
-                    <TouchableOpacity>
-                        <View style={{
-                            backgroundColor: '#fff', padding: 4,
-                            borderRadius: 18
-                        }}>
-                            <Heart fill={'red'} color={'red'} size={28} />
-                        </View>
-                    </TouchableOpacity>
-                    <Text style={{
-                        // margin: 1
-                    }}></Text>
-                    <TouchableOpacity >
-                        <View style={{
-                            backgroundColor: '#fff', padding: 4,
-                            borderRadius: 18
-                        }}>
-                            <Share size={28} />
-                        </View>
-                    </TouchableOpacity>
-                </View>
+    const renderProductItem = ({ item }) => {
+        return item.isSectionHeader ? (
+            <View style={styles.sectionHeaderContainer}>
+                <Text style={styles.sectionHeaderText}>{item.title}</Text>
             </View>
-            <ScrollView style={{ flex: 1 }}>
-                <SButton
+        ) : (
+            <View style={styles.productDetailContainer}>
+                <Text style={styles.productDetailText}>{item.detail}</Text>
+            </View>
+        );
+    };
+    const productDetailsData = [
+        { isSectionHeader: true, title: "Product Details" },
+        { detail: "Product Name: " + product.product_name },
+        { detail: "Description: " + product.description },
+        { detail: "Price: $" + product.price },
+        { detail: "Other Details: " + product.other_details },
+    ];
 
-                    onPress={() => {
-                        setData([...new Array(5).keys()]);
-                    }}
-                >
-                    {"Change the data length to 5"}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        setData([...new Array(3).keys()]);
-                    }}
-                >
-                    {"Change the data length to 3"}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        setIsVertical(!isVertical);
-                    }}
-                >
-                    {isVertical ? "Set horizontal" : "Set Vertical"}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        setIsFast(!isFast);
-                    }}
-                >
-                    {isFast ? "NORMAL" : "FAST"}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        setIsPagingEnabled(!isPagingEnabled);
-                    }}
-                >
-                    PagingEnabled:{isPagingEnabled.toString()}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        setIsAutoPlay(!isAutoPlay);
-                    }}
-                >
-                    {ElementsText.AUTOPLAY}:{`${isAutoPlay}`}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        console.log(ref.current?.getCurrentIndex());
-                    }}
-                >
-                    Log current index
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        setData(
-                            data.length === 6
-                                ? [...new Array(8).keys()]
-                                : [...new Array(6).keys()],
+
+    return (
+        <View style={{ flex: 1 }}>
+            <FlatList
+                data={[
+                    { type: 'carousel' },
+                    { type: 'productDetails' }
+                ]}
+                renderItem={({ item }) => {
+                    console.log(item.type)
+                    if (item.type === 'carousel') {
+                        return (
+                            <SafeAreaView edges={["left","right"]}  >
+                                <View >
+                                    <Carousel
+                                        {...baseOptions}
+                                        // enabled // Default is true, just for demo
+                                        ref={ref}
+                                        testID={"xxx"}
+                                        style={{ width: "100%", height: 300, backgroundColor: '#fff' }}
+                                        autoPlay={false}
+                                        autoPlayInterval={isFast ? 100 : 2000}
+                                        data={productImages}
+                                        onScrollStart={() => {
+                                            console.log('===1');
+                                        }}
+                                        onScrollEnd={() => {
+                                            console.log('===2');
+                                        }}
+                                        snapEnabled={false}
+                                        onConfigurePanGesture={g => g.enabled(false)}
+                                        pagingEnabled={isPagingEnabled}
+                                        // onSnapToItem={index => console.log("current index:", index)}
+                                        onSnapToItem={index => { setCarouselImageIndex(index + 1) }}
+                                        renderItem={({ index }) => <SBItem img_url={productImages[index]} key={index} index={index} />}
+                                    />
+                                    
+                                    <View style={{
+                                        position: 'absolute',
+                                        top: 20, // Adjust to position at bottom of carousel area
+                                        right: 20,  // Adjust as desired
+                                        backgroundColor: 'rgba(0, 0, 0, 0.4)', // Optional for contrast
+                                        padding: 8,
+                                        borderRadius: 5,
+                                    }}>
+                                        <Text style={{ color: '#fff' }}>{carouselImageIndex}/{productImages.length}</Text>
+                                    </View>
+
+                                    <View style={{
+                                        position: 'absolute',
+                                        bottom: 20, // Adjust to position at bottom of carousel area
+                                        right: 20,  // Adjust as desired
+                                        // Optional for contrast
+
+                                    }}>
+                                        <TouchableOpacity>
+                                            <View style={{
+                                                backgroundColor: '#fff', padding: 4,
+                                                borderRadius: 18
+                                            }}>
+                                                <Heart fill={'red'} color={'red'} size={28} />
+                                            </View>
+                                        </TouchableOpacity>
+                                        <Text style={{
+                                            // margin: 1
+                                        }}></Text>
+                                        <TouchableOpacity >
+                                            <View style={{
+                                                backgroundColor: '#fff', padding: 4,
+                                                borderRadius: 18
+                                            }}>
+                                                <Share size={28} />
+                                            </View>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <View style={{ flex: 1 }}></View>
+                            </SafeAreaView>
                         );
-                    }}
-                >
-                    Change data length to:{data.length === 6 ? 8 : 6}
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        ref.current?.scrollTo({ count: -1, animated: true });
-                    }}
-                >
-                    prev
-                </SButton>
-                <SButton
-                    onPress={() => {
-                        ref.current?.scrollTo({ count: 1, animated: true });
-                    }}
-                >
-                    next
-                </SButton>
-            </ScrollView>
-        </SafeAreaView>
+                    } else if (item.type === 'productDetails') {
+                        return (
+                            <View style={styles.detailsContainer}>
+                                <Text>Product Details will come here</Text>
+                            </View>
+                        );
+                    }
+                    return null;
+                }}
+                keyExtractor={(item, index) => index.toString()} // Ensure each item has a unique key
+
+            />
+            <View style={styles.actionButtonsContainer}>
+                <TouchableOpacity style={styles.button} onPress={addToCart}>
+                    <Text style={styles.buttonText}>Add to Cart</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.button, styles.buyNowButton]} >
+                    <Text style={styles.buttonText}>Buy Now</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+
+
+
+
     );
 
 
-    // return (
-    //   <ScrollView showsVerticalScrollIndicator={false} h={windowHeight - 80} _contentContainerStyle={{}}>
-    //
-    //     <Center>
-    //       <View style={{ width: width - 20, padding: 10 }}>
-    //         <VStack space={1}>
-    //           <View style={styles.card}>
-    //             <Image
-    //               alt={"Product Image"}
-    //               style={styles.thumb}
-    //               source={{
-    //                 uri: base_urlImages + "/products/" + product.img_url,
-    //               }}
-    //             />
-    //             <View style={styles.infoContainer}>
-    //               <Text numberOfLines={1} style={styles.name}>{product.product_name}</Text>
-    //               <Text numberOfLines={1}
-    //                     style={styles.price}>K {numbro(parseInt(price)).format({
-    //                 thousandSeparated: true,
-    //                 mantissa: 2,
-    //               })}</Text>
-    //             </View>
-    //
-    //             <HStack>
-    //
-    //             </HStack>
-    //
-    //             <Center mt={3} mb={3}>
-    //               <HStack space={5}
-    //                       style={{ alignItems: "center" }}>
-    //
-    //                 <Button isDisabled={isMinusToCartBtnDisabled} onPress={minusProductQty} variant={"outline"} size="sm">
-    //                   <Icon name="minus" size={15} color="#000" />
-    //                 </Button>
-    //                 <Text style={{ fontSize: 16, color: "grey", fontWeight: "bold" }}>{productQty}</Text>
-    //                 <Button isDisabled={isPlusToCartBtnDisabled} onPress={addProductQty} variant={"outline"} size="sm">
-    //                   <Icon name="plus" size={15} color="#000" />
-    //                 </Button>
-    //               </HStack>
-    //             </Center>
-    //
-    //             <CollapsibleView
-    //               title={<Text
-    //                 style={{ color: "black" }}>Description</Text>}
-    //               duration={800}
-    //               arrowStyling={{ size: 20, rounded: true }}
-    //             >
-    //
-    //               <Text style={styles.prodDesc}>
-    //                 {
-    //                   product.product_description
-    //                 }
-    //               </Text>
-    //             </CollapsibleView>
-    //
-    //
-    //           </View>
-    //
-    //           <View>
-    //
-    //
-    //             <Button isLoading={isAddingToCartBtn} isLoadingText={"Adding..."} onPress={addToCart} size="sm"
-    //                     variant="subtle" colorScheme="dark">
-    //               <HStack space={2}>
-    //                 <Icon name="shoppingcart" size={20} color="#fff" />
-    //                 <Text style={{ color: "#fff" }}>Add to Cart</Text>
-    //               </HStack>
-    //
-    //             </Button>
-    //
-    //           </View>
-    //         </VStack>
-    //
-    //       </View>
-    //     </Center>
-    //     <AddtoCartActionSheet openCart={openCart} setStatus={setBottomSheetOpen} isOpen={isBottomSheetOpen}
-    //                           productsTotalAmount={productsTotalAmount} cartItemsCount={cartItemsCount} />
-    //   </ScrollView>
-    // );
+
 };
 
 const styles = StyleSheet.create({
@@ -558,6 +464,64 @@ const styles = StyleSheet.create({
         padding: 10,
 
     },
+
+
+    productDetailContainer: {
+        // padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ddd",
+    },
+    productDetailText: {
+        fontSize: 16,
+    },
+    sectionHeaderContainer: {
+        // paddingVertical: 10,
+        backgroundColor: "#f8f8f8",
+        paddingHorizontal: 20,
+    },
+    sectionHeaderText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    carouselIndicator: {
+        position: "absolute",
+        top: 20,
+        right: 20,
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        padding: 8,
+        borderRadius: 5,
+    },
+    actionButtonsContainer: {
+        position: "absolute",
+        bottom: 0,
+        flexDirection: "row",
+        justifyContent: "space-around",
+        width: "100%",
+        padding: 16,
+        backgroundColor: "#fff",
+    },
+    button: {
+        flex: 1,
+        backgroundColor: "#333",
+        padding: 16,
+        borderRadius: 5,
+        margin: 5,
+        alignItems: "center",
+    },
+    buyNowButton: {
+        backgroundColor: "#FF5722",
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
+    detailsContainer:{
+        padding: 16,
+        backgroundColor:'#fff'
+    }
 });
 
 export default ProductDetails;
