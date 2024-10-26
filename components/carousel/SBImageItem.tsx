@@ -67,5 +67,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: '100%',
         position: "absolute",
+        transform: [{ scale: 0.9 }],
+        borderRadius: 10
     },
 });

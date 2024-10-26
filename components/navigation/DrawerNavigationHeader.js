@@ -12,6 +12,7 @@ import ToastComponent from "../pages/components/ToastComponent";
 import { Text } from "@/components/ui/text"
 import { useToast, Toast } from "@/components/ui/toast"
 import { Image } from "@/components/ui/image"
+import { LogIn, Search, ShoppingCart } from "lucide-react-native";
 
 
 
@@ -90,12 +91,13 @@ function DrawerNavigationHeader(props) {
       {
         (route.name !== "Products") ?
           <TouchableOpacity onPress={gotToSearch} style={{ margin: 12 }}>
-            <Icon
+            {/* <Icon
               name="search1"
               color={"#000"}
               size={20}
               containerStyle={{ marginHorizontal: 15, position: "relative" }}
-            />
+            /> */}
+            <Search color={"#000"} size={26}/>
           </TouchableOpacity> :
 
           <TouchableOpacity onPress={() => setIsModalVisibleProducts(true)} style={{ margin: 12 }}>
@@ -112,12 +114,13 @@ function DrawerNavigationHeader(props) {
       <View style={{ alignItems: "center", justifyContent: "center" }}>
         <TouchableOpacity onPress={gotToCart}>
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            <Icon
+            {/* <Icon
               name="shoppingcart"
               color={"#000"}
               size={20}
               containerStyle={{ marginHorizontal: 15, position: "relative" }}
-            />
+            /> */}
+            <ShoppingCart name="shoppingcart" color={"#000"} size={26}/>
             {cartItemsCount > 0 ? (
               <View
                 style={{
@@ -174,12 +177,13 @@ function DrawerNavigationHeader(props) {
             ]
             :
             <TouchableOpacity style={{ marginEnd: 16, marginStart: 16 }} onPress={gotToLogin}>
-              <Icon
+              {/* <Icon
                 name="login"
                 color={"#000"}
                 size={20}
                 containerStyle={{ marginHorizontal: 15, position: "relative" }}
-              />
+              /> */}
+              <LogIn color="#000" size={26} />
             </TouchableOpacity>
         }
       </View></View>

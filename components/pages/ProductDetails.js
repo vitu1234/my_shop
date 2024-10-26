@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View } from "react-native";
-
+import { Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View, Text } from "react-native";
 import { AppContext, CartContext } from "@/app_contexts/AppContext";
 import { ScrollView } from "react-native-gesture-handler";
 import { ICarouselInstance } from "react-native-reanimated-carousel";
@@ -15,6 +14,8 @@ import { useSharedValue } from "react-native-reanimated";
 import { Toast } from "@/components/ui/toast";
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 
+import { Heart, Share } from "lucide-react-native";
+
 const PAGE_WIDTH = window.width;
 
 
@@ -23,6 +24,7 @@ function ProductDetails(props) {
     const db = useSQLiteContext();
     const product_id = props.route.params.product_id;
     const [productQty, setProductQty] = useState(1);
+    const [carouselImageIndex, setCarouselImageIndex] = useState(1);
 
     const [product, setProduct] = useState([])
     const [productAttributes, setProductAttributes] = useState([])
@@ -77,7 +79,7 @@ function ProductDetails(props) {
         const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
         const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
         const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
-        
+
         const product_images = [];
         for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
             product_images.push(row.img_url);
@@ -281,33 +283,71 @@ function ProductDetails(props) {
         });
     return (
         <SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
-            <Carousel
+            <View style={{ flex: 1 }}>
+                <Carousel
+                    {...baseOptions}
+                    enabled // Default is true, just for demo
+                    ref={ref}
+                    testID={"xxx"}
+                    style={{ width: "100%", backgroundColor: '#fff' }}
+                    autoPlay={false}
+                    autoPlayInterval={isFast ? 100 : 2000}
+                    data={productImages}
+                    onScrollStart={() => {
+                        console.log('===1');
+                    }}
+                    onScrollEnd={() => {
+                        console.log('===2');
+                    }}
+                    snapEnabled={false}
+                    onConfigurePanGesture={g => g.enabled(false)}
+                    pagingEnabled={isPagingEnabled}
+                    // onSnapToItem={index => console.log("current index:", index)}
+                    onSnapToItem={index => { setCarouselImageIndex(index + 1) }}
+                    renderItem={({ index }) => <SBItem img_url={productImages[index]} key={index} index={index} />}
+                />
+                <View style={{
+                    position: 'absolute',
+                    top: 20, // Adjust to position at bottom of carousel area
+                    right: 20,  // Adjust as desired
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Optional for contrast
+                    padding: 8,
+                    borderRadius: 5,
+                }}>
+                    <Text style={{ color: '#fff' }}>{carouselImageIndex}/{productImages.length}</Text>
+                </View>
 
+                <View style={{
+                    position: 'absolute',
+                    bottom: 20, // Adjust to position at bottom of carousel area
+                    right: 20,  // Adjust as desired
+                    // Optional for contrast
 
-                {...baseOptions}
-
-                enabled // Default is true, just for demo
-                ref={ref}
-                // defaultScrollOffsetValue={scrollOffsetValue}
-                testID={"xxx"}
-                style={{ width: "100%", backgroundColor: '#fff' }}
-                autoPlay={true}
-                autoPlayInterval={isFast ? 100 : 2000}
-                data={productImages}
-                onScrollStart={() => {
-                    console.log('===1')
-                }}
-                onScrollEnd={() => {
-                    console.log('===2')
-                }}
-                snapEnabled={false}
-                onConfigurePanGesture={g => g.enabled(false)}
-                pagingEnabled={isPagingEnabled}
-                onSnapToItem={index => console.log("current index:", index)}
-                renderItem={({ index }) => <SBItem img_url={productImages[index]} key={index} index={index} />}
-            />
+                }}>
+                    <TouchableOpacity>
+                        <View style={{
+                            backgroundColor: '#fff', padding: 4,
+                            borderRadius: 18
+                        }}>
+                            <Heart fill={'red'} color={'red'} size={28} />
+                        </View>
+                    </TouchableOpacity>
+                    <Text style={{
+                        // margin: 1
+                    }}></Text>
+                    <TouchableOpacity >
+                        <View style={{
+                            backgroundColor: '#fff', padding: 4,
+                            borderRadius: 18
+                        }}>
+                            <Share size={28} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            </View>
             <ScrollView style={{ flex: 1 }}>
                 <SButton
+
                     onPress={() => {
                         setData([...new Array(5).keys()]);
                     }}

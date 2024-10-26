@@ -1,5 +1,5 @@
-import React, {useContext} from "react";
-import {createNativeStackNavigator} from "@react-navigation/native-stack";
+import React, { useContext } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import DrawerNavigator from "./DrawerNavigator";
 import SettingsScreen from "../pages/SettingsScreen";
 import NavigationContainer from "@react-navigation/native/src/NavigationContainer";
@@ -13,7 +13,7 @@ import ForgetPasswordScreen from "../pages/auth/ForgetPasswordScreen";
 import SignUpVerifyAccount from "../pages/auth/SignUpVerifyAccount";
 import AuthLoadingScreen from "../pages/auth/AuthLoadingScreen";
 import SearchScreen from "@/components/pages/SearchScreen";
-import {Button} from "react-native";
+import { Button } from "react-native";
 import SearchBar from "@/components/pages/components/search/SearchBarInput";
 
 const Stack = createNativeStackNavigator();
@@ -24,41 +24,41 @@ function StackNavigator(props) {
             <Stack.Navigator initialRouteName={'AuthLoadingScreen'}>
                 <Stack.Screen name="AuthLoadingScreen" component={AuthLoadingScreen} options={{
                     headerShown: false,
-                }}/>
+                }} />
                 <Stack.Screen
                     name="Drawer"
                     component={DrawerNavigator}
-                    options={{headerShown: false}}
+                    options={{ headerShown: false }}
                 />
-                <Stack.Screen name="Search" component={SearchScreen} options={({navigation}) => ({
+                <Stack.Screen name="Search" component={SearchScreen} options={({ navigation }) => ({
 
                     headerShown: false,
 
-                })}/>
-                <Stack.Screen name="Feed" component={SettingsScreen}/>
+                })} />
+                <Stack.Screen name="Feed" component={SettingsScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} options={{
                     headerShown: false,
-                }}/>
+                }} />
                 <Stack.Screen name="SignUp" component={SignUpScreen} options={{
                     headerShown: false,
                     title: "Back",
-                }}/>
+                }} />
 
                 <Stack.Screen name="ForgetPassword" component={ForgetPasswordScreen} options={{
                     headerShown: true,
                     title: "Back",
-                }}/>
+                }} />
                 <Stack.Screen name="SignUpVerifyAccount" component={SignUpVerifyAccount} options={{
                     headerShown: true,
                     title: "Back",
-                }}/>
+                }} />
                 <Stack.Screen name="Cart" component={CartScreen}
-                              options={({navigation}) => ({
-                                  headerRight: () => (
-                                      <StackNavigationHeader data={{navigation: navigation}}/>
-                                  ),
-                                  headerBackTitle: 'Back',
-                              })}
+                    options={({ navigation }) => ({
+                        headerRight: () => (
+                            <StackNavigationHeader data={{ navigation: navigation }} />
+                        ),
+                        headerBackTitle: 'Back',
+                    })}
                 />
                 <Stack.Screen name="ProductDetails" component={ProductDetails}
                     // options={{
@@ -71,12 +71,13 @@ function StackNavigator(props) {
                     //         // navigator: navigationData,
                     //     }}/>,
                     // }}
-                              options={({navigation}) => ({
-                                  headerRight: () => (
-                                      <StackNavigationHeader data={{navigation: navigation}}/>
-                                  ),
-                                  headerBackTitle: 'Back',
-                              })}
+                    options={({ navigation }) => ({
+                        headerRight: () => (
+                            <StackNavigationHeader data={{ navigation: navigation }} />
+                        ),
+                        headerBackTitle: 'Back',
+                        headerTitle: ''
+                    })}
                 />
 
 
@@ -91,11 +92,11 @@ function StackNavigator(props) {
                     //         // navigator: navigationData,
                     //     }}/>,
                     // }}
-                              options={({navigation}) => ({
-                                  headerRight: () => (
-                                      <StackNavigationHeader data={{navigation: navigation}}/>
-                                  ),
-                              })}
+                    options={({ navigation }) => ({
+                        headerRight: () => (
+                            <StackNavigationHeader data={{ navigation: navigation }} />
+                        ),
+                    })}
                 />
             </Stack.Navigator>
         </NavigationContainer>
