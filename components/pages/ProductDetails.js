@@ -5,6 +5,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { ICarouselInstance } from "react-native-reanimated-carousel";
 import Carousel from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
+const {width} = Dimensions.get("window");
 
 import { SBItem } from "@/components/carousel/SBItem";
 import SButton from "@/components/carousel/SButton";
@@ -14,21 +15,25 @@ import { useSharedValue } from "react-native-reanimated";
 import { Toast } from "@/components/ui/toast";
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 
-import { Heart, Share } from "lucide-react-native";
+import { Heart, Share, Star, StarHalf } from "lucide-react-native";
 import { FlatList } from "react-native-actions-sheet";
+import ProductAttributeCard from "./components/ProductAttributeCard";
 
 const PAGE_WIDTH = window.width;
 
 
 function ProductDetails(props) {
     // console.log(props.route.params.db)
+    
     const db = useSQLiteContext();
+    
     const product_id = props.route.params.product_id;
     const [productQty, setProductQty] = useState(1);
     const [carouselImageIndex, setCarouselImageIndex] = useState(1);
 
     const [product, setProduct] = useState([])
     const [productAttributes, setProductAttributes] = useState([])
+    const [productAttributeDefault, setProductAttributeDefault] = useState([])
     const [productImages, setProductImages] = useState([])
 
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
@@ -85,14 +90,21 @@ function ProductDetails(props) {
         for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
             product_images.push(row.img_url);
         }
+        const product_attribute_default = [];
+        for (let i = 0; i < product_attributes.length; i++) {
+            try {
+                if (product_attributes[i].product_attributes_default == 1) {
+                    product_attribute_default.push(product_attributes[i])
+                }
+            } catch (error) {
+                console.log("failed to read property of product attribute", error)
+            }
+        }
 
         setProduct(ProductDetails)
         setProductImages(product_images)
-        console.log(product_images);
-
-        // }),
-
-        // ]);
+        setProductAttributes(product_attributes)
+        setProductAttributeDefault(product_attribute_default)
     }
 
 
@@ -264,7 +276,6 @@ function ProductDetails(props) {
 
     const windowWidth = useWindowDimensions().width;
     const scrollOffsetValue = useSharedValue(0);
-    const [data, setData] = React.useState([...new Array(4).keys()]);
     const [isVertical, setIsVertical] = React.useState(false);
     const [isFast, setIsFast] = React.useState(false);
     const [isAutoPlay, setIsAutoPlay] = React.useState(true);
@@ -283,25 +294,21 @@ function ProductDetails(props) {
             // height: PAGE_WIDTH / 2,
         });
 
+        const productAttributeCardAction = (product_attribute_selected) => {
+            console.log(product_attribute_selected);
+            console.log("SELECTED PRODUCT ATTRIBUTE")
+        };
 
-    const renderProductItem = ({ item }) => {
-        return item.isSectionHeader ? (
-            <View style={styles.sectionHeaderContainer}>
-                <Text style={styles.sectionHeaderText}>{item.title}</Text>
-            </View>
-        ) : (
-            <View style={styles.productDetailContainer}>
-                <Text style={styles.productDetailText}>{item.detail}</Text>
+        const renderProductAttributeList = ({item}) => (
+            
+            <View key={item.product_attributes_id} style={styles.productCardContainer}>
+                <ProductAttributeCard data={{
+                    product: item,
+                    action: productAttributeCardAction,
+                    activeAttribute: productAttributeDefault
+                }}/>
             </View>
         );
-    };
-    const productDetailsData = [
-        { isSectionHeader: true, title: "Product Details" },
-        { detail: "Product Name: " + product.product_name },
-        { detail: "Description: " + product.description },
-        { detail: "Price: $" + product.price },
-        { detail: "Other Details: " + product.other_details },
-    ];
 
 
     return (
@@ -312,10 +319,10 @@ function ProductDetails(props) {
                     { type: 'productDetails' }
                 ]}
                 renderItem={({ item }) => {
-                    console.log(item.type)
+                    // console.log(item.type)
                     if (item.type === 'carousel') {
                         return (
-                            <SafeAreaView edges={["left","right"]}  >
+                            <SafeAreaView edges={["left", "right"]}  >
                                 <View >
                                     <Carousel
                                         {...baseOptions}
@@ -339,7 +346,7 @@ function ProductDetails(props) {
                                         onSnapToItem={index => { setCarouselImageIndex(index + 1) }}
                                         renderItem={({ index }) => <SBItem img_url={productImages[index]} key={index} index={index} />}
                                     />
-                                    
+
                                     <View style={{
                                         position: 'absolute',
                                         top: 20, // Adjust to position at bottom of carousel area
@@ -385,7 +392,50 @@ function ProductDetails(props) {
                     } else if (item.type === 'productDetails') {
                         return (
                             <View style={styles.detailsContainer}>
-                                <Text>Product Details will come here</Text>
+                                {/* <Text>Product Details will come here</Text> */}
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'flex-end'
+                                }}>
+
+                                    <Star size={20} color={'orange'} fill={'orange'} />
+                                    <Star size={20} color={'orange'} fill={'orange'} />
+                                    <Star size={20} color={'orange'} fill={'orange'} />
+                                    <Star size={20} color={'orange'} fill={'orange'} />
+                                    <StarHalf size={20} color={'orange'} fill={'orange'} />
+                                    <Text style={{
+                                        fontSize: 16,
+                                        color: '#424242',
+                                        marginTop: 2
+
+                                    }}>(2,390)</Text>
+                                </View>
+
+                                <View style={{
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    marginTop: 5
+                                }}>
+                                    <Text style={{
+                                        fontSize: 16,
+                                        color: '#424242',
+                                        marginTop: 2,
+                                        marginBottom:16,
+                                        fontWeight: 'bold'
+                                    }}>
+                                        {product.product_name}
+                                    </Text>
+                                </View>
+
+                            <FlatList
+                                style={styles.container}
+                                data={productAttributes}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.horizontalListContainer}
+                                renderItem={renderProductAttributeList}
+                                keyExtractor={item => item.product_attributes_id.toString()}
+                            />
                             </View>
                         );
                     }
@@ -518,9 +568,14 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
 
-    detailsContainer:{
+    detailsContainer: {
+        marginTop: 5,
         padding: 16,
-        backgroundColor:'#fff'
+        backgroundColor: '#fff',
+        flexDirection: "column"
+    },   productCardContainer: {
+        width: (width - 30) / 2 - 8,
+        marginHorizontal: 5,
     }
 });
 
