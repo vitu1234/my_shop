@@ -11,27 +11,37 @@ function ProductAttributeCard(props) {
     
 
     if (data !== undefined) {
-        const product = data.product;
-        const activeAttribute = data.activeAttribute
+        const productAttribute = data.productAttribute;
+        const activeAttribute = data.activeAttribute[0]
     
-        const product_price = "K" + numbro(parseInt(product.product_attributes_price)).format({
+        // console.log(productAttribute)
+        // console.log("PRODUCT ATTRIBUTE")
+        // console.log(data.activeAttribute)
+        // console.log("1 IRT")
+        // console.log(activeAttribute)
+
+        const product_price = "K" + numbro(parseInt(productAttribute.product_attributes_price)).format({
             thousandSeparated: true, mantissa: 2,
         });
         return (
-        <TouchableOpacity key={product.product_attributes_id} onPress={() => data.action(product)} style={[
+            // <View>
+            //     <Text>Test</Text>
+            // </View>
+        <TouchableOpacity key={productAttribute.product_attributes_id} onPress={() => data.action(productAttribute)} style={[
             styles.card, 
-            (activeAttribute[0]['product_attributes_id'] == product.product_attributes_id) ? styles.highlightedContainer : null
+            (activeAttribute.product_attributes_id == productAttribute.product_attributes_id) ? styles.highlightedContainer : null
         ]}>
 
             <View style={styles.infoContainer}>
                 <Text numberOfLines={3}  style={[styles.name,
-                    (activeAttribute[0]['product_attributes_id'] == product.product_attributes_id) ? styles.highlightedTextColor : null
-                ]}>{product.product_attributes_name} | {product.product_attributes_value} X 1 QTY</Text>
+                    (activeAttribute.product_attributes_id == productAttribute.product_attributes_id) ? styles.highlightedTextColor : null
+                ]}>{productAttribute.product_attributes_name} | {productAttribute.product_attributes_value} X 1 QTY</Text>
                 <Text style={[styles.price, 
-                    (activeAttribute[0]['product_attributes_id'] == product.product_attributes_id) ? styles.highlightedTextColor : null
+                    (activeAttribute.product_attributes_id == productAttribute.product_attributes_id) ? styles.highlightedTextColor : null
                 ]}>{product_price}</Text>
             </View>
-        </TouchableOpacity>);
+        </TouchableOpacity>
+        );
     } else {
         console.log("undvccf");
     }

@@ -103,8 +103,9 @@ function ProductDetails(props) {
 
         setProduct(ProductDetails)
         setProductImages(product_images)
-        setProductAttributes(product_attributes)
         setProductAttributeDefault(product_attribute_default)
+        setProductAttributes(product_attributes)
+        
     }
 
 
@@ -120,7 +121,7 @@ function ProductDetails(props) {
         // setProductPrice(productQty * (parseFloat(0)));
         setCartCounterNumber();
 
-    }, [productQty, cartItemsCount, productsTotalAmount]);
+    }, [productQty, cartItemsCount, productsTotalAmount, productAttributeDefault]);
 
 
     const addToCart = async () => {
@@ -295,15 +296,16 @@ function ProductDetails(props) {
         });
 
         const productAttributeCardAction = (product_attribute_selected) => {
-            console.log(product_attribute_selected);
-            console.log("SELECTED PRODUCT ATTRIBUTE")
+            let selectedAttributeArray = []
+            selectedAttributeArray.push(product_attribute_selected)
+            setProductAttributeDefault(selectedAttributeArray)
         };
 
         const renderProductAttributeList = ({item}) => (
             
             <View key={item.product_attributes_id} style={styles.productCardContainer}>
                 <ProductAttributeCard data={{
-                    product: item,
+                    productAttribute: item,
                     action: productAttributeCardAction,
                     activeAttribute: productAttributeDefault
                 }}/>
