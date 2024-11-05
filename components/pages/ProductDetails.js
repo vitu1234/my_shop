@@ -1,32 +1,28 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Dimensions, StyleSheet, TouchableHighlight, TouchableOpacity, View, Text } from "react-native";
-import { AppContext, CartContext } from "@/app_contexts/AppContext";
-import { ScrollView } from "react-native-gesture-handler";
-import { ICarouselInstance } from "react-native-reanimated-carousel";
+import React, {useCallback, useContext, useEffect, useState} from "react";
+import {Dimensions, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View} from "react-native";
+import {AppContext, CartContext} from "@/app_contexts/AppContext";
 import Carousel from "react-native-reanimated-carousel";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {SafeAreaView} from "react-native-safe-area-context";
+import {SBItem} from "@/components/carousel/SBItem";
+import {window} from "@/components/carousel/constants";
+import {useSharedValue} from "react-native-reanimated";
+import {useSQLiteContext} from 'expo-sqlite';
+
+import {Heart, Share, Star, StarHalf} from "lucide-react-native";
+import {FlatList} from "react-native-actions-sheet";
+import ProductAttributeCard from "./components/product_details/ProductAttributeCard";
+import ShippingDetails from "@/components/pages/components/product_details/ShippingDetails";
+
 const {width} = Dimensions.get("window");
-
-import { SBItem } from "@/components/carousel/SBItem";
-import SButton from "@/components/carousel/SButton";
-import { ElementsText, window } from "@/components/carousel/constants";
-import { useWindowDimensions } from "react-native";
-import { useSharedValue } from "react-native-reanimated";
-import { Toast } from "@/components/ui/toast";
-import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
-
-import { Heart, Share, Star, StarHalf } from "lucide-react-native";
-import { FlatList } from "react-native-actions-sheet";
-import ProductAttributeCard from "./components/ProductAttributeCard";
 
 const PAGE_WIDTH = window.width;
 
 
 function ProductDetails(props) {
     // console.log(props.route.params.db)
-    
+
     const db = useSQLiteContext();
-    
+
     const product_id = props.route.params.product_id;
     const [productQty, setProductQty] = useState(1);
     const [carouselImageIndex, setCarouselImageIndex] = useState(1);
@@ -35,6 +31,7 @@ function ProductDetails(props) {
     const [productAttributes, setProductAttributes] = useState([])
     const [productAttributeDefault, setProductAttributeDefault] = useState([])
     const [productImages, setProductImages] = useState([])
+    const [productShipping, setProductShipping] = useState([])
 
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
@@ -85,6 +82,7 @@ function ProductDetails(props) {
         const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
         const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
         const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
+        // const product_shipping = await db.getAllAsync('SELECT * FROM product_shipping INNER JOIN shipping_company ON product_shipping.shipping_company_id = shipping_company.shipping_company_id WHERE product_id =' + product_id);
 
         const product_images = [];
         for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
@@ -105,7 +103,8 @@ function ProductDetails(props) {
         setProductImages(product_images)
         setProductAttributeDefault(product_attribute_default)
         setProductAttributes(product_attributes)
-        
+        // setProductShipping(product_shipping)
+
     }
 
 
@@ -302,7 +301,7 @@ function ProductDetails(props) {
         };
 
         const renderProductAttributeList = ({item}) => (
-            
+
             <View key={item.product_attributes_id} style={styles.productCardContainer}>
                 <ProductAttributeCard data={{
                     productAttribute: item,
@@ -316,9 +315,12 @@ function ProductDetails(props) {
     return (
         <View style={{ flex: 1 }}>
             <FlatList
+                showsVerticalScrollIndicator={false}
+                style={{marginBottom: 98}}
                 data={[
                     { type: 'carousel' },
-                    { type: 'productDetails' }
+                    {type: 'productDetails'},
+                    {type: 'shippingDetails'}
                 ]}
                 renderItem={({ item }) => {
                     // console.log(item.type)
@@ -438,8 +440,24 @@ function ProductDetails(props) {
                                 renderItem={renderProductAttributeList}
                                 keyExtractor={item => item.product_attributes_id.toString()}
                             />
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text>
                             </View>
+
                         );
+                    } else if (item.type === 'shippingDetails') {
+                        return (
+                            <View style={styles.detailsContainer}>
+                                <ShippingDetails data={product_id}/>
+                            </View>
+                        )
                     }
                     return null;
                 }}

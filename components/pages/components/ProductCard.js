@@ -31,7 +31,7 @@ function ProductCard(props) {
                 <Text numberOfLines={1} style={styles.name}>{product.product_name}</Text>
                 <Text numberOfLines={1} style={styles.price}>{product_price}</Text>
                 <View style={styles.likeStarsContainer}>
-                    <Text numberOfLines={1} style={styles.likesSize}>Likes({product.likes})</Text>
+                    <Text numberOfLines={1} style={styles.likesSize}>reviews({product.likes})</Text>
                     <Star size={15} color={"#ffa534"}/>
                     <Star size={15} color={"#ffa534"}/>
                     <Star size={15} color={"#ffa534"}/>
