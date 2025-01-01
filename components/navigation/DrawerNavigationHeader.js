@@ -126,10 +126,10 @@ function DrawerNavigationHeader(props) {
                 style={{
 
                   position: "absolute",
-                  backgroundColor: "blue",
-                  width: 16,
-                  height: 16,
-                  borderRadius: 15 / 2,
+                  backgroundColor: "dodgerblue",
+                  width: 20,
+                  height: 20,
+                  borderRadius: 20 / 2,
                   right: -8,
                   top: 5,
                   alignItems: "center",
@@ -137,11 +137,11 @@ function DrawerNavigationHeader(props) {
                 }}>
                 <Text
                   style={{
-                    color: "red",
+                    color: "white",
                     alignItems: "center",
                     justifyContent: "center",
                     // color: "#FFFFFF",
-                    fontSize: 8,
+                    fontSize: 12,
                   }}>
                   {cartItemsCount}
                 </Text>
