@@ -1,19 +1,22 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
-import {Dimensions, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View} from "react-native";
-import {AppContext, CartContext} from "@/app_contexts/AppContext";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { AppContext, CartContext } from "@/app_contexts/AppContext";
 import Carousel from "react-native-reanimated-carousel";
-import {SafeAreaView} from "react-native-safe-area-context";
-import {SBItem} from "@/components/carousel/SBItem";
-import {window} from "@/components/carousel/constants";
-import {useSharedValue} from "react-native-reanimated";
-import {useSQLiteContext} from 'expo-sqlite';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { SBItem } from "@/components/carousel/SBItem";
+import { window } from "@/components/carousel/constants";
+import { useSharedValue } from "react-native-reanimated";
+import { useSQLiteContext } from 'expo-sqlite';
 
-import {Heart, Share, Star, StarHalf} from "lucide-react-native";
-import {FlatList} from "react-native-actions-sheet";
+import { Heart, Share, Star, StarHalf } from "lucide-react-native";
+import { FlatList } from "react-native-actions-sheet";
 import ProductAttributeCard from "./components/product_details/ProductAttributeCard";
 import ShippingDetails from "@/components/pages/components/product_details/ShippingDetails";
-
-const {width} = Dimensions.get("window");
+import {
+    configureReanimatedLogger,
+    ReanimatedLogLevel,
+} from 'react-native-reanimated';
+const { width } = Dimensions.get("window");
 
 const PAGE_WIDTH = window.width;
 
@@ -41,7 +44,11 @@ function ProductDetails(props) {
     const [isMinusToCartBtnDisabled, setIsMinusToCartBtnDisabled] = useState(false);
 
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
-
+    // This is the default configuration
+    configureReanimatedLogger({
+        level: ReanimatedLogLevel.warn,
+        strict: false, // Reanimated runs in strict mode by default
+    });
     const setCartCounterNumber = () => {
         //update cart counter
         /*db.transaction((tx) => {
@@ -124,127 +131,59 @@ function ProductDetails(props) {
 
 
     const addToCart = async () => {
-        // console.log("added to cart");
-        // console.log(product);
-        // setProductQty(productQty);
-        //check if there are products in cart
+        console.log("adding to cart");
+        console.log(productAttributeDefault);
 
-        setIsAddingToCartBtn(true);
-        /*
+        const productAttributesId = productAttributeDefault[0].product_attributes_id;
+
         try {
-          //insert into cart
-          await db.transaction((tx) => {
-            tx.executeSql(
-              "SELECT * FROM cart WHERE product_id = ?",
-              [
-                product.product_id,
-              ],
-              (tx, results) => {
-                const len = results.rows.length;
-                // console.log("dhdhd " + len);
-                if (len > 0) {
-                  db.transaction(async (tx) => {
-                    await tx.executeSql(
-                      "UPDATE cart SET qty=? WHERE product_id = ?",
-                      [productQty, product.product_id],
-                      () => {
-                        // console.log("updated");
-                        // Alert.alert("Success!", "Your data has been updated.");
-                        db.transaction((tx) => {
-                          tx.executeSql(
-                            "SELECT * FROM cart",
-                            [],
-                            (tx, results) => {
+            // Fetch existing cart items
+            const cartItemsList = await db.getAllAsync("SELECT * FROM cart");
+            console.log("Cart Items Count:", cartItemsList.length);
 
-                              let amountTotal = 0;
-                              const temp = [];
+            let isUpdated = false;
 
-                              for (let i = 0; i < results.rows.length; ++i) {
-                                temp.push(results.rows.item(i));
+            for (const row of cartItemsList) {
+                console.log("Looping: ", row.id, row.product_attributes_id, row.qty);
 
-                                amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-                              }
+                // Check if the item already exists in the cart
+                if (productAttributesId === row.product_attributes_id) {
+                    const qtyNow = row.qty + 1;
+                    console.log("Updating Quantity to:", qtyNow);
 
-                              setProductsTotalAmount(amountTotal);
-                              setCartItemsCount(results.rows.length);
-                            },
-                          );
-                        });
-                      },
-                      error => {
-                        console.log(error);
-                      },
+                    // Update the quantity
+                    const updateResult = await db.runAsync(
+                        'UPDATE cart SET qty = ? WHERE id = ?',
+                        qtyNow,
+                        row.id
                     );
-                  });
-                } else {
-                  db.transaction(async (tx) => {
-
-                    await tx.executeSql(
-                      "INSERT INTO cart(product_id,product_name,product_price,qty,img_url) VALUES (?,?,?,?,?);",
-                      [product.product_id, product.product_name, product.price, productQty, product.img_url],
-                    );
-                    // console.log("added to sqlite");
-                    db.transaction((tx) => {
-                      tx.executeSql(
-                        "SELECT * FROM cart",
-                        [],
-                        (tx, results) => {
-
-                          let amountTotal = 0;
-                          const temp = [];
-
-                          for (let i = 0; i < results.rows.length; ++i) {
-                            temp.push(results.rows.item(i));
-
-                            amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-                          }
-
-                          setProductsTotalAmount(amountTotal);
-                          setCartItemsCount(results.rows.length);
-                        },
-                      );
-                    });
-                  });
+                    console.log("Cart Update Result:", updateResult);
+                    isUpdated = true;
+                    break; // No need to continue looping if item is found
                 }
-              },
-            );
-          });
+            }
 
-          //update cart counter
-          db.transaction((tx) => {
-            tx.executeSql(
-              "SELECT * FROM cart",
-              [],
-              (tx, results) => {
-                let amountTotal = 0;
-                const temp = [];
+            // If the item is not found in the cart, insert it
+            if (!isUpdated) {
+                const insertResult = await db.runAsync(
+                    'INSERT INTO cart (product_attributes_id, qty) VALUES (?, ?)',
+                    productAttributesId,
+                    1
+                );
+                console.log("Insert Result:", insertResult.lastInsertRowId, insertResult.changes);
+            }
 
-                for (let i = 0; i < results.rows.length; ++i) {
-                  temp.push(results.rows.item(i));
+            // Count the total number of items in the cart
+            const countResult = await db.getFirstAsync("SELECT COUNT(*) as totalItems FROM cart");
+            console.log("Total Items in Cart After Operation:", countResult.totalItems);
 
-                  amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-                }
-
-
-                setProductsTotalAmount(amountTotal);
-                setCartItemsCount(results.rows.length);
-              },
-            );
-          });
-
-
-        } catch (e) {
-          // console.log(e);
+            setCartItemsCount(countResult.totalItems)
+            
+        } catch (error) {
+            console.error("Error adding to cart:", error);
         }
-        */
-        // setTimeout(setBottomSheetOpen(true), 2000);
-        // setBottomSheetOpen(true);
-        setTimeout(() => {
-            setBottomSheetOpen(true);
-            setIsAddingToCartBtn(false);
-        }, 1000);
-
     };
+
 
     const addProductQty = () => {
         //amount should not exit the qty in inventory
@@ -294,33 +233,33 @@ function ProductDetails(props) {
             // height: PAGE_WIDTH / 2,
         });
 
-        const productAttributeCardAction = (product_attribute_selected) => {
-            let selectedAttributeArray = []
-            selectedAttributeArray.push(product_attribute_selected)
-            setProductAttributeDefault(selectedAttributeArray)
-        };
+    const productAttributeCardAction = (product_attribute_selected) => {
+        let selectedAttributeArray = []
+        selectedAttributeArray.push(product_attribute_selected)
+        setProductAttributeDefault(selectedAttributeArray)
+    };
 
-        const renderProductAttributeList = ({item}) => (
+    const renderProductAttributeList = ({ item }) => (
 
-            <View key={item.product_attributes_id} style={styles.productCardContainer}>
-                <ProductAttributeCard data={{
-                    productAttribute: item,
-                    action: productAttributeCardAction,
-                    activeAttribute: productAttributeDefault
-                }}/>
-            </View>
-        );
+        <View key={item.product_attributes_id} style={styles.productCardContainer}>
+            <ProductAttributeCard data={{
+                productAttribute: item,
+                action: productAttributeCardAction,
+                activeAttribute: productAttributeDefault
+            }} />
+        </View>
+    );
 
 
     return (
         <View style={{ flex: 1 }}>
             <FlatList
                 showsVerticalScrollIndicator={false}
-                style={{marginBottom: 98}}
+                style={{ marginBottom: 98 }}
                 data={[
                     { type: 'carousel' },
-                    {type: 'productDetails'},
-                    {type: 'shippingDetails'}
+                    { type: 'productDetails' },
+                    { type: 'shippingDetails' }
                 ]}
                 renderItem={({ item }) => {
                     // console.log(item.type)
@@ -424,22 +363,23 @@ function ProductDetails(props) {
                                         fontSize: 16,
                                         color: '#424242',
                                         marginTop: 2,
-                                        marginBottom:16,
+                                        marginBottom: 16,
                                         fontWeight: 'bold'
                                     }}>
                                         {product.product_name}
                                     </Text>
                                 </View>
 
-                            <FlatList
-                                style={styles.container}
-                                data={productAttributes}
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={styles.horizontalListContainer}
-                                renderItem={renderProductAttributeList}
-                                keyExtractor={item => item.product_attributes_id.toString()}
-                            />
+                                <FlatList
+                                    style={styles.container}
+                                    data={productAttributes}
+                                    horizontal
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={styles.horizontalListContainer}
+                                    renderItem={renderProductAttributeList}
+                                    keyExtractor={item => item.product_attributes_id.toString()}
+                                />
+                                {/* <Text>HAHAHAHAHA </Text>
                                 <Text>HAHAHAHAHA </Text>
                                 <Text>HAHAHAHAHA </Text>
                                 <Text>HAHAHAHAHA </Text>
@@ -447,15 +387,14 @@ function ProductDetails(props) {
                                 <Text>HAHAHAHAHA </Text>
                                 <Text>HAHAHAHAHA </Text>
                                 <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
+                                <Text>HAHAHAHAHA </Text> */}
                             </View>
 
                         );
                     } else if (item.type === 'shippingDetails') {
                         return (
                             <View style={styles.detailsContainer}>
-                                <ShippingDetails data={product_id}/>
+                                <ShippingDetails data={product_id} />
                             </View>
                         )
                     }
@@ -593,7 +532,7 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: '#fff',
         flexDirection: "column"
-    },   productCardContainer: {
+    }, productCardContainer: {
         width: (width - 30) / 2 - 8,
         marginHorizontal: 5,
     }

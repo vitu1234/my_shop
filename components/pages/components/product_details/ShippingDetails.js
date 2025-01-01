@@ -66,11 +66,17 @@ const ShippingDetails = (props) => {
         }
     }
 
+const gotoAddShippingAddress=()=>{
+    console.log("go to shipping address")
+}
 
+const gotoReturnPolicy=()=>{
+    console.log("go to return policy")
+}
     return (
 
         <View style={styles.container}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={gotoAddShippingAddress}>
                 <View style={styles.subcontainer}>
 
                     <View style={{flex: 4}}>
@@ -80,7 +86,7 @@ const ShippingDetails = (props) => {
 
                             <View>
                                 <Text style={styles.textsDesc}>Free shipping</Text>
-                                <Text style={styles.textsDesc}>Estimated Delivery Date is 27/11/2024 - 05/12/2024</Text>
+                                <Text style={styles.textsDesc}>Estimated Delivery 7-14 Business Days</Text>
                             </View>
                         </View>
                     </View>
@@ -91,7 +97,7 @@ const ShippingDetails = (props) => {
                 </View>
             </TouchableOpacity>
             <View style={{backgroundColor: '#e8e8e8', marginTop: 10, paddingTop: 1}}></View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={gotoReturnPolicy}>
                 <View style={[{marginTop: 10},styles.subcontainer]}>
 
                     <CircleDollarSign strokeWidth={3} color={'#5d5d5d'} style={{marginEnd: 3}} size={20}/>

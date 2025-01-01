@@ -3,7 +3,7 @@ import React from "react";
 import {connectToDatabase, deleteProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.3.200:8000/api";
+const base_url = "http://192.168.0.102:8000/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================

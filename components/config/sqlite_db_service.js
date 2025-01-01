@@ -5,6 +5,7 @@ import * as SQLite from 'expo-sqlite';
 
 export const createTables = async (db) => {
 
+    await db.execAsync('DROP TABLE IF EXISTS product;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product (
                 product_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -15,6 +16,8 @@ export const createTables = async (db) => {
             );
         `);
 
+
+    await db.execAsync('DROP TABLE IF EXISTS category;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS category (
                 category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -22,6 +25,8 @@ export const createTables = async (db) => {
                 category_description TEXT           
             );
         `);
+
+    await db.execAsync('DROP TABLE IF EXISTS sub_category;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS sub_category (
                 sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -30,6 +35,8 @@ export const createTables = async (db) => {
                 sub_category_description TEXT           
             );
         `);
+
+    await db.execAsync('DROP TABLE IF EXISTS product_sub_category;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_sub_category (
                 product_sub_category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -42,6 +49,7 @@ export const createTables = async (db) => {
             );
         `);
 
+    await db.execAsync('DROP TABLE IF EXISTS product_attributes;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_attributes (
                 product_attributes_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -55,6 +63,7 @@ export const createTables = async (db) => {
             );
         `);
 
+    await db.execAsync('DROP TABLE IF EXISTS product_images;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_images (
                 product_images_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -63,11 +72,21 @@ export const createTables = async (db) => {
             );
         `);
 
+    await db.execAsync('DROP TABLE IF EXISTS product_like;');
     await db.execAsync(`
             CREATE TABLE IF NOT EXISTS product_like (
                 product_like_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_id INTEGER NOT NULL,
                 user_id  INTEGER NOT NULL
+            );
+        `);
+
+    await db.execAsync('DROP TABLE IF EXISTS cart;');
+    await db.execAsync(`
+            CREATE TABLE IF NOT EXISTS cart (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                product_attributes_id INTEGER NOT NULL,
+                qty INTEGER NOT NULL
             );
         `);
 
@@ -106,16 +125,6 @@ export const createTables = async (db) => {
         `);
 
 
-    await db.execAsync(`
-                    CREATE TABLE IF NOT EXISTS cart (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        product_id INTEGER NOT NULL,
-                        product_name TEXT NOT NULL,
-                        product_price TEXT NOT NULL,
-                        qty INTEGER NOT NULL,
-                        img_url TEXT NOT NULL
-                    );
-                `);
     /*
             await db.execAsync(`
                 CREATE TABLE IF NOT EXISTS products_homescreen (
@@ -141,6 +150,7 @@ export const createTables = async (db) => {
 const deleteProducts = async (db) => {
     try {
         const queries = [
+            "DELETE FROM cart",
             "DELETE FROM category",
             "DELETE FROM product_shipping",
             "DELETE FROM sub_category",
