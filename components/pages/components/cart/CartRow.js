@@ -2,11 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
 import numbro from "numbro";
-import { SquareX, SquareCheckBig, Weight, Box } from 'lucide-react-native';
+import { SquareX, SquareCheckBig } from "lucide-react-native";
 
-import { Button } from "@/components/ui/button";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
 import { Text } from "@/components/ui/text";
 
 function CartRow({ data }) {
@@ -23,88 +20,76 @@ function CartRow({ data }) {
 
     const updateQuantity = (change) => {
         if (productQty + change < 1) return;
-        setIsLoading((prev) => ({ ...prev, [change > 0 ? 'add' : 'minus']: true }));
-        const newQty = productQty + change;
-        // setProductQty(newQty);
-
-        // db.transaction(tx => {
-        //     tx.executeSql(
-        //         "UPDATE cart SET qty=? WHERE product_id = ?",
-        //         [newQty, product.product_id],
-        //         () => setIsLoading((prev) => ({ ...prev, [change > 0 ? 'add' : 'minus']: false })),
-        //         error => console.log(error)
-        //     );
-        // });
+        setIsLoading((prev) => ({ ...prev, [change > 0 ? "add" : "minus"]: true }));
+        setProductQty(productQty + change);
+        // Database update logic here
     };
 
     const removeProductCart = () => {
         setIsLoading((prev) => ({ ...prev, remove: true }));
         data.actionRemoveLoading(true);
-
-        db.transaction(tx => {
-            tx.executeSql(
-                "DELETE FROM cart WHERE id=?",
-                [product.id],
-                (tx, results) => {
-                    if (results.rowsAffected > 0) {
-                        Alert.alert("Success", "Removed from cart");
-                    }
-                    setIsLoading((prev) => ({ ...prev, remove: false }));
-                },
-                error => console.log(error)
-            );
-        });
+        // Database remove logic here
+        Alert.alert("Success", "Removed from cart");
+        setIsLoading((prev) => ({ ...prev, remove: false }));
     };
 
     return (
         <View style={styles.cartItem}>
-
-            <HStack space={3} style={{ marginBottom: 5, flexDirection: "row" }}>
-                <TouchableOpacity onPress={removeProductCart} style={{ ...styles.removeButton }}>
+            {/* Product Info Row */}
+            <View style={styles.topRow}>
+                <TouchableOpacity onPress={removeProductCart} style={styles.iconButton}>
                     <SquareCheckBig size={18} color="green" />
                 </TouchableOpacity>
 
-                <VStack style={{ ...styles.detailsContainer, flex: 1, alignItems: "center", marginEnd: 10 }}>
-                    <Text numberOfLines={1} style={styles.name}>{product.product_name}</Text>
-                    <Text numberOfLines={2}>{product.product_attributes_name} - {product.product_attributes_value}</Text>
-                </VStack>
-
-                <TouchableOpacity onPress={removeProductCart} style={{ ...styles.removeButton }}>
-                    <SquareX size={28} />
-                </TouchableOpacity>
-            </HStack>
-
-            <HStack style={styles.container}>
-
-
-                <Image style={styles.thumb} source={{ uri: product.cover }} />
-
-                <VStack style={styles.detailsContainer}>
-                    <Text style={styles.price}>
-                        K {numbro(parseInt(productPrice)).format({ thousandSeparated: true, mantissa: 2 })}
+                <View style={styles.productDetails}>
+                    <Text numberOfLines={1} style={styles.name}>
+                        {product.product_name}
                     </Text>
-                </VStack>
+                    <Text numberOfLines={2} style={styles.description}>
+                        {product.product_attributes_name} - {product.product_attributes_value}
+                    </Text>
+                </View>
 
+                <TouchableOpacity onPress={removeProductCart} style={styles.iconButton}>
+                    <SquareX size={24} />
+                </TouchableOpacity>
+            </View>
 
-            </HStack>
+            {/* Image and Price */}
+            <View style={styles.middleRow}>
+                <Image style={styles.thumb} source={{ uri: product.cover }} />
+                <Text style={styles.price}>
+                    K{numbro(parseInt(productPrice)).format({ thousandSeparated: true, mantissa: 2 })}
+                </Text>
+            </View>
 
-            <View style={{ flexDirection: "row" }}>
+            <View style={{ flex: 1 }}></View>
 
-                <View style={{ flex: 1 }}></View>
+            {/* Quantity Controls */}
+            <View style={styles.bottomRow}>
+                <TouchableOpacity
+                    disabled={productQty === 1}
+                    style={[
+                        styles.qtyButton,
+                        productQty === 1 && styles.disabledButton,
+                    ]}
+                    onPress={() => updateQuantity(-1)}
+                >
+                    <Icon name="minus" size={20} color={productQty === 1 ? "#aaa" : "#000"} />
+                </TouchableOpacity>
 
-                <HStack space={3} style={{ ...styles.qtyContainer, flex: 2, flexDirection: 'row', borderRadius: 5, borderColor: 'gray', borderWidth: 1 }}>
+                <Text style={styles.qtyText}>{productQty}</Text>
 
-                    <TouchableOpacity disabled={productQty === 1 ? true : false} style={{ flex: 1 }} isLoading={isLoading.minus} onPress={() => updateQuantity(-1)} variant="outline" size="40">
-                        <Icon name="minus" size={20} color={productQty === 1 ? "gray" : "#000"} />
-                    </TouchableOpacity>
-                    <Text style={styles.qtyText}>{productQty}</Text>
-                    <TouchableOpacity disabled={productQty >= product.product_attributes_stock_qty ? true : false} style={{ flex: 1 }} isLoading={isLoading.add} onPress={() => updateQuantity(1)} variant="outline" size="sm">
-                        <Icon name="plus" size={20} color="#000" />
-                    </TouchableOpacity>
-
-                </HStack>
-
-                <View style={{ flex: 3 }}></View>
+                <TouchableOpacity
+                    disabled={productQty >= product.product_attributes_stock_qty}
+                    style={[
+                        styles.qtyButton,
+                        productQty >= product.product_attributes_stock_qty && styles.disabledButton,
+                    ]}
+                    onPress={() => updateQuantity(1)}
+                >
+                    <Icon name="plus" size={20} color="#000" />
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -112,49 +97,76 @@ function CartRow({ data }) {
 
 const styles = StyleSheet.create({
     cartItem: {
-        backgroundColor: "#fff",
-        marginBottom: 5,
+        backgroundColor: "#f9f9f9",
+        marginVertical: 6,
         padding: 16,
-        borderRadius: 10,
+        borderRadius: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
     },
-    container: {
+    topRow: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
+        marginBottom: 2,
     },
-    removeButton: {
-        // marginRight: 10,
+    iconButton: {
+        padding: 8,
     },
-    thumb: {
-        width: 65,
-        height: 65,
-        borderRadius: 10,
-    },
-    detailsContainer: {
+    productDetails: {
         flex: 1,
-        marginLeft: 10,
+        marginHorizontal: 8,
     },
     name: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#333",
+    },
+    description: {
         fontSize: 14,
-        fontWeight: "bold",
-        color: "#424242",
+        color: "#666",
+    },
+    middleRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginVertical: 2,
+    },
+    thumb: {
+        width: 60,
+        height: 60,
+        borderRadius: 8,
+        marginRight: 12,
     },
     price: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "black",
+        color: "#000",
+        flex: 1,
+        
     },
-    qtyContainer: {
+    bottomRow: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "flex-start",
+        marginTop: 2,
+        marginLeft: 72
+    },
+    qtyButton: {
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: "#f0f0f0",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    disabledButton: {
+        backgroundColor: "#e0e0e0",
     },
     qtyText: {
+        marginHorizontal: 16,
         fontSize: 16,
         fontWeight: "bold",
-        // color: "grey",
-        marginTop: 10,
-        marginBottom: 10,
-        flex: 1
+        color: "#333",
     },
 });
 

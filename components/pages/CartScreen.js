@@ -147,7 +147,7 @@ console.log("settonmgn cart")
 
         const renderProductList = products.map((product) => {
             return (
-                <CartRow key={product.product_id} data={{
+                <CartRow key={product.id} data={{
                     product: product,
                     // actionRemoveProductCart: removeProductCart,
                     // actionAddProductCart: addProductCart,
