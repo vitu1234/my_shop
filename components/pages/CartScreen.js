@@ -161,7 +161,7 @@ console.log("settonmgn cart")
 
             <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
 
-
+                {/* <Text>Here</Text> */}
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}
                     h={windowHeight - 80} _contentContainerStyle={{}}>
                     <View mt={2}>
