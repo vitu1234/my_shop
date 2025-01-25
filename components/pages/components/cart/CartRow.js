@@ -1,71 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { View, Dimensions, Alert, ImageBackground, Image, StyleSheet, TouchableOpacityc } from "react-native";
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import { View, Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
 import numbro from "numbro";
-import { base_urlImages } from "../../../config/API";
+import { SquareX, SquareCheckBig, Weight, Box } from 'lucide-react-native';
 
-import {Center} from "@/components/ui/center"
-import {Box} from "@/components/ui/box"
-import {Checkbox} from "@/components/ui/checkbox"
-import {Button} from "@/components/ui/button"
-import {HStack} from "@/components/ui/hstack"
-import {VStack} from "@/components/ui/vstack"
-import {Text} from "@/components/ui/text"
+import { Button } from "@/components/ui/button";
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
+import { Text } from "@/components/ui/text";
 
 function CartRow({ data }) {
     if (!data) return <View />;
-    
-    const product = data.product;
-    console.log("Product Cover:", product.cover);
 
+    const product = data.product;
     const [productQty, setProductQty] = useState(product.qty);
     const [productPrice, setProductPrice] = useState(product.qty * parseFloat(product.product_attributes_price));
-    const [isLoadingBtnAdd, setIsLoadingBtnAdd] = useState(false);
-    const [isLoadingBtnMinus, setIsLoadingBtnMinus] = useState(false);
-    const [isLoadingBtnRemove, setIsLoadingBtnRemove] = useState(false);
+    const [isLoading, setIsLoading] = useState({ add: false, minus: false, remove: false });
 
     useEffect(() => {
         setProductPrice(productQty * parseFloat(product.product_attributes_price));
     }, [productQty]);
 
-    const addProductCart = () => {
-        setIsLoadingBtnAdd(true);
-        const newQty = productQty + 1;
-        setProductQty(newQty);
+    const updateQuantity = (change) => {
+        if (productQty + change < 1) return;
+        setIsLoading((prev) => ({ ...prev, [change > 0 ? 'add' : 'minus']: true }));
+        const newQty = productQty + change;
+        // setProductQty(newQty);
 
-        db.transaction(tx => {
-            tx.executeSql(
-                "UPDATE cart SET qty=? WHERE product_id = ?",
-                [newQty, product.product_id],
-                () => {
-                    setIsLoadingBtnAdd(false);
-                    Alert.alert("Success!", "Your data has been updated.");
-                },
-                error => console.log(error)
-            );
-        });
-    };
-
-    const minusProductCart = () => {
-        if (productQty === 1) return;
-
-        const newQty = productQty - 1;
-        setProductQty(newQty);
-        setIsLoadingBtnMinus(true);
-
-        db.transaction(tx => {
-            tx.executeSql(
-                "UPDATE cart SET qty=? WHERE product_id = ?",
-                [newQty, product.product_id],
-                () => setIsLoadingBtnMinus(false),
-                error => console.log(error)
-            );
-        });
+        // db.transaction(tx => {
+        //     tx.executeSql(
+        //         "UPDATE cart SET qty=? WHERE product_id = ?",
+        //         [newQty, product.product_id],
+        //         () => setIsLoading((prev) => ({ ...prev, [change > 0 ? 'add' : 'minus']: false })),
+        //         error => console.log(error)
+        //     );
+        // });
     };
 
     const removeProductCart = () => {
-        setIsLoadingBtnRemove(true);
+        setIsLoading((prev) => ({ ...prev, remove: true }));
         data.actionRemoveLoading(true);
 
         db.transaction(tx => {
@@ -76,89 +49,62 @@ function CartRow({ data }) {
                     if (results.rowsAffected > 0) {
                         Alert.alert("Success", "Removed from cart");
                     }
-                    setIsLoadingBtnRemove(false);
+                    setIsLoading((prev) => ({ ...prev, remove: false }));
                 },
                 error => console.log(error)
             );
         });
     };
 
-    console.log(product.cover)
-
     return (
-        
-        <View style={{
-            backgroundColor: "#fff",
-            marginBottom: 4,
-            paddingStart: 16,
-            paddingEnd: 16,
-            paddingTop: 10,
-            paddingBottom: 10,
-        }}>
+        <View style={styles.cartItem}>
+
+            <HStack space={3} style={{ marginBottom: 5, flexDirection: "row" }}>
+                <TouchableOpacity onPress={removeProductCart} style={{ ...styles.removeButton }}>
+                    <SquareCheckBig size={18} color="green" />
+                </TouchableOpacity>
+
+                <VStack style={{ ...styles.detailsContainer, flex: 1, alignItems: "center", marginEnd: 10 }}>
+                    <Text numberOfLines={1} style={styles.name}>{product.product_name}</Text>
+                    <Text numberOfLines={2}>{product.product_attributes_name} - {product.product_attributes_value}</Text>
+                </VStack>
+
+                <TouchableOpacity onPress={removeProductCart} style={{ ...styles.removeButton }}>
+                    <SquareX size={28} />
+                </TouchableOpacity>
+            </HStack>
+
+            <HStack style={styles.container}>
 
 
-            <View style={styles.mainContainer}>
+                <Image style={styles.thumb} source={{ uri: product.cover }} />
+
+                <VStack style={styles.detailsContainer}>
+                    <Text style={styles.price}>
+                        K {numbro(parseInt(productPrice)).format({ thousandSeparated: true, mantissa: 2 })}
+                    </Text>
+                </VStack>
 
 
-                <View style={styles.container}>
-                    <View style={styles.card}>
-                        <Image
-                        
-                            alt={"Product Image"}
-                            style={[styles.thumb, {alignSelf: 'center'}]}
-                            source={{
-                                uri: product.cover,
-                            }}
-                        />
-                    </View>
+            </HStack>
 
-                    <View>
-                        <View style={{marginLeft: "auto", justifyContent: "flex-start", flexDirection: "row"}}>
-                            <Button isLoading={isLoadingBtnRemove} onPress={() => removeProductCart()}
-                                    style={{marginRight: "auto"}} variant={"outline"} size="sm">
-                                <Icon name="close" size={15} color="#ff0101"/>
-                            </Button>
-                        </View>
+            <View style={{ flexDirection: "row" }}>
 
-                        <View style={styles.infoContainer}>
-                            <View style={{flexDirection: "row"}}>
-                                <Text numberOfLines={1} style={styles.name}>{product.product_attributes_name}</Text>
-                            </View>
-                            <Text numberOfLines={1} style={styles.price}>
+                <View style={{ flex: 1 }}></View>
 
-                                K {numbro(parseInt(productPrice)).format({
-                                thousandSeparated: true,
-                                mantissa: 2,
-                            })}
+                <HStack space={3} style={{ ...styles.qtyContainer, flex: 2, flexDirection: 'row', borderRadius: 5, borderColor: 'gray', borderWidth: 1 }}>
 
-                            </Text>
-                            <Center mt={5}>
-                                <HStack space={5}
-                                        style={{alignItems: "center"}}>
+                    <TouchableOpacity disabled={productQty === 1 ? true : false} style={{ flex: 1 }} isLoading={isLoading.minus} onPress={() => updateQuantity(-1)} variant="outline" size="40">
+                        <Icon name="minus" size={20} color={productQty === 1 ? "gray" : "#000"} />
+                    </TouchableOpacity>
+                    <Text style={styles.qtyText}>{productQty}</Text>
+                    <TouchableOpacity disabled={productQty >= product.product_attributes_stock_qty ? true : false} style={{ flex: 1 }} isLoading={isLoading.add} onPress={() => updateQuantity(1)} variant="outline" size="sm">
+                        <Icon name="plus" size={20} color="#000" />
+                    </TouchableOpacity>
 
-                                    <Button isLoading={isLoadingBtnMinus} onPress={() => minusProductCart()}
-                                            variant={"outline"}
-                                            size="sm">
-                                        <Icon name="minus" size={15} color="#000"/>
-                                    </Button>
-                                    <Text style={{
-                                        color: "grey",
-                                        fontSize: 16,
-                                        fontWeight: "bold"
-                                    }}>{productQty}</Text>
-                                    <Button isLoading={isLoadingBtnAdd} onPress={() => addProductCart()}
-                                            variant={"outline"}
-                                            size="sm">
-                                        <Icon name="plus" size={15} color="#000"/>
-                                    </Button>
+                </HStack>
 
-
-                                </HStack>
-                            </Center>
-                        </View>
-                    </View>
-                </View>
-
+                <View style={{ flex: 3 }}></View>
             </View>
         </View>
     );
@@ -167,68 +113,48 @@ function CartRow({ data }) {
 const styles = StyleSheet.create({
     cartItem: {
         backgroundColor: "#fff",
-        marginBottom: 4,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-    },
-    mainContainer: {
-        alignSelf: "flex-start",
-        alignContent: "center",
-        justifyContent: "center",
-        width: "100%",
+        marginBottom: 5,
+        padding: 16,
+        borderRadius: 10,
     },
     container: {
-        justifyContent: "space-between",
         flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
     },
-    card: {
-        width: 120,
-        backgroundColor: "#fff",
-        borderRadius: 10,
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        shadowColor: "black",
-        shadowOffset: { height: 0, width: 0 },
-        elevation: 1,
-        marginEnd: 10,
+    removeButton: {
+        // marginRight: 10,
     },
     thumb: {
-        height: "100%",
-        // borderTopLeftRadius: 16,
-        // borderTopRightRadius: 16,
-        width: "100%",
-     
+        width: 65,
+        height: 65,
+        borderRadius: 10,
     },
-    topRightButton: {
-        marginLeft: "auto",
-        justifyContent: "flex-start",
-        flexDirection: "row",
-    },
-    infoContainer: {
-        padding: 1,
-        marginTop: 5,
+    detailsContainer: {
+        flex: 1,
+        marginLeft: 10,
     },
     name: {
-        color: "#424242",
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: "bold",
-        flexShrink: 1,
-        flex: 1,
-        flexWrap: "wrap",
+        color: "#424242",
     },
     price: {
+        fontSize: 18,
+        fontWeight: "bold",
         color: "black",
-        fontSize: 16,
-        fontWeight: "900",
-        marginBottom: 8,
     },
     qtyContainer: {
+        flexDirection: "row",
         alignItems: "center",
     },
     qtyText: {
-        color: "grey",
         fontSize: 16,
         fontWeight: "bold",
+        // color: "grey",
+        marginTop: 10,
+        marginBottom: 10,
+        flex: 1
     },
 });
 

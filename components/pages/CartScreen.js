@@ -73,6 +73,7 @@ console.log("settonmgn cart")
                 "product_id": productDetails.product_id,
                 "cover": productDetails.cover,
                 "product_description": productDetails.product_description,
+                "product_name": productDetails.product_name,
                 "product_attributes_default": productAttributeDetails.product_attributes_default,
                 "product_attributes_name": productAttributeDetails.product_attributes_name,
                 "product_attributes_value": productAttributeDetails.product_attributes_value,
