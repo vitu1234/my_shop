@@ -4,6 +4,8 @@ import Icon from "react-native-vector-icons/AntDesign";
 import numbro from "numbro";
 import { SquareX, SquareCheckBig } from "lucide-react-native";
 
+import Checkbox from 'expo-checkbox';
+
 import { Text } from "@/components/ui/text";
 
 function CartRow({ data }) {
@@ -13,6 +15,8 @@ function CartRow({ data }) {
     const [productQty, setProductQty] = useState(product.qty);
     const [productPrice, setProductPrice] = useState(product.qty * parseFloat(product.product_attributes_price));
     const [isLoading, setIsLoading] = useState({ add: false, minus: false, remove: false });
+
+    const [isChecked, setChecked] = useState(false);
 
     useEffect(() => {
         setProductPrice(productQty * parseFloat(product.product_attributes_price));
@@ -37,9 +41,13 @@ function CartRow({ data }) {
         <View style={styles.cartItem}>
             {/* Product Info Row */}
             <View style={styles.topRow}>
-                <TouchableOpacity onPress={removeProductCart} style={styles.iconButton}>
+                {/* <TouchableOpacity onPress={removeProductCart} style={styles.iconButton}>
                     <SquareCheckBig size={18} color="green" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+
+                <View style={styles.section}>
+                    <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+                </View>
 
                 <View style={styles.productDetails}>
                     <Text numberOfLines={1} style={styles.name}>
@@ -143,7 +151,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "#000",
         flex: 1,
-        
+
     },
     bottomRow: {
         flexDirection: "row",
@@ -167,6 +175,20 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
         color: "#333",
+    },
+
+    section: {
+        // flexDirection: 'row',
+        // alignItems: 'center',
+        padding: 4,
+        marginEnd: 5
+    },
+    paragraph: {
+        fontSize: 15,
+    },
+    checkbox: {
+        // margin: 8,
+        padding: 8
     },
 });
 
