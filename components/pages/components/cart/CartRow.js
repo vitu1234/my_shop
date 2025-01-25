@@ -5,7 +5,7 @@ import {Dimensions} from "react-native";
 import numbro from "numbro";
 
 
-import {base_urlImages} from "../../config/API";
+import {base_urlImages} from "../../../config/API";
 
 import {Alert, AlertIcon, AlertText} from "@/components/ui/alert"
 import {Center} from "@/components/ui/center"
@@ -22,10 +22,15 @@ Dimensions.get("window").height;
 
 
 function CartRow(props) {
+
+    console.log("CART ROWS")
+    
+    console.log(props)
+
     const data = props.data;
     if (data !== undefined) {
         const product = data.product;
-
+        console.log(product.cover)
 
         const [productQty, setProductQty] = useState(product.qty);
         const [product_price, setProductPrice] = useState(parseInt(product.product_price) * product.qty);
@@ -35,7 +40,7 @@ function CartRow(props) {
         // console.log(productQty)
 
         useEffect(() => {
-            setProductPrice(productQty * (parseFloat(product.product_price)));
+            setProductPrice(productQty * (parseFloat(product.product_attributes_price)));
 
         }, [productQty]);
 
@@ -155,7 +160,7 @@ function CartRow(props) {
                                 alt={"Product Image"}
                                 style={[styles.thumb, {alignSelf: 'center'}]}
                                 source={{
-                                    uri: base_urlImages + "/products/" + product.img_url,
+                                    uri: product.cover,
                                 }}
                             />
                         </View>
