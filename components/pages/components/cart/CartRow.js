@@ -46,8 +46,8 @@ function CartRow({ data }) {
         console.log("Checkbox value changed:", newValue);
         
         // Update the state
-        setChecked(newValue);
-        data.selectDeselectProductQtyCart(product, newValue)
+        setChecked(Boolean(newValue));
+        data.selectDeselectProductQtyCart(product, Boolean(newValue))
     };
 
     return (

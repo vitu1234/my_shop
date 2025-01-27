@@ -87,7 +87,7 @@ export const createTables = async (db) => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_attributes_id INTEGER NOT NULL,
                 qty INTEGER NOT NULL,
-                isChecked INTEGER DEFAULT 0 NOT NULL,
+                isChecked INTEGER DEFAULT 0 NOT NULL
             );
         `);
 
@@ -151,14 +151,15 @@ export const createTables = async (db) => {
 const deleteProducts = async (db) => {
     try {
         const queries = [
-            "DELETE FROM cart",
+            
             "DELETE FROM category",
             "DELETE FROM product_shipping",
             "DELETE FROM sub_category",
             "DELETE FROM product_images",
             "DELETE FROM product_attributes",
             "DELETE FROM product_sub_category",
-            "DELETE FROM product"
+            "DELETE FROM product",
+            "DELETE FROM cart",
         ];
         for (const query of queries) {
             await db.execAsync(query);

@@ -83,6 +83,7 @@ function CartScreen(props) {
                 "product_attributes_price": productAttributeDetails.product_attributes_price,
                 "product_attributes_stock_qty": productAttributeDetails.product_attributes_stock_qty,
                 "product_attributes_summary": productAttributeDetails.product_attributes_summary,
+                "isChecked": Boolean(cartList[i].isChecked),
             }
 
             cartFullProductDetailsList.push(cartItem)
