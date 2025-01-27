@@ -34,8 +34,9 @@ function CartRow({ data }) {
         setIsLoading((prev) => ({ ...prev, remove: true }));
         // data.actionRemoveLoading(true);
         // Database remove logic here
-        Alert.alert("Success", "Removed from cart");
+        // Alert.alert("Success", "Removed from cart");
         setIsLoading((prev) => ({ ...prev, remove: false }));
+        data.removeProductCart(product)
     };
 
 

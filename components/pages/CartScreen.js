@@ -71,11 +71,20 @@ function CartScreen(props) {
     useEffect(() => {
         setCartItems();
     }, []);
-    const removeProductCart = (product) => {
+    const removeProductCart = async (selectedProduct) => {
         console.log("Remove product from cart")
-        console.log(product)
+        console.log(selectedProduct)
 
-        
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].id === selectedProduct.id) {
+                await db.runAsync(
+                    'DELETE FROM cart WHERE id = ?',
+                    selectedProduct.id
+                );
+            }
+        }
+
+        setCartItems()
     };
 
 
