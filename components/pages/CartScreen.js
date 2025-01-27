@@ -16,7 +16,7 @@ import numbro from 'numbro';
 
 
 const { width } = Dimensions.get('window');
-const windowHeight = Dimensions.get('window').height;
+// const windowHeight = Dimensions.get('window').height;
 
 
 
@@ -27,11 +27,16 @@ function CartScreen(props) {
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [products, setCartProducts] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
+    const [forceRender, setForceRender] = useState(false);
+
 
     const windowWidth = useWindowDimensions().width;
     const windowHeight = useWindowDimensions().height;
 
     const setCartItems = async () => {
+
+        console.log("CART ITEMS")
+
         let cartFullProductDetailsList = []
         const cartList = await db.getAllAsync("SELECT * FROM cart ORDER BY id DESC");
         for (let i = 0; i < cartList.length; i++) {
@@ -125,38 +130,17 @@ function CartScreen(props) {
 
 
     const handleSelectDeselectAllChange = async (newValue) => {
-        console.log("Select all or Deselect alls")
+        console.log("Select all or Deselect all");
         setCheckedSelectAllDeselect(Boolean(newValue));
+    
         const updatedProducts = products.map((product) => ({
             ...product,
             isChecked: Boolean(newValue),
         }));
-
-        setCartProducts([]); 
-        setCartProducts(updatedProducts); 
-
-        if (newValue) {
-            await db.runAsync(
-                'UPDATE cart SET isChecked = ? ',
-                Boolean(newValue)
-            );
-        } else {
-            await db.runAsync(
-                'UPDATE cart SET isChecked = ? ',
-                Boolean(newValue)
-            );
-        }
-
-
-        // update the list of products locally for faster UI response
-        // Update local state immediately for better UI responsiveness
-        
-        setCartProducts([]); 
-        setCartProducts(updatedProducts); 
-        console.log("updatedProducts")
-        console.log(updatedProducts)
-        setCartItems()
-        
+    
+        await db.runAsync('UPDATE cart SET isChecked = ?', Boolean(newValue));
+    
+        setCartProducts(updatedProducts);
     };
 
     // if (!isLoadingScreen) {
@@ -164,7 +148,7 @@ function CartScreen(props) {
 
         const renderProductList = products.map((product) => {
             return (
-                <CartRow key={product.id} data={{
+                <CartRow key={`${product.id}-${product.isChecked}`} data={{
                     product: product,
                     removeProductCart: removeProductCart,
                     updateProductQtyCart: updateProductQtyCart,
@@ -190,9 +174,9 @@ function CartScreen(props) {
                         <Text style={{ fontSize: 18 }}>Delete selected items</Text>
                     </TouchableOpacity>
                 </View>
-                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}
+                <ScrollView style={{ flex: -1 }} showsVerticalScrollIndicator={false}
                     h={windowHeight - 80} _contentContainerStyle={{}}>
-                    <View mt={2}>
+                    <View mt={4}>
                         {renderProductList}
 
                     </View>
@@ -205,7 +189,7 @@ function CartScreen(props) {
                             <HStack space={2}>
                                 <Icon name="creditcard" size={18} color="#fff" />
                                 <Text style={{ color: '#fff', fontSize: 10 }}>CHECKOUT (K{
-                                    numbro(parseInt(productsTotalAmount)).format({
+                                    numbro(parseInt(100000)).format({
                                         thousandSeparated: true,
                                         mantissa: 2,
                                     })
@@ -218,12 +202,13 @@ function CartScreen(props) {
             </View>
         );
     } else {
-        return (
-            <View mt={2} style={{ justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
-                <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Products in cart will appear
-                    here!</Text>
-            </View>
-        );
+            return (
+                <View mt={2} style={{ justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
+                    <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Products in cart will appear
+                        here!</Text>
+                </View>
+            );
+       
     }
     // } else {
     //     return (
