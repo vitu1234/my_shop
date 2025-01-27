@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button"
 import { HStack } from "@/components/ui/hstack"
 import { Alert, AlertIcon, AlertText } from "@/components/ui/alert"
 import { Text } from "@/components/ui/text"
-
+import Checkbox from 'expo-checkbox';
+import { SquareX, SquareCheckBig, Leaf } from "lucide-react-native";
 
 import CartRow from './components/cart/CartRow';
-import { Dimensions, ScrollView, useWindowDimensions, View } from 'react-native';
+import { Dimensions, ScrollView, useWindowDimensions, View, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { AppContext, CartContext } from '@/app_contexts/AppContext';
-import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite'; 
+import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 import numbro from 'numbro';
 
 
@@ -21,6 +22,8 @@ const windowHeight = Dimensions.get('window').height;
 
 function CartScreen(props) {
     const db = useSQLiteContext();
+
+    const [isChecked, setChecked] = useState(false);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [products, setCartProducts] = useState([]);
@@ -56,7 +59,7 @@ function CartScreen(props) {
         //         },
         //     );
         // });
-console.log("settonmgn cart")
+        console.log("settonmgn cart")
         let cartFullProductDetailsList = []
         const cartList = await db.getAllAsync("SELECT * FROM cart ORDER BY id DESC");
         for (let i = 0; i < cartList.length; i++) {
@@ -83,7 +86,7 @@ console.log("settonmgn cart")
             }
 
             cartFullProductDetailsList.push(cartItem)
-            
+
         }
         setCartProducts(cartFullProductDetailsList);
         // setCartProductssss(cartList);
@@ -95,7 +98,8 @@ console.log("settonmgn cart")
         setCartCounterNumber();
     }, []);
     const removeProductCart = (product) => {
-        setIsLoadingScreen(true);
+        console.log("Remove product from cart")
+        console.log(product)
 
         /*db.transaction((tx) => {
             tx.executeSql(
@@ -135,24 +139,56 @@ console.log("settonmgn cart")
         });*/
     };
 
-    const setLoadingScreen = () => {
-        // console.log('iniit')
-        setIsLoadingScreen(true);
-    };
+
+    const removeSelectedItems =()=>{
+        console.log("Delete selected items")
+    }
+
+    const addProductQtyCart=(product, newQty)=>{
+        console.log("Qty add")
+        console.log(product)
+        console.log("New QTY: "+newQty)
+    }
+    const minusProductQtyCart=(product)=>{
+        console.log("Qty minus")
+        console.log(product)
+        console.log("New QTY: "+newQty)
+    }
+
+    const selectDeselectProductQtyCart = async (selectedProduct, isChecked)=>{
+        console.log("Select Deselect Product")
+        console.log("checked value: "+isChecked)
+        console.log(selectedProduct)
+
+        for (let i = 0; i < products.length; i++) {
+            if(products[i].id === selectedProduct.id){
+                if(isChecked){
+                    products[i].isChecked = true
+                }else{
+                    products[i].isChecked = false
+                }
+
+                await db.runAsync(
+                    'UPDATE cart SET isChecked = ? WHERE id = ?',
+                    isChecked,
+                    selectedProduct.id
+                );
+            }
+            
+        }
+    } 
 
     // if (!isLoadingScreen) {
     if (products.length > 0) {
-        // console.log(products.length);
-
 
         const renderProductList = products.map((product) => {
             return (
                 <CartRow key={product.id} data={{
                     product: product,
-                    // actionRemoveProductCart: removeProductCart,
-                    // actionAddProductCart: addProductCart,
-                    // actionMinusProductCart: minusProductCart,
-                    actionRemoveLoading: setLoadingScreen,
+                    removeProductCart: removeProductCart,
+                    addProductQtyCart: addProductQtyCart,
+                    minusProductQtyCart: minusProductQtyCart,
+                    selectDeselectProductQtyCart: selectDeselectProductQtyCart,
                 }} />
             );
         });
@@ -161,7 +197,19 @@ console.log("settonmgn cart")
 
             <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
 
-                {/* <Text>Here</Text> */}
+                <View style={styles.topRow}>
+                    {/* <TouchableOpacity onPress={removeProductCart} style={styles.iconButton}>
+                    <SquareCheckBig size={18} color="green" />
+                </TouchableOpacity> */}
+
+                    <View style={styles.section}>
+                        <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+                    </View>
+
+                    <TouchableOpacity onPress={removeSelectedItems} style={styles.deleteSelected}>
+                        <Text style={{fontSize: 18}}>Delete selected items</Text>
+                    </TouchableOpacity>
+                </View>
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}
                     h={windowHeight - 80} _contentContainerStyle={{}}>
                     <View mt={2}>
@@ -207,5 +255,48 @@ console.log("settonmgn cart")
 
 
 }
+
+const styles = StyleSheet.create({
+    cartItem: {
+        backgroundColor: "#f9f9f9",
+        marginVertical: 6,
+        padding: 16,
+        borderRadius: 12,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+    topRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 2,
+        padding: 16,
+        backgroundColor: "#fff"
+    },
+
+
+
+    section: {
+        // flexDirection: 'row',
+        // alignItems: 'center',
+        padding: 4,
+        marginEnd: 5,
+        flex: 1,
+        alignItems: "flex-start"
+    },
+    paragraph: {
+        fontSize: 15,
+    },
+    checkbox: {
+        // margin: 8,
+        padding: 8
+    },
+
+    deleteSelected:{
+        flex:1,
+         alignItems: "flex-end"
+    },
+});
 
 export default CartScreen;

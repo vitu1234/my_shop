@@ -16,7 +16,7 @@ function CartRow({ data }) {
     const [productPrice, setProductPrice] = useState(product.qty * parseFloat(product.product_attributes_price));
     const [isLoading, setIsLoading] = useState({ add: false, minus: false, remove: false });
 
-    const [isChecked, setChecked] = useState(false);
+    const [isChecked, setChecked] = useState(product.isChecked);
 
     useEffect(() => {
         setProductPrice(productQty * parseFloat(product.product_attributes_price));
@@ -31,10 +31,23 @@ function CartRow({ data }) {
 
     const removeProductCart = () => {
         setIsLoading((prev) => ({ ...prev, remove: true }));
-        data.actionRemoveLoading(true);
+        // data.actionRemoveLoading(true);
         // Database remove logic here
         Alert.alert("Success", "Removed from cart");
         setIsLoading((prev) => ({ ...prev, remove: false }));
+    };
+
+
+    const checkedProduct = () => {
+        setChecked()
+    }
+
+    const handleCheckboxChange = (newValue) => {
+        console.log("Checkbox value changed:", newValue);
+        
+        // Update the state
+        setChecked(newValue);
+        data.selectDeselectProductQtyCart(product, newValue)
     };
 
     return (
@@ -46,7 +59,7 @@ function CartRow({ data }) {
                 </TouchableOpacity> */}
 
                 <View style={styles.section}>
-                    <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+                    <Checkbox style={styles.checkbox} value={isChecked} onValueChange={handleCheckboxChange} />
                 </View>
 
                 <View style={styles.productDetails}>
