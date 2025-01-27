@@ -29,43 +29,15 @@ function CartScreen(props) {
     const [products, setCartProducts] = useState([]);
     const [productsCCC, setCartProductssss] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
-    const [isLoadingScreen, setIsLoadingScreen] = useState(true);
 
     const windowWidth = useWindowDimensions().width;
     const windowHeight = useWindowDimensions().height;
 
 
-    const setCartCounterNumber = async () => {
-        //update cart counter
-        // db.transaction((tx) => {
-        //     tx.executeSql(
-        //         'SELECT * FROM cart',
-        //         [],
-        //         (tx, results) => {
-        //             const len = results.rows.length;
-        //             setCartItemsCount(len);
-
-        //             let amountTotal = 0;
-        //             const temp = [];
-
-        //             for (let i = 0; i < results.rows.length; ++i) {
-        //                 temp.push(results.rows.item(i));
-
-        //                 amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-        //             }
-        //             setCartProducts(temp);
-        //             setProductsTotalAmount(amountTotal);
-        //             setIsLoadingScreen(false);
-        //         },
-        //     );
-        // });
-        console.log("settonmgn cart")
+    const setCartItems = async () => {
         let cartFullProductDetailsList = []
         const cartList = await db.getAllAsync("SELECT * FROM cart ORDER BY id DESC");
         for (let i = 0; i < cartList.length; i++) {
-            // const element = array[cartList];
-            // console.log("ITEMS CART")
-            // console.log(cartList[i])
 
             const productAttributeDetails = await db.getFirstAsync('SELECT * FROM product_attributes WHERE product_attributes_id = ' + cartList[i].product_attributes_id);
             const productDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + productAttributeDetails.product_id);
@@ -89,6 +61,7 @@ function CartScreen(props) {
             cartFullProductDetailsList.push(cartItem)
 
         }
+
         setCartProducts(cartFullProductDetailsList);
         // setCartProductssss(cartList);
 
@@ -96,76 +69,39 @@ function CartScreen(props) {
 
 
     useEffect(() => {
-        setCartCounterNumber();
+        setCartItems();
     }, []);
     const removeProductCart = (product) => {
         console.log("Remove product from cart")
         console.log(product)
 
-        /*db.transaction((tx) => {
-            tx.executeSql(
-                'DELETE FROM cart where id=?',
-                [product.id],
-                (tx, results) => {
-
-                    if (results.rowsAffected > 0) {
-
-                        const len = results.rows.length;
-                        // setCartItemsCount(len);
-
-
-                        const temp = [];
-                        let amountTotal = 0;
-                        for (let i = 0; i < results.rows.length; ++i) {
-                            temp.push(results.rows.item(i));
-
-                            amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-                        }
-                        // setCartProducts(temp);
-                        // setProductsTotalAmount(amountTotal);
-
-                        Alert.alert(
-                            'Success',
-                            'Removed from cart',
-                            [
-                                {
-                                    text: 'Ok',
-                                    // onPress: () => navigation.navigate('HomeScreen'),
-                                },
-                            ],
-                            {cancelable: false},
-                        );
-                    }
-                });
-        });*/
+        
     };
 
 
-    const removeSelectedItems =()=>{
+    const removeSelectedItems = () => {
         console.log("Delete selected items")
     }
 
-    const addProductQtyCart=(product, newQty)=>{
-        console.log("Qty add")
-        console.log(product)
-        console.log("New QTY: "+newQty)
-    }
-    const minusProductQtyCart=(product)=>{
-        console.log("Qty minus")
-        console.log(product)
-        console.log("New QTY: "+newQty)
-    }
-
-    const selectDeselectProductQtyCart = async (selectedProduct, isChecked)=>{
-        console.log("Select Deselect Product")
-        console.log("checked value: "+isChecked)
-        console.log(selectedProduct)
-
+    const updateProductQtyCart = async (selectedProduct, newQty) => {
         for (let i = 0; i < products.length; i++) {
-            if(products[i].id === selectedProduct.id){
-                if(isChecked){
+            if (products[i].id === selectedProduct.id) {
+                await db.runAsync(
+                    'UPDATE cart SET qty = ? WHERE id = ?',
+                    newQty,
+                    selectedProduct.id
+                );
+            }
+
+        }
+    }
+
+    const selectDeselectProductQtyCart = async (selectedProduct, isChecked) => {
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].id === selectedProduct.id) {
+                if (isChecked) {
                     products[i].isChecked = true
-                }else{
+                } else {
                     products[i].isChecked = false
                 }
 
@@ -175,9 +111,9 @@ function CartScreen(props) {
                     selectedProduct.id
                 );
             }
-            
+
         }
-    } 
+    }
 
     // if (!isLoadingScreen) {
     if (products.length > 0) {
@@ -187,8 +123,7 @@ function CartScreen(props) {
                 <CartRow key={product.id} data={{
                     product: product,
                     removeProductCart: removeProductCart,
-                    addProductQtyCart: addProductQtyCart,
-                    minusProductQtyCart: minusProductQtyCart,
+                    updateProductQtyCart: updateProductQtyCart,
                     selectDeselectProductQtyCart: selectDeselectProductQtyCart,
                 }} />
             );
@@ -208,7 +143,7 @@ function CartScreen(props) {
                     </View>
 
                     <TouchableOpacity onPress={removeSelectedItems} style={styles.deleteSelected}>
-                        <Text style={{fontSize: 18}}>Delete selected items</Text>
+                        <Text style={{ fontSize: 18 }}>Delete selected items</Text>
                     </TouchableOpacity>
                 </View>
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}
@@ -294,9 +229,9 @@ const styles = StyleSheet.create({
         padding: 8
     },
 
-    deleteSelected:{
-        flex:1,
-         alignItems: "flex-end"
+    deleteSelected: {
+        flex: 1,
+        alignItems: "flex-end"
     },
 });
 

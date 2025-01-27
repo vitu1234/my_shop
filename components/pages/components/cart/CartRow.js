@@ -27,6 +27,7 @@ function CartRow({ data }) {
         setIsLoading((prev) => ({ ...prev, [change > 0 ? "add" : "minus"]: true }));
         setProductQty(productQty + change);
         // Database update logic here
+        data.updateProductQtyCart(product, productQty + change)
     };
 
     const removeProductCart = () => {
@@ -43,8 +44,7 @@ function CartRow({ data }) {
     }
 
     const handleCheckboxChange = (newValue) => {
-        console.log("Checkbox value changed:", newValue);
-        
+
         // Update the state
         setChecked(Boolean(newValue));
         data.selectDeselectProductQtyCart(product, Boolean(newValue))
