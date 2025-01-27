@@ -23,16 +23,13 @@ const windowHeight = Dimensions.get('window').height;
 function CartScreen(props) {
     const db = useSQLiteContext();
 
-    const [isChecked, setChecked] = useState(false);
+    const [isCheckedSelectAllDeselect, setCheckedSelectAllDeselect] = useState(false);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
-    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [products, setCartProducts] = useState([]);
-    const [productsCCC, setCartProductssss] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
 
     const windowWidth = useWindowDimensions().width;
     const windowHeight = useWindowDimensions().height;
-
 
     const setCartItems = async () => {
         let cartFullProductDetailsList = []
@@ -71,6 +68,8 @@ function CartScreen(props) {
     useEffect(() => {
         setCartItems();
     }, []);
+
+
     const removeProductCart = async (selectedProduct) => {
         console.log("Remove product from cart")
         console.log(selectedProduct)
@@ -124,6 +123,42 @@ function CartScreen(props) {
         }
     }
 
+
+    const handleSelectDeselectAllChange = async (newValue) => {
+        console.log("Select all or Deselect alls")
+        setCheckedSelectAllDeselect(Boolean(newValue));
+        const updatedProducts = products.map((product) => ({
+            ...product,
+            isChecked: Boolean(newValue),
+        }));
+
+        setCartProducts([]); 
+        setCartProducts(updatedProducts); 
+
+        if (newValue) {
+            await db.runAsync(
+                'UPDATE cart SET isChecked = ? ',
+                Boolean(newValue)
+            );
+        } else {
+            await db.runAsync(
+                'UPDATE cart SET isChecked = ? ',
+                Boolean(newValue)
+            );
+        }
+
+
+        // update the list of products locally for faster UI response
+        // Update local state immediately for better UI responsiveness
+        
+        setCartProducts([]); 
+        setCartProducts(updatedProducts); 
+        console.log("updatedProducts")
+        console.log(updatedProducts)
+        setCartItems()
+        
+    };
+
     // if (!isLoadingScreen) {
     if (products.length > 0) {
 
@@ -148,7 +183,7 @@ function CartScreen(props) {
                 </TouchableOpacity> */}
 
                     <View style={styles.section}>
-                        <Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} />
+                        <Checkbox style={styles.checkbox} value={isCheckedSelectAllDeselect} onValueChange={handleSelectDeselectAllChange} />
                     </View>
 
                     <TouchableOpacity onPress={removeSelectedItems} style={styles.deleteSelected}>

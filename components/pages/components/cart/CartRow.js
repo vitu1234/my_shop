@@ -16,11 +16,11 @@ function CartRow({ data }) {
     const [productPrice, setProductPrice] = useState(product.qty * parseFloat(product.product_attributes_price));
     const [isLoading, setIsLoading] = useState({ add: false, minus: false, remove: false });
 
-    const [isChecked, setChecked] = useState(product.isChecked);
+    const [isChecked, setChecked] = useState(Boolean(product.isChecked));
 
     useEffect(() => {
         setProductPrice(productQty * parseFloat(product.product_attributes_price));
-    }, [productQty]);
+    }, []);
 
     const updateQuantity = (change) => {
         if (productQty + change < 1) return;
@@ -38,11 +38,6 @@ function CartRow({ data }) {
         setIsLoading((prev) => ({ ...prev, remove: false }));
         data.removeProductCart(product)
     };
-
-
-    const checkedProduct = () => {
-        setChecked()
-    }
 
     const handleCheckboxChange = (newValue) => {
 
