@@ -17,7 +17,7 @@ import numbro from 'numbro';
 function CartScreen(props) {
     const db = useSQLiteContext();
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
-
+const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isCheckedSelectAllDeselect, setCheckedSelectAllDeselect] = useState(true);
     
     const [products, setCartProducts] = useState([]);
@@ -63,7 +63,7 @@ function CartScreen(props) {
             }
 
         }
-
+        setCartItemsCount(cartFullProductDetailsList.length)
         setCartProducts(cartFullProductDetailsList);
         // setCartProductssss(cartList);
 
@@ -87,17 +87,21 @@ function CartScreen(props) {
                 );
             }
         }
-
+        
         setCartItems()
     };
 
 
     const removeSelectedItems = async () => {
-        console.log("Delete selected items")
+        // console.log("Delete selected items")
 
         const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
-
-        showConfirmDeleteCartItemsDialog(cartListItems.length)
+        if(cartListItems.length > 0){
+            showConfirmDeleteCartItemsDialog(cartListItems.length)
+        }else{
+            Alert.alert("Please select one or more items");
+        }
+        
     }
 
     const deleteProductsFromCart = async () => {
