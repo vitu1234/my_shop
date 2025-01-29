@@ -17,9 +17,9 @@ import numbro from 'numbro';
 function CartScreen(props) {
     const db = useSQLiteContext();
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
-const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
+    const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isCheckedSelectAllDeselect, setCheckedSelectAllDeselect] = useState(true);
-    
+
     const [products, setCartProducts] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
 
@@ -58,7 +58,7 @@ const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
             }
 
             cartFullProductDetailsList.push(cartItem)
-            if(!cartList[i].isChecked){
+            if (!cartList[i].isChecked) {
                 setCheckedSelectAllDeselect(false)
             }
 
@@ -87,7 +87,7 @@ const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
                 );
             }
         }
-        
+
         setCartItems()
     };
 
@@ -96,19 +96,19 @@ const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
         // console.log("Delete selected items")
 
         const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
-        if(cartListItems.length > 0){
+        if (cartListItems.length > 0) {
             showConfirmDeleteCartItemsDialog(cartListItems.length)
-        }else{
+        } else {
             Alert.alert("Please select one or more items");
         }
-        
+
     }
 
     const deleteProductsFromCart = async () => {
         await db.runAsync(
             'DELETE FROM cart WHERE isChecked = 1'
         );
-        
+
         setCartItems()
         setShowBox(false);
     }
@@ -241,9 +241,8 @@ const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
         );
     } else {
         return (
-            <View mt={2} style={{ justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
-                <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Products in cart will appear
-                    here!</Text>
+            <View style={{ justifyContent: 'center', backgroundColor: '#F5FCFF', marginTop: 2, padding: 70 }}>
+                <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Your cart is empty</Text>
             </View>
         );
 
