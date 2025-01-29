@@ -58,6 +58,9 @@ function CartScreen(props) {
             }
 
             cartFullProductDetailsList.push(cartItem)
+            if(!cartList[i].isChecked){
+                setCheckedSelectAllDeselect(false)
+            }
 
         }
 
