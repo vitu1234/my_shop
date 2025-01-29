@@ -2,32 +2,29 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Center } from "@/components/ui/center"
 import { Button } from "@/components/ui/button"
 import { HStack } from "@/components/ui/hstack"
-import { Alert, AlertIcon, AlertText } from "@/components/ui/alert"
 import { Text } from "@/components/ui/text"
 import Checkbox from 'expo-checkbox';
 import { SquareX, SquareCheckBig, Leaf } from "lucide-react-native";
 
 import CartRow from './components/cart/CartRow';
-import { Dimensions, ScrollView, useWindowDimensions, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, ScrollView, useWindowDimensions, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
 import { AppContext, CartContext } from '@/app_contexts/AppContext';
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 import numbro from 'numbro';
 
 
-const { width } = Dimensions.get('window');
-// const windowHeight = Dimensions.get('window').height;
-
-
-
 function CartScreen(props) {
     const db = useSQLiteContext();
-
-    const [isCheckedSelectAllDeselect, setCheckedSelectAllDeselect] = useState(false);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
+
+    const [isCheckedSelectAllDeselect, setCheckedSelectAllDeselect] = useState(true);
+    
     const [products, setCartProducts] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
-    const [forceRender, setForceRender] = useState(false);
+
+    const [showBox, setShowBox] = useState(true);
+
 
 
     const windowWidth = useWindowDimensions().width;
@@ -92,8 +89,21 @@ function CartScreen(props) {
     };
 
 
-    const removeSelectedItems = () => {
+    const removeSelectedItems = async () => {
         console.log("Delete selected items")
+
+        const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
+
+        showConfirmDeleteCartItemsDialog(cartListItems.length)
+    }
+
+    const deleteProductsFromCart = async () => {
+        await db.runAsync(
+            'DELETE FROM cart WHERE isChecked = 1'
+        );
+        
+        setCartItems()
+        setShowBox(false);
     }
 
     const updateProductQtyCart = async (selectedProduct, newQty) => {
@@ -132,15 +142,36 @@ function CartScreen(props) {
     const handleSelectDeselectAllChange = async (newValue) => {
         console.log("Select all or Deselect all");
         setCheckedSelectAllDeselect(Boolean(newValue));
-    
+
         const updatedProducts = products.map((product) => ({
             ...product,
             isChecked: Boolean(newValue),
         }));
-    
+
         await db.runAsync('UPDATE cart SET isChecked = ?', Boolean(newValue));
-    
+
         setCartProducts(updatedProducts);
+    };
+
+    const showConfirmDeleteCartItemsDialog = (checkedItems) => {
+        return Alert.alert(
+            "Are you sure?",
+            "Remove " + checkedItems + " item(s) from your cart?",
+            [
+                // The "Yes" button
+                {
+                    text: "Yes",
+                    onPress: () => {
+                        deleteProductsFromCart();
+                    },
+                },
+                // The "No" button
+                // Does nothing but dismiss the dialog when tapped
+                {
+                    text: "No",
+                },
+            ]
+        );
     };
 
     // if (!isLoadingScreen) {
@@ -202,13 +233,13 @@ function CartScreen(props) {
             </View>
         );
     } else {
-            return (
-                <View mt={2} style={{ justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
-                    <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Products in cart will appear
-                        here!</Text>
-                </View>
-            );
-       
+        return (
+            <View mt={2} style={{ justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
+                <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Products in cart will appear
+                    here!</Text>
+            </View>
+        );
+
     }
     // } else {
     //     return (
