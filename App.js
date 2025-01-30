@@ -2,7 +2,7 @@ import '@/components/pages/components/sheets/sheets';
 import { StatusBar } from 'expo-status-bar';
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { AppContext, ProductFilterModalContext, CartContext } from "./app_contexts/AppContext";
+import { AppContext, ProductFilterModalContext, CartContext, SearchInputTextContext } from "./app_contexts/AppContext";
 import StackNavigator from "components/navigation/StackNavigator";
 import {
     AppRegistry,
@@ -34,6 +34,10 @@ export default function App() {
     const [cartItemsCount, setCartItemsCount] = useState(0);
     const [cartItems, setCartItems] = useState([]);
 
+    const [searchText, setSearchText] = useState(''); // Initialize searchText with an empty string
+    const [searchSuggestionType, setSearchSuggestionType] = useState(''); // Initialize searchSuggestionType with an empty string
+    const [searchSuggestionItemId, setSearchSuggestionItemId] = useState(-1); // Initialize searchSuggestionItemId with an empty string
+    const [searchSuggestionItemName, setSearchSuggestionItemName] = useState(''); // Initialize searchSuggestionItemName with an empty string
 
     const isDarkMode = useColorScheme() === "dark";
 
@@ -56,10 +60,21 @@ export default function App() {
 
                                     <AppContext.Provider value={[isLoggedIn, setLoggedInStatus]}>
                                         <CartContext.Provider value={[cartItemsCount, setCartItemsCount]}>
+                                        <SearchInputTextContext.Provider value={{
+                                                searchText,
+                                                setSearchText,
+                                                searchSuggestionType,
+                                                setSearchSuggestionType,
+                                                searchSuggestionItemId,
+                                                setSearchSuggestionItemId,
+                                                searchSuggestionItemName,
+                                                setSearchSuggestionItemName
+                                            }}>
                                             <ProductFilterModalContext.Provider
                                                 value={[isModalVisibleProducts, setIsModalVisibleProducts]}>
                                                 <StackNavigator />
                                             </ProductFilterModalContext.Provider>
+                                        </SearchInputTextContext.Provider>
                                         </CartContext.Provider>
                                     </AppContext.Provider>
                                 </SQLiteProvider>

@@ -18,8 +18,8 @@ interface Props extends AnimateProps<ViewProps> {
 }
 
 export const SBItem: React.FC<Props> = (props) => {
-    console.log("CAROUTSELD TITEM ")
-    console.log(props)
+    // console.log("CAROUTSELD TITEM ")
+    // console.log(props)
 
     const {style, showIndex = false, index, pretty, img=true, testID, ...animatedViewProps} = props;
     const enablePretty = Constants?.expoConfig?.extra?.enablePretty || true;

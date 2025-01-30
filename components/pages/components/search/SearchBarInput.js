@@ -1,29 +1,50 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {View, TextInput, Text, StyleSheet, SafeAreaView, TouchableOpacity} from 'react-native';
 import {ChevronLeft} from 'lucide-react-native';
+import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 export const SearchBarInput = (props) => {
+    // console.log('SearchInputTextContext values:', {
+    //     searchText,
+    //     setSearchText,
+    //     searchSuggestionType,
+    //     setSearchSuggestionType,
+    //     searchSuggestionItemId,
+    //     setSearchSuggestionItemId,
+    //     searchSuggestionItemName,
+    //     setSearchSuggestionItemName,
+    // });
 
-    const [searchString, setSearchString] = useState(props.searchText);
-    const onChangeSearchString = (event) => {
-        const {text} = event.nativeEvent;
-        setSearchString(text);
-        props.setSearchText(text);
-        props.setIsTyping(true)
-        props.setSearchButtonPressed(false)
+
+    const {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    } = useContext(SearchInputTextContext);
+
+    const onChangeSearchString = (text) => {
+        setSearchText(text);
+        props.setIsTyping(true);
+        props.setSearchButtonPressed(false);
+        console.log("SET TEXT: "+ text)
     };
 
     const onSubmitSearchString = (event) => {
         // console.log("hehehe");
-        // console.log(props)
+        // console.log(props)c
         props.setIsTyping(false)
         props.setIsSearchButton(true)
         props.setSearchButtonPressed(true)
     };
 
     useEffect(() => {
-        setSearchString(props.searchText);
-    }, [props.searchText]);
+        setSearchText(searchText);
+    }, [searchText]);
 
 
     return (<View style={styles.searchBarContainer}>
@@ -33,8 +54,8 @@ export const SearchBarInput = (props) => {
         <SafeAreaView style={styles.inputContainer}>
             <TextInput
 
-                value={searchString}
-                onChange={onChangeSearchString}
+                value={searchText}
+                onChangeText={onChangeSearchString}
                 onSubmitEditing={onSubmitSearchString}
 
                 clearButtonMode={'while-editing'}

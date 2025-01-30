@@ -32,7 +32,7 @@ export const SBImageItem: React.FC<Props> = ({
     return (
         <View style={[styles.container]}>
             <ActivityIndicator size="small" />
-            <Image  cachePolicy={'memory-disk'} key={index} style={styles.image} source={img ?? source} />
+            <Image contentFit="contain"  cachePolicy={'memory-disk'} key={index} style={styles.image} source={img ?? source} />
             {
                 showIndex && <Text
                     style={{
@@ -64,8 +64,10 @@ const styles = StyleSheet.create({
 
     },
     image: {
-        width: "100%",
-        height: '100%',
+        width: "90%",  // Adjusts the width to prevent cropping
+        height: "90%",  // Ad
         position: "absolute",
+        transform: [{ scale: 0.9 }],
+        borderRadius: 10
     },
 });

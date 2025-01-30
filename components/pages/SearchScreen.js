@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from "react-native";
 import { SearchBarInput } from "@/components/pages/components/search/SearchBarInput";
 import SearchHistory from "@/components/pages/components/search/SearchHistory";
@@ -10,17 +10,29 @@ import ContentLoader from "react-native-easy-content-loader";
 import { Heading } from "@/components/ui/heading";
 
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
-
+import { SearchInputTextContext } from "@/app_contexts/AppContext";
 
 const SearchScreen = (props) => {
     const db = useSQLiteContext();
     const [isTyping, setIsTyping] = React.useState(false);
     const [isSearchButton, setIsSearchButton] = React.useState(false);
     const [isSearchButtonPressed, setSearchButtonPressed] = React.useState(false);
-    const [searchText, setSearchText] = React.useState('');
-    const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
-    const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
-    const [searchSuggestionItemName, setSearchSuggestionItemName] = React.useState('');
+    // const [searchText, setSearchText] = useContext(SearchInputTextContext);
+    // const [searchSuggestionType, setSearchSuggestionType] = React.useState('');
+    // const [searchSuggestionItemId, setSearchSuggestionItemId] = React.useState(-1);
+    // const [searchSuggestionItemName, setSearchSuggestionItemName] = React.useState('');
+
+    const {
+        searchText,
+        setSearchText,
+        searchSuggestionType,
+        setSearchSuggestionType,
+        searchSuggestionItemId,
+        setSearchSuggestionItemId,
+        searchSuggestionItemName,
+        setSearchSuggestionItemName,
+    } = useContext(SearchInputTextContext);
+
     const [products, setProducts] = useState([]);
 
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
@@ -28,45 +40,40 @@ const SearchScreen = (props) => {
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
 
     const navigateBack = () => {
+        setSearchText("")
+        setSearchSuggestionType("")
+        setSearchSuggestionItemId(-1)
+        setSearchSuggestionItemName("")
         props.navigation.goBack();
     }
 
 
 
-    const productsScreenLoading = async (isFetchingDataError, message) => {
+
+    // useEffect(() => {
+    //     if (!isSearchButtonPressed) {
+    //         setSearchText(searchSuggestionItemName)
+    //     }
+    // }, [searchSuggestionItemName, searchText]);
+
+
+
+    useEffect(() => {
+        // Example to mimic data fetching setup
+        setIsAppDataFetchError(false);
         setIsAppDataFetchLoading(false);
-        if (isFetchingDataError) {
-            setIsAppDataFetchError(true);
-            setIsAppDataFetchMsg(message);
-            Toast.show({
-                text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50,
-            });
-        } else {
-
-
-            const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM()");
-            setProducts(productsFetch);
-
-
-            setIsAppDataFetchError(false);
-            setIsAppDataFetchMsg(message);
-
-        }
-    };
-
-    const fetchData = useCallback(async () => {
-        productsScreenLoading(false, "Fetched data")
-    });
+    }, []);
 
     useEffect(() => {
-        fetchData();
-    });
-
-    useEffect(() => {
-        if (!isSearchButtonPressed) {
-            setSearchText(searchSuggestionItemName)
+        if (!isSearchButtonPressed && searchSuggestionItemName) {
+            setSearchText(searchSuggestionItemName);
         }
-    }, [searchSuggestionItemName]);
+    }, [searchSuggestionItemName, isSearchButtonPressed]);
+
+    const handleSearchTextChange = useCallback((text) => {
+        setSearchText(text);
+        setIsTyping(text.length > 0);
+    }, []);
 
 
     if (isAppDataFetchLoading) {
@@ -91,24 +98,24 @@ const SearchScreen = (props) => {
                 setIsTyping={setIsTyping}
                 setIsSearchButton={setIsSearchButton}
                 setSearchButtonPressed={setSearchButtonPressed}
-                setSearchText={setSearchText}
-                searchText={searchText}
+                
+                
                 props={props}
                 data={"ddd"}
                 goBack={navigateBack}
             />
             {isTyping && searchText.length > 0 ? (
-                <SearchSuggestions db={db} searchText={searchText} setSearchText={setSearchText}
+                <SearchSuggestions db={db} 
                     setIsSearchButton={setIsSearchButton}
-                    setIsTyping={setIsTyping} setSearchSuggestionitemId={setSearchSuggestionItemId}
-                    setSearchSuggestionItemName={setSearchSuggestionItemName}
-                    setSearchSuggestionType={setSearchSuggestionType} navigation={props.navigation} />)
+                    setIsTyping={setIsTyping} 
+                    
+                     navigation={props.navigation} />)
                 : isSearchButton && searchText.length > 0 ? (
 
-                    <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} searchText={searchText}
-                        searchSuggestionItemId={searchSuggestionItemId}
-                        searchSuggestionItemName={searchSuggestionItemName} setSearchText={setSearchText}
-                        searchSuggestionType={searchSuggestionType} navigation={props.navigation} />)
+                    <SearchResults db={db} isSearchButtonPressed={isSearchButtonPressed} 
+                        
+                        
+                        navigation={props.navigation} />)
                     :
                     (<SearchHistory />)
             }

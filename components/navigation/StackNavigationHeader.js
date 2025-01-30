@@ -7,6 +7,7 @@ import ToastComponent from "../pages/components/ToastComponent";
 import {Image} from "@/components/ui/image";
 import {Text} from "@/components/ui/text";
 import {useToast} from "@/components/ui/toast";
+import { Home, LogIn, Search, ShoppingCart } from "lucide-react-native";
 
 function StackNavigationHeader(props) {
     const toast = useToast();
@@ -46,7 +47,18 @@ function StackNavigationHeader(props) {
         <View style={styles.headerContainer}>
             <TouchableOpacity onPress={goToCart} style={styles.iconWrapper}>
                 <View style={[styles.iconContainer, {marginEnd: 16}]}>
-                    <Icon name="shoppingcart" color={"#000"} size={26}/>
+                    <Search color={"#000"} size={26}/>
+                    {cartItemsCount > 0 && (
+                        <View style={styles.cartBadge}>
+                            <Text style={styles.badgeText}>{cartItemsCount}</Text>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={goToCart} style={styles.iconWrapper}>
+                <View style={[styles.iconContainer, ]}>
+                    <Home color={"#000"} size={26}/>
                     {cartItemsCount > 0 && (
                         <View style={styles.cartBadge}>
                             <Text style={styles.badgeText}>{cartItemsCount}</Text>
@@ -72,12 +84,23 @@ function StackNavigationHeader(props) {
                     </TouchableOpacity>
                 </>
             ) : (
-                <TouchableOpacity style={styles.loginIconWrapper} onPress={goToLogin}>
-                    <View style={styles.iconContainer}>
-                        <Icon name="login" color={"#000"} size={23}/>
-                    </View>
+                <TouchableOpacity  onPress={goToLogin}>
+                    {/* <View style={styles.iconContainer}>
+                        <LogIn color="#000" name='login'  />
+                    </View> */}
                 </TouchableOpacity>
             )}
+            <TouchableOpacity onPress={goToCart} style={styles.iconWrapper}>
+                <View style={[styles.iconContainer, {marginStart: 16}]}>
+                {/* <ShoppingCart color="#ab0d0d" strokeWidth={0.5} /> */}
+                    <ShoppingCart name="shoppingcart" color={"#000"} size={26}/>
+                    {cartItemsCount > 0 && (
+                        <View style={styles.cartBadge}>
+                            <Text style={styles.badgeText}>{cartItemsCount}</Text>
+                        </View>
+                    )}
+                </View>
+            </TouchableOpacity>
         </View>
     );
 }
