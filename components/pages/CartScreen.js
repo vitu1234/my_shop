@@ -32,8 +32,6 @@ function CartScreen(props) {
 
     const setCartItems = async () => {
 
-        console.log("CART ITEMS")
-
         let cartFullProductDetailsList = []
         const cartList = await db.getAllAsync("SELECT * FROM cart ORDER BY id DESC");
         for (let i = 0; i < cartList.length; i++) {
@@ -76,8 +74,8 @@ function CartScreen(props) {
 
 
     const removeProductCart = async (selectedProduct) => {
-        console.log("Remove product from cart")
-        console.log(selectedProduct)
+        // console.log("Remove product from cart")
+        // console.log(selectedProduct)
 
         for (let i = 0; i < products.length; i++) {
             if (products[i].id === selectedProduct.id) {
@@ -147,7 +145,7 @@ function CartScreen(props) {
 
 
     const handleSelectDeselectAllChange = async (newValue) => {
-        console.log("Select all or Deselect all");
+        // console.log("Select all or Deselect all");
         setCheckedSelectAllDeselect(Boolean(newValue));
 
         const updatedProducts = products.map((product) => ({
