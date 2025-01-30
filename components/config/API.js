@@ -3,7 +3,7 @@ import React from "react";
 import {connectToDatabase, deleteProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.0.102:8000/api";
+const base_url = "http://192.168.3.200:8000/api";
 const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================
@@ -52,11 +52,11 @@ const getHomeScreen = async (props) => {
                         db.runAsync("INSERT INTO product_images(product_images_id,product_id,img_url) VALUES (?,?,?);", [product_image.product_images_id, product_image.product_id, product_image.img_url])
                     )
                 );
-                
+
                 // // Shipping information
                 await Promise.all(
                     product.product_shipping.map(shipping =>
-                        db.runAsync("INSERT INTO product_shipping(product_shipping_id,product_id,shipping_company_id,shipping_type,shipping_amount,shipping_company_name,shipping_company_address) VALUES (?,?,?,?,?,?,?);", 
+                        db.runAsync("INSERT INTO product_shipping(product_shipping_id,product_id,shipping_company_id,shipping_type,shipping_amount,shipping_company_name,shipping_company_address) VALUES (?,?,?,?,?,?,?);",
                             [shipping.product_shipping_id, shipping.product_id, shipping.shipping_company_id,shipping.shipping_type,shipping.shipping_amount,shipping.shipping_company_name, shipping.shipping_company_address])
                     )
                 );
