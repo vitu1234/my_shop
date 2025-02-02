@@ -11,11 +11,18 @@ import { Dimensions, ScrollView, useWindowDimensions, View, StyleSheet, Touchabl
 import Icon from 'react-native-vector-icons/AntDesign';
 import { AppContext, CartContext } from '@/app_contexts/AppContext';
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
-import numbro from 'numbro';
+import { FlatList } from "react-native-actions-sheet";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+
+const { width } = Dimensions.get("window");
+
+const PAGE_WIDTH = window.width;
 
 
 function CartScreen(props) {
     const db = useSQLiteContext();
+
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isCheckedSelectAllDeselect, setCheckedSelectAllDeselect] = useState(true);
@@ -192,51 +199,65 @@ function CartScreen(props) {
                 }} />
             );
         });
-
         return (
+            <View style={{ flex: 1 }}>
+                <View >
 
-            <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#F5FCFF' }}>
+                    <View style={styles.topRow}>
+                        <View style={styles.section}>
+                            <Checkbox style={styles.checkbox} value={isCheckedSelectAllDeselect} onValueChange={handleSelectDeselectAllChange} />
+                        </View>
 
-                <View style={styles.topRow}>
-                    {/* <TouchableOpacity onPress={removeProductCart} style={styles.iconButton}>
-                    <SquareCheckBig size={18} color="green" />
-                </TouchableOpacity> */}
-
-                    <View style={styles.section}>
-                        <Checkbox style={styles.checkbox} value={isCheckedSelectAllDeselect} onValueChange={handleSelectDeselectAllChange} />
+                        <TouchableOpacity onPress={removeSelectedItems} style={styles.deleteSelected}>
+                            <Text style={{ fontSize: 18 }}>Delete selected items</Text>
+                        </TouchableOpacity>
                     </View>
+                </View>
+                <FlatList
+                    showsVerticalScrollIndicator={false}
+                    style={{ marginBottom: 98 }}
+                    data={[
+                        { type: 'selectDelete' },
+                        { type: 'cart_list' },
+                    ]}
+                    renderItem={({ item }) => {
+                        // console.log(item.type)
+                         if (item.type === 'cart_list') {
+                            return (
+                                <View >
+                                    <ScrollView style={{ flex: -1 }} showsVerticalScrollIndicator={false}
+                                        h={windowHeight - 80} _contentContainerStyle={{}}>
+                                        <View mt={4}>
+                                            {renderProductList}
 
-                    <TouchableOpacity onPress={removeSelectedItems} style={styles.deleteSelected}>
-                        <Text style={{ fontSize: 18 }}>Delete selected items</Text>
+                                        </View>
+                                    </ScrollView>
+
+                                </View>
+
+                            );
+                        }
+                        return null;
+                    }}
+                    keyExtractor={(item, index) => index.toString()} // Ensure each item has a unique key
+
+                />
+                <View style={styles.actionButtonsContainer}>
+                    <TouchableOpacity style={styles.button} >
+                        <Text style={styles.buttonText}>Add to Cart</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.button, styles.buyNowButton]} >
+                        <Text style={styles.buttonText}>Buy Now</Text>
                     </TouchableOpacity>
                 </View>
-                <ScrollView style={{ flex: -1 }} showsVerticalScrollIndicator={false}
-                    h={windowHeight - 80} _contentContainerStyle={{}}>
-                    <View mt={4}>
-                        {renderProductList}
-
-                    </View>
-                </ScrollView>
-                <View style={{ flex: -1, backgroundColor: 'rgba(161,161,161,0.25)' }}>
-                    <View style={{ marginStart: 16, marginEnd: 16, elevation: 3 }}>
-                        <Button style={{
-                            margin: 5,
-                        }} mt={2} size="md" variant="subtle" colorScheme="dark">
-                            <HStack space={2}>
-                                <Icon name="creditcard" size={18} color="#fff" />
-                                <Text style={{ color: '#fff', fontSize: 10 }}>CHECKOUT (K{
-                                    numbro(parseInt(100000)).format({
-                                        thousandSeparated: true,
-                                        mantissa: 2,
-                                    })
-                                }) </Text>
-                            </HStack>
-
-                        </Button>
-                    </View>
-                </View>
             </View>
+
+
+
+
         );
+
+
     } else {
         return (
             <View style={{ justifyContent: 'center', backgroundColor: '#F5FCFF', marginTop: 2, padding: 70 }}>
@@ -297,6 +318,122 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: "flex-end"
     },
+
+
+    //Revamping cart screen
+    card: {
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        shadowOpacity: 0.5,
+        shadowRadius: 3,
+        shadowColor: "black",
+        shadowOffset: {
+            height: 0,
+            width: 0,
+        },
+        elevation: 0,
+        marginVertical: 20,
+    },
+    thumb: {
+        height: 300,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        width: "100%",
+    },
+    infoContainer: {
+        padding: 10,
+        alignItems: "center",
+    },
+    name: {
+        color: "#424242",
+        fontSize: 13,
+        fontWeight: "bold",
+    },
+    price: {
+        color: "black",
+        fontSize: 16,
+        fontWeight: "900",
+
+    }, prodDesc: {
+        color: "#424242",
+        marginBottom: 8,
+        padding: 10,
+        textAlign: "justify",
+
+    }, cartBtn: {
+        // backgroundColor: '#000000',
+        height: 50,
+        width: "100%",
+
+    },
+    cartText: {
+        color: "#fff",
+        padding: 10,
+
+    },
+
+
+    productDetailContainer: {
+        // padding: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: "#ddd",
+    },
+    productDetailText: {
+        fontSize: 16,
+    },
+    sectionHeaderContainer: {
+        // paddingVertical: 10,
+        backgroundColor: "#f8f8f8",
+        paddingHorizontal: 20,
+    },
+    sectionHeaderText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#333",
+    },
+    carouselIndicator: {
+        position: "absolute",
+        top: 20,
+        right: 20,
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+        padding: 8,
+        borderRadius: 5,
+    },
+    actionButtonsContainer: {
+        position: "absolute",
+        bottom: 0,
+        flexDirection: "row",
+        justifyContent: "space-around",
+        width: "100%",
+        padding: 16,
+        backgroundColor: "#fff",
+    },
+    button: {
+        flex: 1,
+        backgroundColor: "#333",
+        padding: 16,
+        borderRadius: 5,
+        margin: 5,
+        alignItems: "center",
+    },
+    buyNowButton: {
+        backgroundColor: "#FF5722",
+    },
+    buttonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
+    detailsContainer: {
+        marginTop: 5,
+        padding: 16,
+        backgroundColor: '#fff',
+        // flexDirection: "column"
+    }, productCardContainer: {
+        width: (width - 30) / 2 - 8,
+        marginHorizontal: 5,
+    }
 });
 
 export default CartScreen;
