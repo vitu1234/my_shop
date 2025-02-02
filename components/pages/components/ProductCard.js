@@ -4,13 +4,14 @@ import {Card} from "@/components/ui/card"
 import {ImageBackground, Image, Text, View, StyleSheet, TouchableOpacity} from "react-native";
 import numbro from "numbro";
 import {base_urlImages} from "../../config/API";
-import {House, Star} from "lucide-react-native";
+import {House, Import, Star} from "lucide-react-native";
 import {getProductDefaultAttribute} from "../../config/sqlite_db_service";
 
 let dataG = [];
 
 function ProductCard(props) {
     const data = props.data;
+    
 
 
     if (data !== undefined) {
