@@ -29,8 +29,11 @@ function CartScreen(props) {
 
     const [products, setCartProducts] = useState([]);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
+    const [productsSelectedItems, setProductsSelectedItems] = useState(0);
+
 
     const [showBox, setShowBox] = useState(true);
+
 
 
 
@@ -70,8 +73,8 @@ function CartScreen(props) {
         }
         setCartItemsCount(cartFullProductDetailsList.length)
         setCartProducts(cartFullProductDetailsList);
-        // setCartProductssss(cartList);
 
+        calculateTotalsCheckout()
     };
 
 
@@ -103,6 +106,7 @@ function CartScreen(props) {
         const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
         if (cartListItems.length > 0) {
             showConfirmDeleteCartItemsDialog(cartListItems.length)
+            setProductsSelectedItems(cartListItems.length)
         } else {
             Alert.alert("Please select one or more items");
         }
@@ -148,6 +152,7 @@ function CartScreen(props) {
             }
 
         }
+        calculateTotalsCheckout()
     }
 
 
@@ -163,6 +168,7 @@ function CartScreen(props) {
         await db.runAsync('UPDATE cart SET isChecked = ?', Boolean(newValue));
 
         setCartProducts(updatedProducts);
+        calculateTotalsCheckout()
     };
 
     const showConfirmDeleteCartItemsDialog = (checkedItems) => {
@@ -185,6 +191,11 @@ function CartScreen(props) {
             ]
         );
     };
+
+    const calculateTotalsCheckout= async ()=>{
+        const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
+        setProductsSelectedItems(cartListItems.length)
+    }
 
     // if (!isLoadingScreen) {
     if (products.length > 0) {
@@ -222,7 +233,7 @@ function CartScreen(props) {
                     ]}
                     renderItem={({ item }) => {
                         // console.log(item.type)
-                         if (item.type === 'cart_list') {
+                        if (item.type === 'cart_list') {
                             return (
                                 <View >
                                     <ScrollView style={{ flex: -1 }} showsVerticalScrollIndicator={false}
@@ -243,12 +254,13 @@ function CartScreen(props) {
 
                 />
                 <View style={styles.actionButtonsContainer}>
+                    <Text>Total cost</Text>
                     <TouchableOpacity style={styles.button} >
-                        <Text style={styles.buttonText}>Add to Cart</Text>
+                        <Text style={styles.buttonText}>Buy {productsSelectedItems} items in total</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, styles.buyNowButton]} >
+                    {/* <TouchableOpacity style={[styles.button, styles.buyNowButton]} >
                         <Text style={styles.buttonText}>Buy Now</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
             </View>
 
@@ -402,7 +414,7 @@ const styles = StyleSheet.create({
     actionButtonsContainer: {
         position: "absolute",
         bottom: 0,
-        flexDirection: "row",
+        flexDirection: "column",
         justifyContent: "space-around",
         width: "100%",
         padding: 16,
