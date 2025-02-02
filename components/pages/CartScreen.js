@@ -13,7 +13,7 @@ import { AppContext, CartContext } from '@/app_contexts/AppContext';
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
 import { FlatList } from "react-native-actions-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import numbro from "numbro";
 
 const { width } = Dimensions.get("window");
 
@@ -133,6 +133,7 @@ function CartScreen(props) {
             }
 
         }
+        calculateTotalsCheckout()
     }
 
     const selectDeselectProductQtyCart = async (selectedProduct, isChecked) => {
@@ -194,6 +195,15 @@ function CartScreen(props) {
 
     const calculateTotalsCheckout= async ()=>{
         const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
+        let total = 0;
+        for (let i = 0; i < cartListItems.length; i++) {
+            const qty = cartListItems[i].qty;
+            const productAttributeDetails = await db.getFirstAsync('SELECT * FROM product_attributes WHERE product_attributes_id = ' + cartListItems[i].product_attributes_id);
+            const price = productAttributeDetails.product_attributes_price
+
+            total+=(price*qty)
+        }
+        setProductsTotalAmount(total)
         setProductsSelectedItems(cartListItems.length)
     }
 
@@ -254,7 +264,9 @@ function CartScreen(props) {
 
                 />
                 <View style={styles.actionButtonsContainer}>
-                    <Text>Total cost</Text>
+                    <Text style={{padding: 5, fontWeight: 'bold', textAlign: 'center'}}>Total amount to checkout is { "K" + numbro(parseInt(productsTotalAmount)).format({
+                                thousandSeparated: true, mantissa: 2,
+                            })}</Text>
                     <TouchableOpacity style={styles.button} >
                         <Text style={styles.buttonText}>Buy {productsSelectedItems} items in total</Text>
                     </TouchableOpacity>
