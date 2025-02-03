@@ -20,10 +20,10 @@ import {Text} from "@/components/ui/text"
 import {useToast, Toast} from "@/components/ui/toast"
 import {Heading} from "@/components/ui/heading"
 import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
-
+import { useSQLiteContext } from 'expo-sqlite';
 
 function Products(props) {
-
+const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
 
@@ -33,7 +33,7 @@ function Products(props) {
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
-    const [db, setDb] = useState(null);
+    // const [db, setDb] = useState(null);
     const [page, setPage] = useState(1);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
@@ -84,18 +84,18 @@ function Products(props) {
         }
     };
 
-    const fetchData = useCallback(async () => {
-        if (db) {
-            setLoggedInStatus(isLoggedIn);
-            productsScreenLoading(false, "Fetched data")
-        }
-    }, [db]);
+    // const fetchData = useCallback(async () => {
+    //     if (db) {
+    //         setLoggedInStatus(isLoggedIn);
+    //         productsScreenLoading(false, "Fetched data")
+    //     }
+    // }, [db]);
 
     useEffect(() => {
-        if (db) {
+        // if (db) {
             fetchData();
             fetchProducts(page - 1); // Load initial products
-        }
+        // }
     }, [db, page]);
 
     useEffect(() => {
