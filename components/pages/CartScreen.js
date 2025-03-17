@@ -193,7 +193,7 @@ function CartScreen(props) {
         );
     };
 
-    const calculateTotalsCheckout= async ()=>{
+    const calculateTotalsCheckout = async () => {
         const cartListItems = await db.getAllAsync("SELECT * FROM cart WHERE isChecked = 1");
         let total = 0;
         for (let i = 0; i < cartListItems.length; i++) {
@@ -201,7 +201,7 @@ function CartScreen(props) {
             const productAttributeDetails = await db.getFirstAsync('SELECT * FROM product_attributes WHERE product_attributes_id = ' + cartListItems[i].product_attributes_id);
             const price = productAttributeDetails.product_attributes_price
 
-            total+=(price*qty)
+            total += (price * qty)
         }
         setProductsTotalAmount(total)
         setProductsSelectedItems(cartListItems.length)
@@ -264,15 +264,13 @@ function CartScreen(props) {
 
                 />
                 <View style={styles.actionButtonsContainer}>
-                    <Text style={{padding: 5, fontWeight: 'bold', textAlign: 'center'}}>Total amount to checkout is { "K" + numbro(parseInt(productsTotalAmount)).format({
-                                thousandSeparated: true, mantissa: 2,
-                            })}</Text>
+                    <Text style={{ padding: 5, fontWeight: 'bold', textAlign: 'center' }}>Total amount to checkout is {"K" + numbro(parseInt(productsTotalAmount)).format({
+                        thousandSeparated: true, mantissa: 2,
+                    })}</Text>
                     <TouchableOpacity style={styles.button} >
-                        <Text style={styles.buttonText}>Buy {productsSelectedItems} items in total</Text>
+                        <Text style={styles.buttonText}>Buy {productsSelectedItems} item(s) in total</Text>
                     </TouchableOpacity>
-                    {/* <TouchableOpacity style={[styles.button, styles.buyNowButton]} >
-                        <Text style={styles.buttonText}>Buy Now</Text>
-                    </TouchableOpacity> */}
+
                 </View>
             </View>
 
@@ -290,13 +288,6 @@ function CartScreen(props) {
         );
 
     }
-    // } else {
-    //     return (
-    //         <View>
-    //             <Text style={{textAlign: 'center', fontSize: 18}}>Loading cart...</Text>
-    //         </View>
-    //     );
-    // }
 
 
 }
