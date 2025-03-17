@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState,useContext } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import {
     ActivityIndicator, Alert, Button, Dimensions, FlatList, StyleSheet, Switch, Text, TouchableOpacity, View
 } from "react-native";
@@ -46,7 +46,7 @@ const SearchResults = (props) => {
     const [isAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
 
-    
+
 
     //END FROM PRODUCTS PAGE
 
@@ -73,7 +73,7 @@ const SearchResults = (props) => {
     const productCardAction = (product) => {
         // console.log('PRODUCCCCCCCCCCCCCCCCCCCCCCCCCCCCCT');
         // console.log(product);
-        props.navigation.navigate("ProductDetails", { product_id: product.product_id});
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id });
     };
 
 
@@ -168,7 +168,7 @@ const SearchResults = (props) => {
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
                     setSearchProducts(fetchedProducts);
-                } else if(searchSuggestionType === 'sub_category'){
+                } else if (searchSuggestionType === 'sub_category') {
                     // console.log('SEARCH BY SUB_CATEGORY- ID: '+ searchSuggestionItemId)
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
@@ -206,8 +206,8 @@ const SearchResults = (props) => {
                 `, [searchSuggestionItemId, `%${searchText}%`]);
 
                     setSearchProducts(fetchedProducts);
-                }else {
-                    // console.log("SEARCH BY PRODUCT")
+                } else {
+                    console.log("SEARCH BY PRODUCT")
                     // console.log(searchText)
                     const fetchedProducts = await db.getAllAsync(`
                         SELECT product.product_id,
@@ -259,7 +259,8 @@ const SearchResults = (props) => {
 
     const renderProductList = ({ item, index }) => (
         <View key={`${item.product_id}-${index}-${item.product_attributes_id}`} style={styles.productCardContainer}>
-            <ProductCard data={{product: item, action: productCardAction,
+            <ProductCard data={{
+                product: item, action: productCardAction,
             }} />
         </View>);
     const renderFooter = () => {
@@ -286,6 +287,13 @@ const SearchResults = (props) => {
             </Heading>
         </View>);
     } else {
+        if (searchProducts.length === 0) {
+            return (<View style={styles.container}>
+                <Heading style={styles.errorText} size="sm" fontWeight="bold">
+                    <Text>No items matching search query...</Text>
+                </Heading>
+            </View>);
+        }
         return (<FlatList
             style={styles.container}
             data={[{ type: 'header' }, {
@@ -395,6 +403,10 @@ const styles = StyleSheet.create({
     }, flashProductsListContainer: {
         paddingBottom: 80,
     },
+    errorText:{
+        textAlign: 'center',
+        color: 'red'
+    }
 });
 
 export default SearchResults;

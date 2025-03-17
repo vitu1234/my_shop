@@ -5,7 +5,7 @@ const SearchHistory = () => {
     return (
         <ScrollView contentContainerStyle={styles.contentContainer}>
             {/* Your main content goes here */}
-            <Text>Search History</Text>
+            <Text>Search history will appear here...</Text>
         </ScrollView>
     );
 };
