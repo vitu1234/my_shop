@@ -10,6 +10,7 @@ import Products from "../pages/Products";
 import { House, ShoppingBag, CircleUser, AlignJustify, KeyRound, LogOut, LogIn, ShoppingCart, TextSearch, Search, Info, Bell } from 'lucide-react-native';
 import { CartContext } from "@/app_contexts/AppContext";
 import { View, Text } from "react-native";
+import SearchScreen from "../pages/SearchScreen";
 
 
 const Drawer = createDrawerNavigator();
@@ -43,7 +44,7 @@ function DrawerNavigator(props) {
       />
 
 
-      <Drawer.Screen name="Search" component={Products} options={
+      <Drawer.Screen name="Search" component={SearchScreen} options={
         {
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
