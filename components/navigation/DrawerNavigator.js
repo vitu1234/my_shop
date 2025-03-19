@@ -11,6 +11,7 @@ import { House, ShoppingBag, CircleUser, AlignJustify, KeyRound, LogOut, LogIn, 
 import { CartContext } from "@/app_contexts/AppContext";
 import { View, Text } from "react-native";
 import SearchScreen from "../pages/SearchScreen";
+import CategoryScreen from "../pages/CategoryScreen";
 
 
 const Drawer = createDrawerNavigator();
@@ -55,41 +56,43 @@ function DrawerNavigator(props) {
         }
       } />
 
-      <Drawer.Screen name="Cart" component={CartScreen}
-        options={
-          {
+      <Drawer.Screen name="Cart" component={CartScreen} options={
+        {
+          headerRight: (props) => <DrawerNavigationHeader data={{
+            navigator: navigationData,
+          }} />,
 
-            drawerIcon: ({ focused, size }) => (
-              <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
-                <ShoppingCart size={size} color={focused ? "#2780e3" : "#ccc"} />
-                {cartItemsCount > 0 && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      right: -5,
-                      top: -5,
-                      backgroundColor: "dodgerblue",
-                      borderRadius: 10,
-                      paddingHorizontal: 5,
-                      minWidth: 18,
-                      height: 18,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
-                      {cartItemsCount}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            ),
-          }
+          drawerIcon: ({ focused, size }) => (
+            <View style={{ position: "relative", alignItems: "center", justifyContent: "center" }}>
+              <ShoppingCart size={size} color={focused ? "#2780e3" : "#ccc"} />
+              {cartItemsCount > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    right: -5,
+                    top: -5,
+                    backgroundColor: "dodgerblue",
+                    borderRadius: 10,
+                    paddingHorizontal: 5,
+                    minWidth: 18,
+                    height: 18,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
+                    {cartItemsCount}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ),
         }
+      }
       />
 
 
-      <Drawer.Screen name="Categories" component={Products} options={
+      <Drawer.Screen name="Categories" component={CategoryScreen} options={
         {
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
