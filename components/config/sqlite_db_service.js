@@ -22,6 +22,7 @@ export const createTables = async (db) => {
             CREATE TABLE IF NOT EXISTS category (
                 category_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 category_name TEXT NOT NULL,
+                category_icon TEXT,
                 category_description TEXT           
             );
         `);
