@@ -27,7 +27,7 @@ const getHomeScreen = async (props) => {
         // console.log(data)
         // Use Promise.all to wait for all insert operations to complete
         await Promise.all([
-            ...data.categories.map(category => db.runAsync("INSERT INTO category(category_id,category_name,category_description) VALUES (?,?,?);", [category.category_id, category.category_name, category.category_description])),
+            ...data.categories.map(category => db.runAsync("INSERT INTO category(category_id,category_name,category_icon,category_description) VALUES (?,?,?,?);", [category.category_id, category.category_name, category.category_icon, category.category_description])),
             ...data.sub_categories.map(sub_category => db.runAsync("INSERT INTO sub_category(sub_category_id,category_id,sub_category_name,sub_category_description) VALUES (?,?,?,?);", [sub_category.sub_category_id, sub_category.category_id, sub_category.sub_category_name, sub_category.sub_category_description])),
             ...data.products.map(async (product) => {
                 await db.runAsync("INSERT INTO product(product_id,product_name,likes,cover,product_description) VALUES (?,?,?,?,?);", [product.product_id, product.product_name, product.likes, product.cover, product.product_description]);
