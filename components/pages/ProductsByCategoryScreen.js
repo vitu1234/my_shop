@@ -23,6 +23,9 @@ import SearchFilterScreen from "@/components/pages/components/search/SearchFilte
 import { useSQLiteContext } from 'expo-sqlite';
 
 function ProductsByCategoryScreen(props) {
+    const category_id_selected = props.route.params.category_id
+    const category_name_selected = props.route.params.category_name
+    console.log("VIRU", category_name_selected)
     const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
@@ -214,7 +217,7 @@ function ProductsByCategoryScreen(props) {
                         return (
                             <View style={styles.headerContainer}>
 
-                                <Text style={styles.headerText}>Looking at products in {`<ks>`}</Text>
+                                <Text style={styles.headerText}>Looking at products in {category_name_selected}</Text>
 
                             </View>
                         );
@@ -237,7 +240,7 @@ function ProductsByCategoryScreen(props) {
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.horizontalListContainer}
                                 renderItem={renderCategoryList}
-                                keyExtractor={item => item.sub_category_id.toString()}
+                                keyExtractor={(item, index) => index.toString()} // Ensure each item has a unique key
                             />
                         );
 
@@ -252,7 +255,7 @@ function ProductsByCategoryScreen(props) {
                                     columnWrapperStyle={styles.columnWrapperStyle}
                                     contentContainerStyle={styles.flashProductsListContainer}
                                     renderItem={renderProductList}
-                                    keyExtractor={item => item.product_id.toString()}
+                                    keyExtractor={(item, index) => index.toString()} // Ensure each item has a unique key
                                 />
                             </View>
                         );

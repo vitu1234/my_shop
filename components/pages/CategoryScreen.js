@@ -45,7 +45,7 @@ function CategoryScreen(props) {
 
     const categoryCardAction = (category) => {
         console.log(category.category_id)
-        props.navigation.navigate("ProductsByCategoryScreen", { category_id: category.category_id, db: props.db });
+        props.navigation.navigate("ProductsByCategoryScreen", { category_id: category.category_id, category_name: category.category_name});
     };
 
     const fetchData = useCallback(async () => {
