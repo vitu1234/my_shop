@@ -3,9 +3,9 @@ import {Button} from "@/components/ui/button"
 import {Card} from "@/components/ui/card"
 import {ImageBackground, Image, Text, View, StyleSheet, TouchableOpacity} from "react-native";
 import numbro from "numbro";
-import {base_urlImages} from "../../config/API";
+import {base_urlImages} from "../../../config/API";
 import {House, Import, Star} from "lucide-react-native";
-import {getProductDefaultAttribute} from "../../config/sqlite_db_service";
+import {getProductDefaultAttribute} from "../../../config/sqlite_db_service";
 
 let dataG = [];
 

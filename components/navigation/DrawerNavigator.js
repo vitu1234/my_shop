@@ -6,7 +6,7 @@ import ProfileScreen from "../pages/ProfileScreen";
 import DrawerNavigationHeader from "./DrawerNavigationHeader";
 import CartScreen from "../pages/CartScreen";
 import FlashProducts from "../pages/FlashProducts";
-import Products from "../pages/Products";
+import Products from "../pages/ProductsScreen";
 import { House, ShoppingBag, CircleUser, AlignJustify, KeyRound, LogOut, LogIn, ShoppingCart, TextSearch, Search, Info, Bell } from 'lucide-react-native';
 import { CartContext } from "@/app_contexts/AppContext";
 import { View, Text } from "react-native";

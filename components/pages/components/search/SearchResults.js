@@ -8,7 +8,7 @@ import { SheetManager } from "react-native-actions-sheet";
 
 const { width } = Dimensions.get("window");
 import { Toast } from "@/components/ui/toast";
-import ProductCard from "@/components/pages/components/ProductCard";
+import ProductCard from "@/components/pages/components/product/ProductCard";
 import ContentLoader from "react-native-easy-content-loader";
 import { Heading } from "@/components/ui/heading";
 import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';

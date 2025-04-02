@@ -10,7 +10,7 @@ import {
     ActivityIndicator, Pressable
 } from "react-native";
 import ButtonCategory from "./components/ButtonCategory";
-import ProductCard from "./components/ProductCard";
+import ProductCard from "./components/product/ProductCard";
 import { AppContext, CartContext } from "@/app_contexts/AppContext";
 import { Box } from "@/components/ui/box";
 import { Button } from "@/components/ui/button";
