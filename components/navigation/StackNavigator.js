@@ -15,6 +15,7 @@ import AuthLoadingScreen from "../pages/auth/AuthLoadingScreen";
 import SearchScreen from "@/components/pages/SearchScreen";
 import { Button } from "react-native";
 import SearchBar from "@/components/pages/components/search/SearchBarInput";
+import ProductsByCategoryScreen from "../pages/ProductsByCategoryScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,12 @@ function StackNavigator(props) {
                     headerShown: true,
                     title: "Back",
                 }} />
+
+                <Stack.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen} options={{
+                    headerShown: true,
+                    title: "Back",
+                }} />
+
                 <Stack.Screen name="SignUpVerifyAccount" component={SignUpVerifyAccount} options={{
                     headerShown: true,
                     title: "Back",

@@ -12,6 +12,7 @@ import { CartContext } from "@/app_contexts/AppContext";
 import { View, Text } from "react-native";
 import SearchScreen from "../pages/SearchScreen";
 import CategoryScreen from "../pages/CategoryScreen";
+import ProductsByCategoryScreen from "../pages/ProductsByCategoryScreen";
 
 
 const Drawer = createDrawerNavigator();
@@ -167,6 +168,18 @@ function DrawerNavigator(props) {
           drawerIcon: ({ focused, size }) => (
             <Info size={size} color={focused ? "#2780e3" : "#ccc"} />
           ),
+        }
+      } />
+
+      <Drawer.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen} options={
+        {
+          headerRight: (props) => <DrawerNavigationHeader data={{
+            navigator: navigationData,
+          }} />,
+          drawerIcon: ({ focused, size }) => (
+            <Info size={size} color={focused ? "#2780e3" : "#ccc"} />
+          ),
+          headerTitle: "Products"
         }
       } />
 

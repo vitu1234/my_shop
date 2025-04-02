@@ -23,7 +23,6 @@ import SearchFilterScreen from "@/components/pages/components/search/SearchFilte
 import { useSQLiteContext } from 'expo-sqlite';
 
 function ProductsByCategoryScreen(props) {
-    const category_id = props.data.category_id
     const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
@@ -85,12 +84,12 @@ function ProductsByCategoryScreen(props) {
         }
     };
 
-    // const fetchData = useCallback(async () => {
-    //     if (db) {
-    //         setLoggedInStatus(isLoggedIn);
-    //         productsScreenLoading(false, "Fetched data")
-    //     }
-    // }, [db]);
+    const fetchData = useCallback(async () => {
+        if (db) {
+            setLoggedInStatus(isLoggedIn);
+            productsScreenLoading(false, "Fetched data")
+        }
+    }, [db]);
 
     useEffect(() => {
         // if (db) {
@@ -114,6 +113,34 @@ function ProductsByCategoryScreen(props) {
     }, [db]);
 
 
+    const productsScreenLoading = async (isFetchingDataError, message) => {
+        setIsAppDataFetchLoading(false);
+        if (isFetchingDataError) {
+            setIsAppDataFetchError(true);
+            setIsAppDataFetchMsg(message);
+            Toast.show({
+                text1: 'Error',
+                text2: message,
+                position: 'bottom',
+                bottomOffset: 50,
+            });
+        } else {
+            if (db) {
+                const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+                setCategories(categoriesFetch);
+
+                const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
+                setProducts(productsFetch);
+
+
+                setIsAppDataFetchError(false);
+                setIsAppDataFetchMsg(message);
+            } else {
+                setIsAppDataFetchError(true);
+                setIsAppDataFetchMsg("Local Database error...");
+            }
+        }
+    };
 
     const loadMoreProducts = () => {
         console.log("loading more function")
@@ -187,7 +214,7 @@ function ProductsByCategoryScreen(props) {
                         return (
                             <View style={styles.headerContainer}>
 
-                                <Text style={styles.headerText}>Let's help you find what you want!</Text>
+                                <Text style={styles.headerText}>Looking at products in {`<ks>`}</Text>
 
                             </View>
                         );

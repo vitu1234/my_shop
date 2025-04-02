@@ -84,12 +84,12 @@ function ProductsScreen(props) {
         }
     };
 
-    // const fetchData = useCallback(async () => {
-    //     if (db) {
-    //         setLoggedInStatus(isLoggedIn);
-    //         productsScreenLoading(false, "Fetched data")
-    //     }
-    // }, [db]);
+    const fetchData = useCallback(async () => {
+        if (db) {
+            setLoggedInStatus(isLoggedIn);
+            productsScreenLoading(false, "Fetched data")
+        }
+    }, [db]);
 
     useEffect(() => {
         // if (db) {
