@@ -10,8 +10,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 
 import { Heart, Share, Star, StarHalf } from "lucide-react-native";
 import { FlatList } from "react-native-actions-sheet";
-import ProductAttributeCard from "./components/product_details/ProductAttributeCard";
-import ShippingDetails from "@/components/pages/components/product_details/ShippingDetails";
+import ProductAttributeCard from "./components/product/product_details/ProductAttributeCard";
+import ShippingDetails from "@/components/pages/components/product/product_details/ShippingDetails";
 import {
     configureReanimatedLogger,
     ReanimatedLogLevel,

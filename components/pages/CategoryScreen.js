@@ -43,8 +43,9 @@ function CategoryScreen(props) {
         setCategoryActive(categoryId);
     };
 
-    const categoryCardAction = (product) => {
-        props.navigation.navigate("ProductDetails", { product_id: product.product_id, db: props.db });
+    const categoryCardAction = (category) => {
+        console.log(category.category_id)
+        props.navigation.navigate("ProductsByCategoryScreen", { category_id: category.category_id, category_name: category.category_name});
     };
 
     const fetchData = useCallback(async () => {

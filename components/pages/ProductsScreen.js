@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
     ActivityIndicator,
     Dimensions,
@@ -9,21 +9,21 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import {AppContext, CartContext} from "@/app_contexts/AppContext";
-import ProductCard from "./components/ProductCard";
+import { AppContext, CartContext } from "@/app_contexts/AppContext";
+import ProductCard from "./components/product/ProductCard";
 
 import ContentLoader from "react-native-easy-content-loader";
 
-const {width} = Dimensions.get("window");
-import {connectToDatabase, db} from "../config/sqlite_db_service";
-import {Text} from "@/components/ui/text"
-import {useToast, Toast} from "@/components/ui/toast"
-import {Heading} from "@/components/ui/heading"
+const { width } = Dimensions.get("window");
+import { connectToDatabase, db } from "../config/sqlite_db_service";
+import { Text } from "@/components/ui/text"
+import { useToast, Toast } from "@/components/ui/toast"
+import { Heading } from "@/components/ui/heading"
 import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
 import { useSQLiteContext } from 'expo-sqlite';
 
-function Products(props) {
-const db = useSQLiteContext();
+function ProductsScreen(props) {
+    const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
 
@@ -65,7 +65,7 @@ const db = useSQLiteContext();
 
     const productCardAction = (product) => {
         // console.log(product);
-        props.navigation.navigate("ProductDetails", {data: product});
+        props.navigation.navigate("ProductDetails", { data: product });
     };
 
     const fetchProducts = async (pageNumber) => {
@@ -84,17 +84,17 @@ const db = useSQLiteContext();
         }
     };
 
-    // const fetchData = useCallback(async () => {
-    //     if (db) {
-    //         setLoggedInStatus(isLoggedIn);
-    //         productsScreenLoading(false, "Fetched data")
-    //     }
-    // }, [db]);
+    const fetchData = useCallback(async () => {
+        if (db) {
+            setLoggedInStatus(isLoggedIn);
+            productsScreenLoading(false, "Fetched data")
+        }
+    }, [db]);
 
     useEffect(() => {
         // if (db) {
-            fetchData();
-            fetchProducts(page - 1); // Load initial products
+        fetchData();
+        fetchProducts(page - 1); // Load initial products
         // }
     }, [db, page]);
 
@@ -149,7 +149,7 @@ const db = useSQLiteContext();
         }
     };
 
-    const renderCategoryList = ({item}) => (
+    const renderCategoryList = ({ item }) => (
         <View>
             <TouchableOpacity
                 key={item.sub_category_id}
@@ -162,13 +162,13 @@ const db = useSQLiteContext();
         </View>
     )
 
-    const renderProductList = ({item}) => (
+    const renderProductList = ({ item }) => (
         <View key={item.product_id} style={styles.productCardContainer}>
             <ProductCard data={{
                 database: db,
                 product: item,
                 action: productCardAction,
-            }}/>
+            }} />
         </View>
     );
 
@@ -176,7 +176,7 @@ const db = useSQLiteContext();
         if (!isFetchingMore) return null;
         return (
             <View style={styles.footer}>
-                <ActivityIndicator size="large" color="#000"/>
+                <ActivityIndicator size="large" color="#000" />
             </View>
         );
     };
@@ -205,11 +205,11 @@ const db = useSQLiteContext();
         return (
             <FlatList
                 style={styles.container}
-                data={[{type: 'header'}, {type: 'categories', data: categories}, {
+                data={[{ type: 'header' }, { type: 'categories', data: categories }, {
                     type: 'products',
                     data: products
                 }]}
-                renderItem={({item}) => {
+                renderItem={({ item }) => {
                     if (item.type === 'header') {
                         return (
                             <View style={styles.headerContainer}>
@@ -347,4 +347,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Products;
+export default ProductsScreen;

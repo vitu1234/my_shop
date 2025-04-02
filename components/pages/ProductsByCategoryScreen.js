@@ -1,37 +1,34 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
-    View,
-    StyleSheet,
-    ScrollView,
-    FlatList,
+    ActivityIndicator,
     Dimensions,
+    FlatList,
+    ScrollView,
+    StyleSheet,
+    ToastAndroid,
     TouchableOpacity,
-    Text,
-    ActivityIndicator, Pressable
+    View
 } from "react-native";
-import ButtonCategory from "./components/ButtonCategory";
-import ProductCard from "./components/product/ProductCard";
 import { AppContext, CartContext } from "@/app_contexts/AppContext";
-import { Box } from "@/components/ui/box";
-import { Button } from "@/components/ui/button";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
+import ProductCard from "./components/product/ProductCard";
+
 import ContentLoader from "react-native-easy-content-loader";
-import { Divider } from "@/components/ui/divider";
-import Toast from "react-native-toast-message";
-import { getHomeScreen } from "../config/API";
-import { Heading } from "lucide-react-native";
-
-import { SQLiteProvider, useSQLiteContext, SQLiteDatabase } from 'expo-sqlite';
-
 
 const { width } = Dimensions.get("window");
+import { connectToDatabase, db } from "../config/sqlite_db_service";
+import { Text } from "@/components/ui/text"
+import { useToast, Toast } from "@/components/ui/toast"
+import { Heading } from "@/components/ui/heading"
+import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
+import { useSQLiteContext } from 'expo-sqlite';
 
-function HomeScreen(props) {
+function ProductsByCategoryScreen(props) {
+    const category_id_selected = props.route.params.category_id
+    const category_name_selected = props.route.params.category_name
+    console.log("VIRU", category_name_selected)
+    const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
-    const db = useSQLiteContext();
-
 
     const [categoryActive, setCategoryActive] = useState(-1);
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
@@ -39,32 +36,87 @@ function HomeScreen(props) {
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
-    const [flashProducts, setFlashProducts] = useState([]);
-
-
+    // const [db, setDb] = useState(null);
+    const [page, setPage] = useState(1);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
-    const btnCategoryAction = (categoryId) => {
-        setCategoryActive(categoryId);
+
+    const initialSearchFilters = {
+        price_asc: false,
+        price_desc: false,
+        newest_first: false,
+        oldest_first: false,
+        name_asc: false,
+        name_desc: false,
+    };
+
+    const setFilters1 = (filters) => {
+        setSearchFilters(filters);
+        console.log(filters);
+        console.log("filter products here");
+    };
+    const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+
+    const btnCategoryAction = (category_id) => {
+        console.log("GOES TO " + category_id + " CATEGORY");
+        // setIsAppDataFetchLoading(true);
+        // setIsAppDataFetchError(false);
+        setCategoryActive(category_id);
+        // getProductsScreen({productsScreenLoading, category_id});
     };
 
     const productCardAction = (product) => {
-        props.navigation.navigate("ProductDetails", { product_id: product.product_id, db: props.db });
+        // console.log(product);
+        props.navigation.navigate("ProductDetails", { data: product });
+    };
+
+    const fetchProducts = async (pageNumber) => {
+        setIsFetchingMore(true);
+        try {
+            const fetchedProducts = await db.getAllAsync(`SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+            if (fetchedProducts.length === 0) {
+                setHasMore(false);
+            }
+            setProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            setHasMore(false);
+        } finally {
+            setIsFetchingMore(false);
+        }
     };
 
     const fetchData = useCallback(async () => {
-        setLoggedInStatus(isLoggedIn);
-        await getHomeScreen({ homeScreenLoading, db: db });
-
-    });
+        if (db) {
+            setLoggedInStatus(isLoggedIn);
+            productsScreenLoading(false, "Fetched data")
+        }
+    }, [db]);
 
     useEffect(() => {
+        // if (db) {
         fetchData();
-    }, []);
+        fetchProducts(page - 1); // Load initial products
+        // }
+    }, [db, page]);
+
+    useEffect(() => {
+        const initialize = async () => {
+            if (!db) {
+                try {
+                    const database = await connectToDatabase();
+                    setDb(database);
+                } catch (error) {
+                    console.error("Error during initialization:", error);
+                }
+            }
+        };
+        initialize();
+    }, [db]);
 
 
-
-    const homeScreenLoading = async (isFetchingDataError, message) => {
+    const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
@@ -76,20 +128,29 @@ function HomeScreen(props) {
                 bottomOffset: 50,
             });
         } else {
-            const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
-            const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
-            const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
+            if (db) {
+                const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+                setCategories(categoriesFetch);
 
-            setCategories(categories);
-            setProducts(productsFirstRow);
-            setFlashProducts(productsHome);
-            setIsAppDataFetchError(false);
-            setIsAppDataFetchMsg(message);
+                const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
+                setProducts(productsFetch);
 
+
+                setIsAppDataFetchError(false);
+                setIsAppDataFetchMsg(message);
+            } else {
+                setIsAppDataFetchError(true);
+                setIsAppDataFetchMsg("Local Database error...");
+            }
         }
     };
 
-
+    const loadMoreProducts = () => {
+        console.log("loading more function")
+        if (!isFetchingMore && hasMore) {
+            setPage(prevPage => prevPage + 1);
+        }
+    };
 
     const renderCategoryList = ({ item }) => (
         <View>
@@ -112,20 +173,6 @@ function HomeScreen(props) {
                 action: productCardAction,
             }} />
         </View>
-    );
-
-    const renderFlashProduct = ({ item }) => (
-        <Box style={styles.flashProductBox} py="2">
-            <ProductCard
-                key={item.product_id}
-                data={{
-                    database: db,
-                    product: item,
-                    action: productCardAction,
-                    cardWidth: (width - 30) / 2 - 15,
-                }}
-            />
-        </Box>
     );
 
     const renderFooter = () => {
@@ -162,15 +209,15 @@ function HomeScreen(props) {
             <FlatList
                 style={styles.container}
                 data={[{ type: 'header' }, { type: 'categories', data: categories }, {
-                    type: 'productsFirstRow',
+                    type: 'products',
                     data: products
-                }, { type: 'flashProducts', data: flashProducts }]}
+                }]}
                 renderItem={({ item }) => {
                     if (item.type === 'header') {
                         return (
                             <View style={styles.headerContainer}>
 
-                                <Text style={styles.headerText}>Let's help you find what you want!</Text>
+                                <Text style={styles.headerText}>Looking at products in {category_name_selected}</Text>
 
                             </View>
                         );
@@ -193,60 +240,31 @@ function HomeScreen(props) {
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.horizontalListContainer}
                                 renderItem={renderCategoryList}
-                                keyExtractor={item => item.sub_category_id.toString()}
+                                keyExtractor={(item, index) => index.toString()} // Ensure each item has a unique key
                             />
                         );
 
-                    } else if (item.type === 'productsFirstRow') {
-                        return (
-                            <FlatList
-                                style={styles.container}
-                                data={item.data}
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={styles.horizontalListContainer}
-                                renderItem={renderProductList}
-                                keyExtractor={item => item.product_id.toString()}
-                            />
-                        );
-                    } else if (item.type === 'flashProducts') {
+                    } else if (item.type === 'products') {
                         return (
                             <View style={styles.flashProductsContainer}>
-                                <View style={[styles.flashProductsHeader, { justifyContent: 'space-between' }]}>
-                                    <Text style={styles.headerText}>Flash Products</Text>
-                                    <TouchableOpacity
-                                        onPress={() => console.log("Go to all products")}
 
-                                    >
-                                        <Text style={{ color: '#2780e3', fontWeight: 'bold' }}>View All {">>"}</Text>
-                                    </TouchableOpacity>
-                                </View>
                                 <FlatList
                                     style={styles.container}
                                     data={item.data}
                                     numColumns={2}
                                     columnWrapperStyle={styles.columnWrapperStyle}
                                     contentContainerStyle={styles.flashProductsListContainer}
-                                    renderItem={renderFlashProduct}
-                                    keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
-
-                                    removeClippedSubviews={true}
-                                    maxToRenderPerBatch={10}
-                                    windowSize={11}
-                                    initialNumToRender={10}
-
-                                    ListFooterComponent={renderFooter}
-                                    // onEndReached={loadMoreProducts}
-                                    onEndReachedThreshold={0.5}
+                                    renderItem={renderProductList}
+                                    keyExtractor={(item, index) => index.toString()} // Ensure each item has a unique key
                                 />
                             </View>
                         );
                     }
                 }}
                 keyExtractor={(item, index) => index.toString()}
-            // ListFooterComponent={renderFooter}
-            // onEndReached={loadMoreProducts}
-            // onEndReachedThreshold={0.5}
+                ListFooterComponent={renderFooter}
+                onEndReached={loadMoreProducts}
+                onEndReachedThreshold={0.5}
             />
         );
     }
@@ -332,4 +350,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default HomeScreen;
+export default ProductsByCategoryScreen;
