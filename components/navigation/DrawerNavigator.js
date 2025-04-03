@@ -171,7 +171,7 @@ function DrawerNavigator(props) {
         }
       } />
 
-      <Drawer.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen} options={
+   {/*    <Drawer.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen} options={
         {
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
@@ -181,7 +181,7 @@ function DrawerNavigator(props) {
           ),
           headerTitle: "Products"
         }
-      } />
+      } /> */}
 
     </Drawer.Navigator>
   );

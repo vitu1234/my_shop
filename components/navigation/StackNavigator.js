@@ -50,9 +50,19 @@ function StackNavigator(props) {
                     title: "Back",
                 }} />
 
-                <Stack.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen} options={{
+                <Stack.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen}
+                 options={{
+                    headerRight: (navigation) => (
+                        <StackNavigationHeader data={{ navigation: navigation }} />
+                    ),
                     headerShown: true,
-                    title: "Back",
+                    // title: "Back",
+                    headerBackTitle: 'Back',
+                    headerTitle: 'Browsing by Category',
+                    headerTitleStyle:{
+                        fontSize: 13
+                    }
+                    
                 }} />
 
                 <Stack.Screen name="SignUpVerifyAccount" component={SignUpVerifyAccount} options={{
