@@ -141,7 +141,7 @@ function ProductsByCategoryScreen(props) {
             });
         } else {
             if (db) {
-                const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+                const categoriesFetch = await db.getAllAsync(`SELECT * FROM sub_category WHERE category_id = ${category_id_selected} LIMIT 20`);
                 setCategories(categoriesFetch);
 
                 const productsFetch = await db.getAllAsync(` SELECT product.*,product_attributes.product_attributes_price, product_sub_category.category_name
