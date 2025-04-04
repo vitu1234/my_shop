@@ -74,7 +74,19 @@ function ProductsByCategoryScreen(props) {
     const fetchProducts = async (pageNumber) => {
         setIsFetchingMore(true);
         try {
-            const fetchedProducts = await db.getAllAsync(`SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+            // const fetchedProducts = await db.getAllAsync(`SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 AND product.category_id = ${category_name_selected} ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+            const fetchedProducts = await db.getAllAsync(`
+                SELECT product.*,product_attributes.product_attributes_price, product_sub_category.category_name
+                FROM product_sub_category 
+                INNER JOIN product 
+                    ON product_sub_category.product_id=product.product_id 
+                INNER JOIN product_attributes 
+                    ON product.product_id = product_attributes.product_id
+                WHERE product_attributes.product_attributes_default = 1 
+                    AND product_sub_category.category_id = ${category_id_selected} 
+                GROUP BY product_sub_category.product_id
+                ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}
+                `)
             if (fetchedProducts.length === 0) {
                 setHasMore(false);
             }
@@ -132,7 +144,16 @@ function ProductsByCategoryScreen(props) {
                 const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
                 setCategories(categoriesFetch);
 
-                const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
+                const productsFetch = await db.getAllAsync(` SELECT product.*,product_attributes.product_attributes_price, product_sub_category.category_name
+                FROM product_sub_category 
+                INNER JOIN product 
+                    ON product_sub_category.product_id=product.product_id 
+                INNER JOIN product_attributes 
+                    ON product.product_id = product_attributes.product_id
+                WHERE product_attributes.product_attributes_default = 1 
+                    AND product_sub_category.category_id = ${category_id_selected} 
+                GROUP BY product_sub_category.product_id
+                ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
                 setProducts(productsFetch);
 
 
