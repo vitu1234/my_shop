@@ -25,7 +25,6 @@ import { useSQLiteContext } from 'expo-sqlite';
 function ProductsByCategoryScreen(props) {
     const category_id_selected = props.route.params.category_id
     const category_name_selected = props.route.params.category_name
-    console.log("VIRU", category_name_selected)
     const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
@@ -67,8 +66,7 @@ function ProductsByCategoryScreen(props) {
     };
 
     const productCardAction = (product) => {
-        // console.log(product);
-        props.navigation.navigate("ProductDetails", { data: product });
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id });
     };
 
     const fetchProducts = async (pageNumber) => {

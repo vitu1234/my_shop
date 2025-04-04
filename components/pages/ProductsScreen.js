@@ -64,8 +64,7 @@ function ProductsScreen(props) {
     };
 
     const productCardAction = (product) => {
-        // console.log(product);
-        props.navigation.navigate("ProductDetails", { data: product });
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id });
     };
 
     const fetchProducts = async (pageNumber) => {

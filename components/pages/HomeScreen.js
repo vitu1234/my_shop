@@ -49,7 +49,7 @@ function HomeScreen(props) {
     };
 
     const productCardAction = (product) => {
-        props.navigation.navigate("ProductDetails", { product_id: product.product_id, db: props.db });
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id});
     };
 
     const fetchData = useCallback(async () => {
