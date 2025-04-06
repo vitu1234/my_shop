@@ -25,21 +25,21 @@ import { useSQLiteContext } from 'expo-sqlite';
 function ProductsByCategoryScreen(props) {
     const category_id_selected = props.route.params.category_id
     const category_name_selected = props.route.params.category_name
-    console.log("VIRU", category_name_selected)
     const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
 
-    const [categoryActive, setCategoryActive] = useState(-1);
+    const [subCategoryActive, setSubCategoryActive] = useState(-1);
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
     const [isAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
-    const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
     const [products, setProducts] = useState([]);
     // const [db, setDb] = useState(null);
     const [page, setPage] = useState(1);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [productsLoading, setProductsLoading] = useState(true); // for when a subcategory is selected
 
 
     const initialSearchFilters = {
@@ -58,34 +58,60 @@ function ProductsByCategoryScreen(props) {
     };
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
 
-    const btnCategoryAction = (category_id) => {
-        console.log("GOES TO " + category_id + " CATEGORY");
-        // setIsAppDataFetchLoading(true);
-        // setIsAppDataFetchError(false);
-        setCategoryActive(category_id);
-        // getProductsScreen({productsScreenLoading, category_id});
+    const btnSubCategoryAction = (sub_category_id) => {
+        console.log(sub_category_id, "SU CATEGORY SELECTED")
+        setSubCategoryActive(sub_category_id);
+        setProducts([]);         // Clear old products
+        setPage(1);              // Reset page for pagination
+        setHasMore(true);        // Reset hasMore for new fetch
     };
 
+
     const productCardAction = (product) => {
-        // console.log(product);
-        props.navigation.navigate("ProductDetails", { data: product });
+        props.navigation.navigate("ProductDetails", { product_id: product.product_id });
     };
 
     const fetchProducts = async (pageNumber) => {
-        setIsFetchingMore(true);
+        if (!db || isFetchingMore || !hasMore) return;
+
+        setIsFetchingMore(false); // for full loading of the screen
+        setProductsLoading(true); // for when a subcategory is selected
+
         try {
-            const fetchedProducts = await db.getAllAsync(`SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20 OFFSET ${pageNumber * 20}`);
+            const baseQuery = `
+                SELECT product.*, product_attributes.product_attributes_price, product_sub_category.category_name
+                FROM product_sub_category 
+                INNER JOIN product 
+                    ON product_sub_category.product_id = product.product_id 
+                INNER JOIN product_attributes 
+                    ON product.product_id = product_attributes.product_id
+                WHERE product_attributes.product_attributes_default = 1 
+                  AND product_sub_category.category_id = ${category_id_selected}
+                  ${subCategoryActive !== -1 ? `AND product_sub_category.sub_category_id = ${subCategoryActive}` : ''}
+                GROUP BY product_sub_category.product_id
+                ORDER BY RANDOM()
+                LIMIT 20 OFFSET ${pageNumber * 20}
+            `;
+            console.log("SQL Query:", baseQuery);
+
+
+            const fetchedProducts = await db.getAllAsync(baseQuery);
+
             if (fetchedProducts.length === 0) {
                 setHasMore(false);
+            } else {
+                setProducts(prev => [...prev, ...fetchedProducts]);
             }
-            setProducts(prevProducts => [...prevProducts, ...fetchedProducts]);
+
         } catch (error) {
             console.error("Error fetching products:", error);
             setHasMore(false);
         } finally {
             setIsFetchingMore(false);
+            setProductsLoading(false);
         }
     };
+
 
     const fetchData = useCallback(async () => {
         if (db) {
@@ -95,55 +121,44 @@ function ProductsByCategoryScreen(props) {
     }, [db]);
 
     useEffect(() => {
-        // if (db) {
+        console.log("Triggered useEffect with:", { page, subCategoryActive });
+        if (page === 1) {
+            setProducts([]);
+        }
+    
+        setProductsLoading(true);
+    
         fetchData();
-        fetchProducts(page - 1); // Load initial products
-        // }
-    }, [db, page]);
-
-    useEffect(() => {
-        const initialize = async () => {
-            if (!db) {
-                try {
-                    const database = await connectToDatabase();
-                    setDb(database);
-                } catch (error) {
-                    console.error("Error during initialization:", error);
-                }
-            }
-        };
-        initialize();
-    }, [db]);
+        fetchProducts(page - 1);
+    }, [page, subCategoryActive]);
 
 
     const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
+
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
-            Toast.show({
-                text1: 'Error',
-                text2: message,
-                position: 'bottom',
-                bottomOffset: 50,
-            });
-        } else {
-            if (db) {
-                const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
-                setCategories(categoriesFetch);
+            Toast.show({ text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50 });
+            return;
+        }
 
-                const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
-                setProducts(productsFetch);
-
-
-                setIsAppDataFetchError(false);
-                setIsAppDataFetchMsg(message);
-            } else {
+        if (db) {
+            try {
+                const subCategoriesFetch = await db.getAllAsync(
+                    `SELECT * FROM sub_category WHERE category_id = ${category_id_selected} LIMIT 20`
+                );
+                setSubCategories(subCategoriesFetch);
+            } catch (err) {
                 setIsAppDataFetchError(true);
-                setIsAppDataFetchMsg("Local Database error...");
+                setIsAppDataFetchMsg("Error fetching sub_categories");
             }
+        } else {
+            setIsAppDataFetchError(true);
+            setIsAppDataFetchMsg("Local Database error...");
         }
     };
+
 
     const loadMoreProducts = () => {
         console.log("loading more function")
@@ -156,12 +171,23 @@ function ProductsByCategoryScreen(props) {
         <View>
             <TouchableOpacity
                 key={item.sub_category_id}
-                style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
-                onPress={() => btnCategoryAction(item.sub_category_id)}
+                style={[
+                    styles.categoryButton,
+                    item.sub_category_id === subCategoryActive && styles.activeCategory
+                ]}
+                onPress={() => btnSubCategoryAction(item.sub_category_id)}
+                disabled={item.sub_category_id === subCategoryActive} // ✅ disable if active
             >
                 <Text
-                    style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>
+                    style={[
+                        styles.categoryText,
+                        item.sub_category_id === subCategoryActive && styles.activeCategoryText
+                    ]}
+                >
+                    {item.sub_category_name}
+                </Text>
             </TouchableOpacity>
+
         </View>
     )
 
@@ -208,7 +234,7 @@ function ProductsByCategoryScreen(props) {
         return (
             <FlatList
                 style={styles.container}
-                data={[{ type: 'header' }, { type: 'categories', data: categories }, {
+                data={[{ type: 'header' }, { type: 'sub_categories', data: subCategories }, {
                     type: 'products',
                     data: products
                 }]}
@@ -221,18 +247,31 @@ function ProductsByCategoryScreen(props) {
 
                             </View>
                         );
-                    } else if (item.type === 'categories') {
+
+                    } else if (item.type === 'sub_categories') {
+
                         return (
                             <FlatList
                                 ListHeaderComponent={
                                     <TouchableOpacity
                                         key={-1}
-                                        style={[styles.categoryButton, -1 === categoryActive && styles.activeCategory]}
-                                        onPress={() => btnCategoryAction(-1)}
+                                        style={[
+                                            styles.categoryButton,
+                                            -1 === subCategoryActive && styles.activeCategory
+                                        ]}
+                                        onPress={() => btnSubCategoryAction(-1)}
+                                        disabled={-1 === subCategoryActive} // ✅ disable if active
                                     >
                                         <Text
-                                            style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]}>All</Text>
+                                            style={[
+                                                styles.categoryText,
+                                                -1 === subCategoryActive && styles.activeCategoryText
+                                            ]}
+                                        >
+                                            All
+                                        </Text>
                                     </TouchableOpacity>
+
                                 }
                                 style={styles.container}
                                 data={item.data}
@@ -245,6 +284,24 @@ function ProductsByCategoryScreen(props) {
                         );
 
                     } else if (item.type === 'products') {
+
+                        if (productsLoading) {
+                            return (
+                                <View style={styles.container}>
+                                    <ActivityIndicator size="small" color="#000" />
+                                </View>
+                            );
+                        }
+                    
+                        if (products.length === 0) {
+                            return (
+                                <View style={styles.container}>
+                                    <Heading style={styles.errorText} size="md" fontWeight="bold">
+                                        <Text>No products in the selected subcategory</Text>
+                                    </Heading>
+                                </View>
+                            );
+                        }
                         return (
                             <View style={styles.flashProductsContainer}>
 
