@@ -243,7 +243,7 @@ function ProductsByCategoryScreen(props) {
                         return (
                             <View style={styles.headerContainer}>
 
-                                <Text style={styles.headerText}>Looking at products in {category_name_selected}</Text>
+                                <Text style={styles.headerText}>Navigating in {category_name_selected}</Text>
 
                             </View>
                         );
