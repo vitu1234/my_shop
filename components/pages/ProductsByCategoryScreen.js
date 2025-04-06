@@ -33,12 +33,13 @@ function ProductsByCategoryScreen(props) {
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
     const [isAppDataFetchError, setIsAppDataFetchError] = useState(false);
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
-    const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
     const [products, setProducts] = useState([]);
     // const [db, setDb] = useState(null);
     const [page, setPage] = useState(1);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+    const [productsLoading, setProductsLoading] = useState(true); // for when a subcategory is selected
 
 
     const initialSearchFilters = {
@@ -64,7 +65,7 @@ function ProductsByCategoryScreen(props) {
         setPage(1);              // Reset page for pagination
         setHasMore(true);        // Reset hasMore for new fetch
     };
-    
+
 
     const productCardAction = (product) => {
         props.navigation.navigate("ProductDetails", { product_id: product.product_id });
@@ -72,9 +73,10 @@ function ProductsByCategoryScreen(props) {
 
     const fetchProducts = async (pageNumber) => {
         if (!db || isFetchingMore || !hasMore) return;
-    
-        setIsFetchingMore(false);
-    
+
+        setIsFetchingMore(false); // for full loading of the screen
+        setProductsLoading(true); // for when a subcategory is selected
+
         try {
             const baseQuery = `
                 SELECT product.*, product_attributes.product_attributes_price, product_sub_category.category_name
@@ -92,23 +94,24 @@ function ProductsByCategoryScreen(props) {
             `;
             console.log("SQL Query:", baseQuery);
 
-    
+
             const fetchedProducts = await db.getAllAsync(baseQuery);
-    
+
             if (fetchedProducts.length === 0) {
                 setHasMore(false);
             } else {
                 setProducts(prev => [...prev, ...fetchedProducts]);
             }
-    
+
         } catch (error) {
             console.error("Error fetching products:", error);
             setHasMore(false);
         } finally {
             setIsFetchingMore(false);
+            setProductsLoading(false);
         }
     };
-    
+
 
     const fetchData = useCallback(async () => {
         if (db) {
@@ -122,6 +125,9 @@ function ProductsByCategoryScreen(props) {
         if (page === 1) {
             setProducts([]);
         }
+    
+        setProductsLoading(true);
+    
         fetchData();
         fetchProducts(page - 1);
     }, [page, subCategoryActive]);
@@ -129,30 +135,30 @@ function ProductsByCategoryScreen(props) {
 
     const productsScreenLoading = async (isFetchingDataError, message) => {
         setIsAppDataFetchLoading(false);
-    
+
         if (isFetchingDataError) {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
             Toast.show({ text1: 'Error', text2: message, position: 'bottom', bottomOffset: 50 });
             return;
         }
-    
+
         if (db) {
             try {
-                const categoriesFetch = await db.getAllAsync(
+                const subCategoriesFetch = await db.getAllAsync(
                     `SELECT * FROM sub_category WHERE category_id = ${category_id_selected} LIMIT 20`
                 );
-                setCategories(categoriesFetch);
+                setSubCategories(subCategoriesFetch);
             } catch (err) {
                 setIsAppDataFetchError(true);
-                setIsAppDataFetchMsg("Error fetching categories");
+                setIsAppDataFetchMsg("Error fetching sub_categories");
             }
         } else {
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg("Local Database error...");
         }
     };
-    
+
 
     const loadMoreProducts = () => {
         console.log("loading more function")
@@ -165,12 +171,23 @@ function ProductsByCategoryScreen(props) {
         <View>
             <TouchableOpacity
                 key={item.sub_category_id}
-                style={[styles.categoryButton, item.sub_category_id === subCategoryActive && styles.activeCategory]}
+                style={[
+                    styles.categoryButton,
+                    item.sub_category_id === subCategoryActive && styles.activeCategory
+                ]}
                 onPress={() => btnSubCategoryAction(item.sub_category_id)}
+                disabled={item.sub_category_id === subCategoryActive} // ✅ disable if active
             >
                 <Text
-                    style={[styles.categoryText, item.sub_category_id === subCategoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>
+                    style={[
+                        styles.categoryText,
+                        item.sub_category_id === subCategoryActive && styles.activeCategoryText
+                    ]}
+                >
+                    {item.sub_category_name}
+                </Text>
             </TouchableOpacity>
+
         </View>
     )
 
@@ -217,7 +234,7 @@ function ProductsByCategoryScreen(props) {
         return (
             <FlatList
                 style={styles.container}
-                data={[{ type: 'header' }, { type: 'categories', data: categories }, {
+                data={[{ type: 'header' }, { type: 'sub_categories', data: subCategories }, {
                     type: 'products',
                     data: products
                 }]}
@@ -230,18 +247,31 @@ function ProductsByCategoryScreen(props) {
 
                             </View>
                         );
-                    } else if (item.type === 'categories') {
+
+                    } else if (item.type === 'sub_categories') {
+
                         return (
                             <FlatList
                                 ListHeaderComponent={
                                     <TouchableOpacity
                                         key={-1}
-                                        style={[styles.categoryButton, -1 === subCategoryActive && styles.activeCategory]}
+                                        style={[
+                                            styles.categoryButton,
+                                            -1 === subCategoryActive && styles.activeCategory
+                                        ]}
                                         onPress={() => btnSubCategoryAction(-1)}
+                                        disabled={-1 === subCategoryActive} // ✅ disable if active
                                     >
                                         <Text
-                                            style={[styles.categoryText, -1 === subCategoryActive && styles.activeCategoryText]}>All</Text>
+                                            style={[
+                                                styles.categoryText,
+                                                -1 === subCategoryActive && styles.activeCategoryText
+                                            ]}
+                                        >
+                                            All
+                                        </Text>
                                     </TouchableOpacity>
+
                                 }
                                 style={styles.container}
                                 data={item.data}
@@ -254,6 +284,24 @@ function ProductsByCategoryScreen(props) {
                         );
 
                     } else if (item.type === 'products') {
+
+                        if (productsLoading) {
+                            return (
+                                <View style={styles.container}>
+                                    <ActivityIndicator size="small" color="#000" />
+                                </View>
+                            );
+                        }
+                    
+                        if (products.length === 0) {
+                            return (
+                                <View style={styles.container}>
+                                    <Heading style={styles.errorText} size="md" fontWeight="bold">
+                                        <Text>No products in the selected subcategory</Text>
+                                    </Heading>
+                                </View>
+                            );
+                        }
                         return (
                             <View style={styles.flashProductsContainer}>
 
