@@ -55,12 +55,14 @@ function ProductsScreen(props) {
     };
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
 
-    const btnCategoryAction = (category_id) => {
-        console.log("GOES TO " + category_id + " CATEGORY");
+    const btnCategoryAction = (category) => {
+        console.log("GOES TO " + category + " CATEGORY");
         // setIsAppDataFetchLoading(true);
         // setIsAppDataFetchError(false);
-        setCategoryActive(category_id);
+        setCategoryActive(category.category_id);
         // getProductsScreen({productsScreenLoading, category_id});
+        console.log(category.category_id)
+        props.navigation.navigate("ProductsByCategoryScreen", { category_id: category.category_id, category_name: category.category_name});
     };
 
     const productCardAction = (product) => {
@@ -125,7 +127,7 @@ function ProductsScreen(props) {
             });
         } else {
             if (db) {
-                const categoriesFetch = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+                const categoriesFetch = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM() LIMIT 20");
                 setCategories(categoriesFetch);
 
                 const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
@@ -151,12 +153,12 @@ function ProductsScreen(props) {
     const renderCategoryList = ({ item }) => (
         <View>
             <TouchableOpacity
-                key={item.sub_category_id}
-                style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
-                onPress={() => btnCategoryAction(item.sub_category_id)}
+                key={item.category_id}
+                style={[styles.categoryButton, item.category_id === categoryActive && styles.activeCategory]}
+                onPress={() => btnCategoryAction(item)}
             >
                 <Text
-                    style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>
+                    style={[styles.categoryText, item.category_id === categoryActive && styles.activeCategoryText]}>{item.category_name}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -220,23 +222,23 @@ function ProductsScreen(props) {
                     } else if (item.type === 'categories') {
                         return (
                             <FlatList
-                                ListHeaderComponent={
-                                    <TouchableOpacity
-                                        key={-1}
-                                        style={[styles.categoryButton, -1 === categoryActive && styles.activeCategory]}
-                                        onPress={() => btnCategoryAction(-1)}
-                                    >
-                                        <Text
-                                            style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]}>All</Text>
-                                    </TouchableOpacity>
-                                }
+                                // ListHeaderComponent={
+                                //     <TouchableOpacity
+                                //         key={-1}
+                                //         style={[styles.categoryButton, -1 === categoryActive && styles.activeCategory]}
+                                //         onPress={() => btnCategoryAction(-1)}
+                                //     >
+                                //         <Text
+                                //             style={[styles.categoryText, -1 === categoryActive && styles.activeCategoryText]}>All</Text>
+                                //     </TouchableOpacity>
+                                // }
                                 style={styles.container}
                                 data={item.data}
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.horizontalListContainer}
                                 renderItem={renderCategoryList}
-                                keyExtractor={item => item.sub_category_id.toString()}
+                                keyExtractor={item => item.category_id.toString()}
                             />
                         );
 
