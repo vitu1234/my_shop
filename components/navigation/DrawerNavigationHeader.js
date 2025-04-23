@@ -72,6 +72,12 @@ function DrawerNavigationHeader(props) {
     });
   };
 
+  const sortFilterAction = () =>{
+    setIsModalVisibleProducts(true)
+    console.log("Clicker sort clicke")
+    navigator.navigate("FilterScreen");
+  }
+
   //login status checker
   if (isLoggedIn) {
     // console.log(getLoggedInUser())
@@ -100,7 +106,7 @@ function DrawerNavigationHeader(props) {
             <Search color={"#000"} size={26}/>
           </TouchableOpacity> :
 
-          <TouchableOpacity onPress={() => setIsModalVisibleProducts(true)} style={{ margin: 12 }}>
+          <TouchableOpacity onPress={() => sortFilterAction()} style={{ margin: 12 }}>
             <Icon2
               name="sort"
               color={"#000"}
