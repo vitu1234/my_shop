@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 
-const FilterScreen = () => {
+const FilterScreen = (props) => {
     const [filters, setFilters] = useState([
         {
             id: "1",
@@ -124,7 +124,7 @@ const FilterScreen = () => {
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
             <SafeAreaView style={styles.headerContainer}>
                 <Text style={styles.header}>Filters</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => props.navigation.goBack()}>
                     <X color={"#000"} strokeWidth={3} />
                 </TouchableOpacity>
             </SafeAreaView>
@@ -155,7 +155,7 @@ const FilterScreen = () => {
                 >
                     <Text style={styles.buttonText}>Reset</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.applyButton}>
+                <TouchableOpacity onPress={()=>props.navigation.goBack()} style={styles.applyButton}>
                     <Text style={styles.buttonText}>Apply</Text>
                 </TouchableOpacity>
             </View>
