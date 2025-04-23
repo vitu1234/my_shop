@@ -82,7 +82,7 @@ function StackNavigator(props) {
                     name="FilterScreen"
                     component={FilterScreen}
                     options={{
-                        headerShown: true,
+                        headerShown: false,
                         headerBackVisible: false,
                         headerLeft: () => null,
                         headerRight: () => <TouchableOpacity onPress={goBack()}><X strokeWidth={2.9} /></TouchableOpacity>,
