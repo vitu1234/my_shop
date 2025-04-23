@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Collapsible from "react-native-collapsible";
 import { X } from "lucide-react-native";
 
 const FilterScreen = () => {
@@ -9,39 +8,63 @@ const FilterScreen = () => {
         {
             id: "1",
             title: "🚀 Rocket",
-            options: ["Rocket WOW Only", "Rocket Overseas Only", "Free Delivery"],
-            collapsed: false,
+            options: [
+                { label: "Rocket WOW Only", selected: false },
+                { label: "Rocket Overseas Only", selected: false },
+                { label: "Free Delivery", selected: false },
+            ],
         },
         {
             id: "2",
             title: "Sort",
-            options: ["Coupang Ranking", "Low Price", "High Price", "Most Recent"],
-            collapsed: true,
+            options: [
+                { label: "Our Ranking", selected: false },
+                { label: "Low Price", selected: false },
+                { label: "High Price", selected: false },
+                { label: "Most Recent", selected: false },
+            ],
         },
         {
             id: "3",
             title: "Discount",
-            options: ["Discounted Items", "Instant Discount"],
-            collapsed: true,
+            options: [
+                { label: "Discounted Items", selected: false },
+                { label: "Instant Discount", selected: false },
+            ],
         },
         {
             id: "4",
             title: "Ship From",
-            options: ["US", "China", "Japan"],
-            collapsed: true,
+            options: [
+                { label: "US", selected: false },
+                { label: "China", selected: false },
+                { label: "Japan", selected: false },
+            ],
         },
         {
             id: "5",
             title: "Product Condition",
-            options: ["New", "Damaged Box", "Returned"],
-            collapsed: true,
+            options: [
+                { label: "New", selected: false },
+                { label: "Damaged Box", selected: false },
+                { label: "Returned", selected: false },
+            ],
         },
     ]);
 
-    const toggleCollapse = (id) => {
+    const toggleOption = (filterId, optionIndex) => {
         setFilters((prevFilters) =>
             prevFilters.map((filter) =>
-                filter.id === id ? { ...filter, collapsed: !filter.collapsed } : filter
+                filter.id === filterId
+                    ? {
+                          ...filter,
+                          options: filter.options.map((option, index) =>
+                              index === optionIndex
+                                  ? { ...option, selected: !option.selected }
+                                  : option
+                          ),
+                      }
+                    : filter
             )
         );
     };
@@ -49,23 +72,32 @@ const FilterScreen = () => {
     const renderFilterItem = ({ item }) => (
         <View>
             {/* Section Header */}
-            <TouchableOpacity
-                onPress={() => toggleCollapse(item.id)}
-                style={styles.sectionHeader}
-            >
-                <Text style={styles.sectionHeaderText}>{item.title}</Text>
-            </TouchableOpacity>
+            <Text style={styles.sectionHeaderText}>{item.title}</Text>
 
-            {/* Collapsible Section Content */}
-            <Collapsible collapsed={item.collapsed}>
-                <View style={styles.sectionContent}>
+            {/* Section Content */}
+            <View style={styles.sectionContent}>
+                <View style={styles.horizontalWrap}>
                     {item.options.map((option, index) => (
-                        <TouchableOpacity key={index} style={styles.option}>
-                            <Text style={styles.optionText}>{option}</Text>
+                        <TouchableOpacity
+                            key={index}
+                            style={[
+                                styles.option,
+                                option.selected && styles.optionSelected,
+                            ]}
+                            onPress={() => toggleOption(item.id, index)}
+                        >
+                            <Text
+                                style={[
+                                    styles.optionText,
+                                    option.selected && styles.optionTextSelected,
+                                ]}
+                            >
+                                {option.label}
+                            </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
-            </Collapsible>
+            </View>
         </View>
     );
 
@@ -73,7 +105,9 @@ const FilterScreen = () => {
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
             <SafeAreaView style={styles.headerContainer}>
                 <Text style={styles.header}>Filters</Text>
-                <TouchableOpacity><X color={"#000"} strokeWidth={3}></X></TouchableOpacity>
+                <TouchableOpacity>
+                    <X color={"#000"} strokeWidth={3} />
+                </TouchableOpacity>
             </SafeAreaView>
 
             {/* FlatList for Filters */}
@@ -86,7 +120,20 @@ const FilterScreen = () => {
 
             {/* Reset and Apply Buttons */}
             <View style={styles.actionButtonsContainer}>
-                <TouchableOpacity style={styles.resetButton}>
+                <TouchableOpacity
+                    style={styles.resetButton}
+                    onPress={() =>
+                        setFilters((prevFilters) =>
+                            prevFilters.map((filter) => ({
+                                ...filter,
+                                options: filter.options.map((option) => ({
+                                    ...option,
+                                    selected: false,
+                                })),
+                            }))
+                        )
+                    }
+                >
                     <Text style={styles.buttonText}>Reset</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.applyButton}>
@@ -101,9 +148,8 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: "row",
         justifyContent: "space-between",
-        // alignItems: "center",
-        paddingStart: 16,
-        paddingEnd: 16,
+        alignItems: "center",
+        padding: 16,
         backgroundColor: "#fff",
     },
     header: {
@@ -113,26 +159,37 @@ const styles = StyleSheet.create({
     listContainer: {
         paddingBottom: 100, // To avoid overlapping with buttons
     },
-    sectionHeader: {
-        padding: 16,
-        backgroundColor: "#fff",
-        borderBottomWidth: 1,
-        borderBottomColor: "#ddd",
-    },
     sectionHeaderText: {
         fontSize: 16,
         fontWeight: "bold",
+        padding: 16,
+        backgroundColor: "#f0f0f0",
     },
     sectionContent: {
         padding: 16,
         backgroundColor: "#f8f8f8",
     },
+    horizontalWrap: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+    },
     option: {
         paddingVertical: 10,
+        paddingHorizontal: 16,
+        backgroundColor: "#fff",
+        borderRadius: 5,
+        marginBottom: 8,
+        marginRight: 8, // Add spacing between items
+    },
+    optionSelected: {
+        backgroundColor: "#FF5722",
     },
     optionText: {
         fontSize: 14,
         color: "#333",
+    },
+    optionTextSelected: {
+        color: "#fff",
     },
     actionButtonsContainer: {
         flexDirection: "row",
