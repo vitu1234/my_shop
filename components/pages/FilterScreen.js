@@ -46,6 +46,7 @@ const FilterScreen = () => {
             title: "Product Condition",
             options: [
                 { label: "New", selected: false },
+                { label: "Used", selected: false },
                 { label: "Damaged Box", selected: false },
                 { label: "Returned", selected: false },
             ],
@@ -58,11 +59,19 @@ const FilterScreen = () => {
                 filter.id === filterId
                     ? {
                           ...filter,
-                          options: filter.options.map((option, index) =>
-                              index === optionIndex
-                                  ? { ...option, selected: !option.selected }
-                                  : option
-                          ),
+                          options: filter.options.map((option, index) => ({
+                              ...option,
+                              selected:
+                                  filterId === "3" || filterId === 4// For "Discount" section
+                                      ? index === optionIndex
+                                          ? !option.selected // Toggle selection
+                                          : option.selected
+                                      : filterId === "2" // For "Sort" section
+                                      ? index === optionIndex // Only allow one option to be selected
+                                      : index === optionIndex
+                                      ? !option.selected
+                                      : option.selected,
+                          })),
                       }
                     : filter
             )
@@ -86,14 +95,24 @@ const FilterScreen = () => {
                             ]}
                             onPress={() => toggleOption(item.id, index)}
                         >
-                            <Text
-                                style={[
-                                    styles.optionText,
-                                    option.selected && styles.optionTextSelected,
-                                ]}
-                            >
-                                {option.label}
-                            </Text>
+                            <View style={styles.optionRow}>
+                                <Text
+                                    style={[
+                                        styles.optionText,
+                                        option.selected && styles.optionTextSelected,
+                                    ]}
+                                >
+                                    {option.label}
+                                </Text>
+                                {/* Add "X" for deselecting if the option is selected and it's in the "Discount" section */}
+                                {item.id !== "2" && option.selected && (
+                                    <TouchableOpacity
+                                        onPress={() => toggleOption(item.id, index)}
+                                    >
+                                        <Text style={styles.deselectText}> X</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -220,6 +239,22 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
+    },
+    deselectButton: {
+        marginLeft: 8,
+        backgroundColor: "#FF5722",
+        borderRadius: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    deselectText: {
+        color: "#fff",
+        fontSize: 12,
+        fontWeight: "bold",
+    },
+    optionRow: {
+        flexDirection: "row",
+        alignItems: "center",
     },
 });
 
