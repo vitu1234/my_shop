@@ -44,8 +44,10 @@ function HomeScreen(props) {
 
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-    const btnCategoryAction = (categoryId) => {
+    const btnCategoryAction = (categoryId, categoryName) => {
         setCategoryActive(categoryId);
+        props.navigation.navigate("ProductsByCategoryScreen", { category_id: categoryId, category_name: categoryName});
+        setCategoryActive(-1);
     };
 
     const productCardAction = (product) => {
@@ -59,6 +61,7 @@ function HomeScreen(props) {
     });
 
     useEffect(() => {
+        
         fetchData();
     }, []);
 
@@ -96,7 +99,7 @@ function HomeScreen(props) {
             <TouchableOpacity
                 key={item.sub_category_id}
                 style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
-                onPress={() => btnCategoryAction(item.sub_category_id)}
+                onPress={() => btnCategoryAction(item.sub_category_id, item.sub_category_name)}
             >
                 <Text
                     style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>

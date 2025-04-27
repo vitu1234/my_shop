@@ -23,6 +23,7 @@ import SearchFilterScreen from "@/components/pages/components/search/SearchFilte
 import { useSQLiteContext } from 'expo-sqlite';
 
 function ProductsByCategoryScreen(props) {
+
     const category_id_selected = props.route.params.category_id
     const category_name_selected = props.route.params.category_name
     const db = useSQLiteContext();
