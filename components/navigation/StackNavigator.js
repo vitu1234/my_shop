@@ -18,7 +18,7 @@ import SearchBar from "@/components/pages/components/search/SearchBarInput";
 import ProductsByCategoryScreen from "../pages/ProductsByCategoryScreen";
 import FilterScreen from "../pages/FilterScreen";
 import { X } from "lucide-react-native";
-import {View, Text } from "react-native";
+import { View, Text } from "react-native";
 // import { useNavigation } from '@react-navigation/native';
 
 const Stack = createNativeStackNavigator();
@@ -27,7 +27,7 @@ const Stack = createNativeStackNavigator();
 
 function StackNavigator(props) {
     // const navigation = useNavigation();
-    const goBack = () =>{
+    const goBack = () => {
         console.log("JKLSDHFKJDHDJKF")
         console.log(props)
         console.log("PASSS")
@@ -62,21 +62,21 @@ function StackNavigator(props) {
                     headerShown: true,
                     title: "Back",
                 }} />
-
-                <Stack.Screen name="ProductsByCategoryScreen" component={ProductsByCategoryScreen}
-                    options={{
-                        headerRight: (navigation) => (
-                            <StackNavigationHeader data={{ navigation: navigation }} />
+                <Stack.Screen
+                    name="ProductsByCategoryScreen"
+                    component={ProductsByCategoryScreen}
+                    options={({ navigation }) => ({
+                        headerRight: () => (
+                            <StackNavigationHeader data={{ navigation }} />
                         ),
                         headerShown: true,
-                        // title: "Back",
                         headerBackTitle: 'Back',
                         headerTitle: 'Browsing by Category',
                         headerTitleStyle: {
-                            fontSize: 13
-                        }
-
-                    }} />
+                            fontSize: 13,
+                        },
+                    })}
+                />
 
                 <Stack.Screen
                     name="FilterScreen"
