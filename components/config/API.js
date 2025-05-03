@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import React from "react";
-import {connectToDatabase, deleteProducts, deleteAllProducts} from "@/components/config/sqlite_db_service";
+import { connectToDatabase, deleteProducts, deleteAllProducts } from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
 const base_url = "http://192.168.219.102:8000/api";
@@ -23,7 +23,7 @@ const getHomeScreen = async (props) => {
         await deleteProducts(db);
 
         // console.log("HERE2")
-        const  results = await db.getAllAsync("PRAGMA table_info(category);")
+        const results = await db.getAllAsync("PRAGMA table_info(category);")
         // console.log(data)
         // Use Promise.all to wait for all insert operations to complete
         await Promise.all([
@@ -57,7 +57,7 @@ const getHomeScreen = async (props) => {
                 await Promise.all(
                     product.product_shipping.map(shipping =>
                         db.runAsync("INSERT INTO product_shipping(product_shipping_id,product_id,shipping_company_id,shipping_type,shipping_amount,shipping_company_name,shipping_company_address) VALUES (?,?,?,?,?,?,?);",
-                            [shipping.product_shipping_id, shipping.product_id, shipping.shipping_company_id,shipping.shipping_type,shipping.shipping_amount,shipping.shipping_company_name, shipping.shipping_company_address])
+                            [shipping.product_shipping_id, shipping.product_id, shipping.shipping_company_id, shipping.shipping_type, shipping.shipping_amount, shipping.shipping_company_name, shipping.shipping_company_address])
                     )
                 );
 
@@ -76,96 +76,42 @@ const getHomeScreen = async (props) => {
     }
 };
 
-const getProductsScreen = async (props) => {
-
+const getAllProducts = async (props) => {
+    limit = props.limit;
+    offset = props.offset;
+    console.log(props)
     try {
         // console.log(props.categoryActive)
-        if (props.categoryActive === -1) {
-            fetch(`${base_url}/product`, {
-                method: "GET", // default, so we can ignore
+        fetch(`${base_url}/product/${limit}/${offset}`, {
+            method: "GET", // default, so we can ignore
+        })
+            .then((response) => response.json())
+            .then(async (data) => {
+                // console.log(data.products);
+                const products = data.products;
+                //delete old data
+                // const db = await connectToDatabase()
+                // await deleteAllProducts();
+
+                // //loop through all categories and insert into database
+                // data.categories.map(async (category) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+
+                // });
+
+                // data.products.map(async (product) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
+
+                // });
+                // props.productsScreenLoading(false, "Fetch data success");
+                props.productsScreenLoading(false, "", products);
             })
-                .then((response) => response.json())
-                .then(async (data) => {
-                    // console.log(data.products_homescreen);
-                    //delete old data
-                    const db = await connectToDatabase()
-                    await deleteAllProducts();
+            .catch((err) => {
+                props.productsScreenLoading(true, err.message);
+            });
 
-                    //loop through all categories and insert into database
-                    data.categories.map(async (category) => {
-                        //insert in database
-                        const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
-
-                    });
-
-                    data.products.map(async (product) => {
-                        //insert in database
-                        const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
-
-                    });
-                    props.productsScreenLoading(false, "Fetch data success");
-                })
-                .catch((err) => {
-                    props.productsScreenLoading(true, err.message);
-                });
-        } else if (props.category_id === -1) {
-            fetch(`${base_url}/product`, {
-                method: "GET", // default, so we can ignore
-            })
-                .then((response) => response.json())
-                .then(async (data) => {
-                    // console.log(data.products_homescreen);
-                    //delete old data
-                    const db = await connectToDatabase()
-                    await deleteAllProducts(db);
-
-                    //loop through all categories and insert into database
-                    data.categories.map(async (category) => {
-                        //insert in database
-                        const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
-
-                    });
-
-                    data.products.map(async (product) => {
-                        //insert in database
-                        const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name]);
-
-                    });
-                    props.productsScreenLoading(false, "Fetch data success");
-                })
-                .catch((err) => {
-                    props.productsScreenLoading(true, err.message);
-                });
-        } else {
-            fetch(`${base_url}/product/product_by_category/${props.category_id}`, {
-                method: "GET", // default, so we can ignore
-            })
-                .then((response) => response.json())
-                .then(async (data) => {
-                    // console.log(data.products_homescreen);
-                    //delete old data
-                    const db = await connectToDatabase()
-                    await deleteAllProducts(db);
-
-                    //loop through all categories and insert into database
-                    data.categories.map(async (category) => {
-                        //insert in database
-                        const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name],);
-
-                    });
-
-                    data.products.map(async (product) => {
-                        //insert in database
-                        const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
-
-
-                    });
-                    props.productsScreenLoading(false, "Fetch data success");
-                })
-                .catch((err) => {
-                    props.productsScreenLoading(true, err.message);
-                });
-        }
     } catch (error) {
         props.productsScreenLoading(true, error.message);
     }
@@ -309,7 +255,7 @@ const userLogin = async (props) => {
 export {
     base_url,
     base_urlImages,
-    getProductsScreen,
+    getAllProducts,
     getHomeScreen,
     getUserAccount,
     registerUserAccount,
