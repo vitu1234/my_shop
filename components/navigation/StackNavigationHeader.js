@@ -23,8 +23,8 @@ function StackNavigationHeader(props) {
   };
 
   const goToHome = () => {
-    if (navigator.getState().routes[1].name !== "Drawer") {
-      navigator.navigate("Drawer");
+    if (navigator.getState().routes[1].name !== "Home") {
+      navigator.navigate("Home");
     }
   };
 
