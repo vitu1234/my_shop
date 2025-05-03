@@ -30,9 +30,9 @@
           "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location.",
           "locationAlwaysPermission": "Allow $(PRODUCT_NAME) to use your location",
           "locationWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location"
-
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }
