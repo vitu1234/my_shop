@@ -33,7 +33,7 @@ function ProductsScreen(props) {
     // const [offset, setOffset] = useState(0); //for pagination
     const offsetRef = useRef(0); // for pagination
 
-    const [limit, setLimit] = useState(5); //for pagination
+    const [limit, setLimit] = useState(40); //for pagination
 
     const [categoryActive, setCategoryActive] = useState(-1);
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
