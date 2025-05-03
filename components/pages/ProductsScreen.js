@@ -30,10 +30,9 @@ function ProductsScreen(props) {
     const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
-    // const [offset, setOffset] = useState(0); //for pagination
     const offsetRef = useRef(0); // for pagination
 
-    const [limit, setLimit] = useState(40); //for pagination
+    const [limit, setLimit] = useState(20); //for pagination
 
     const [categoryActive, setCategoryActive] = useState(-1);
     const [isAppDataFetchLoading, setIsAppDataFetchLoading] = useState(true);
@@ -41,8 +40,8 @@ function ProductsScreen(props) {
     const [appDataFetchMsg, setIsAppDataFetchMsg] = useState("");
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
-    // const [isFetchingMore, setIsFetchingMore] = useState(false);
     const [loading, setLoading] = useState(true);  // To manage loading state
+    const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
 
 
@@ -81,10 +80,10 @@ function ProductsScreen(props) {
 
     const fetchData = useCallback(async () => {
         console.log("Fetching Products data... OFFSET:", offsetRef.current);
-        if (!loading) return;
+        if (!loading || !hasMoreProducts) return;
         await getAllProducts({ productsScreenLoading, limit: limit, offset: offsetRef.current });
         offsetRef.current += limit; // Increment offset for next batch
-    }, [offsetRef, isAppDataFetchLoading, loading, limit]);
+    }, [offsetRef, isAppDataFetchLoading, hasMoreProducts, loading, limit]);
 
 
 
@@ -114,17 +113,20 @@ function ProductsScreen(props) {
             });
         } else {
             if (db) {
-                if(categories.length === 0) {
+                if (categories.length === 0) {
                     const categoriesFetch = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM() LIMIT 20");
                     setCategories(categoriesFetch);
                 }
-             
 
-                setProducts(prev => [...prev, ...fetchedProducts]); // Append new products
-                // setOffset(prev => prev + 20); // Increment offset for next batch
-                // const productsFetch = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() LIMIT 20");
-                // setProducts(productsFetch);
 
+                // setProducts(prev => [...prev, ...fetchedProducts]); // Append new products
+
+                if (fetchedProducts.length === 0) {
+                    setHasMoreProducts(false); // No more products
+                } else {
+                    setProducts(prev => [...prev, ...fetchedProducts]);
+                    setOffset(prev => prev + fetchedProducts.length);
+                }
 
                 setIsAppDataFetchError(false);
                 setIsAppDataFetchMsg(message);
@@ -199,20 +201,21 @@ function ProductsScreen(props) {
                 </View>
             }
             // ListFooterComponent={renderFooter}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.3}
             onRefresh={() => {
                 offsetRef.current = 0;
                 setProducts([]);
                 setLoading(true);
                 fetchData();
+                setHasMoreProducts(true);
             }}
             onEndReached={() => {
-                offsetRef.current = offsetRef.current;
+                if (loading || !hasMoreProducts) return;
                 setLoading(true);
                 fetchData();
             }}
             refreshing={loading}
-            ListEmptyComponent={loading ? "" : <Text style={{textAlign: "center", fontSize: 16}}>No products found.</Text>}
+            ListEmptyComponent={loading ? "" : <Text style={{ textAlign: "center", fontSize: 16 }}>No products found.</Text>}
         />
     );
 
