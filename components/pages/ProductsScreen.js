@@ -71,6 +71,7 @@ function ProductsScreen(props) {
         // getProductsScreen({productsScreenLoading, category_id});
         console.log(category.category_id)
         props.navigation.navigate("ProductsByCategoryScreen", { category_id: category.category_id, category_name: category.category_name });
+        setCategoryActive(-1); // Reset active category after navigation
     };
 
     const productCardAction = (product) => {
@@ -81,9 +82,9 @@ function ProductsScreen(props) {
     const fetchData = useCallback(async () => {
         console.log("Fetching Products data... OFFSET:", offsetRef.current);
         if (!loading) return;
-        await getAllProducts({ productsScreenLoading, limit: limit, offset: offsetRef.current});
+        await getAllProducts({ productsScreenLoading, limit: limit, offset: offsetRef.current });
         offsetRef.current += limit; // Increment offset for next batch
-    }, [offset, isAppDataFetchLoading, loading, limit]);
+    }, [offsetRef, isAppDataFetchLoading, loading, limit]);
 
 
 
@@ -113,8 +114,11 @@ function ProductsScreen(props) {
             });
         } else {
             if (db) {
-                const categoriesFetch = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM() LIMIT 20");
-                setCategories(categoriesFetch);
+                if(categories.length === 0) {
+                    const categoriesFetch = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM() LIMIT 20");
+                    setCategories(categoriesFetch);
+                }
+             
 
                 setProducts(prev => [...prev, ...fetchedProducts]); // Append new products
                 // setOffset(prev => prev + 20); // Increment offset for next batch
@@ -164,7 +168,7 @@ function ProductsScreen(props) {
         if (!loading) return null;
         return (
             <View style={styles.footer}>
-                <ActivityIndicator size="large" color="#000" />
+                <ActivityIndicator size="small" color="#000" />
             </View>
         );
     };
@@ -173,6 +177,7 @@ function ProductsScreen(props) {
         <FlatList
             style={styles.container}
             data={products}
+            showsVerticalScrollIndicator={false}
             keyExtractor={(item) => item.product_id.toString() + Math.random()}
             numColumns={2}
             columnWrapperStyle={styles.columnWrapperStyle}
@@ -202,12 +207,12 @@ function ProductsScreen(props) {
                 fetchData();
             }}
             onEndReached={() => {
-                offsetRef.current = offsetRef.current ;
+                offsetRef.current = offsetRef.current;
                 setLoading(true);
                 fetchData();
             }}
             refreshing={loading}
-            ListEmptyComponent={loading ? renderLoader() : <Text>No products found.</Text>}
+            ListEmptyComponent={loading ? "" : <Text style={{textAlign: "center", fontSize: 16}}>No products found.</Text>}
         />
     );
 
@@ -245,8 +250,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     productCardContainer: {
-        width: (width - 30) / 2 - 15,
-        marginHorizontal: 5,
+        flex: 1,
+        margin: 5,
+        maxWidth: (width / 2) - 15,
     },
     flashProductsContainer: {
         paddingHorizontal: 16,
@@ -273,7 +279,8 @@ const styles = StyleSheet.create({
         width: (width - 10) / 2 - 15,
     },
     columnWrapperStyle: {
-        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginStart: 5
     },
     flashProductsListContainer: {
         paddingBottom: 80,
