@@ -79,7 +79,7 @@ function HomeScreen(props) {
                 bottomOffset: 50,
             });
         } else {
-            const categories = await db.getAllAsync("SELECT * FROM sub_category ORDER BY RANDOM() LIMIT 10");
+            const categories = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM() LIMIT 10");
             const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
             const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
 
@@ -97,12 +97,12 @@ function HomeScreen(props) {
     const renderCategoryList = ({ item }) => (
         <View>
             <TouchableOpacity
-                key={item.sub_category_id}
-                style={[styles.categoryButton, item.sub_category_id === categoryActive && styles.activeCategory]}
-                onPress={() => btnCategoryAction(item.sub_category_id, item.sub_category_name)}
+                key={item.category_id}
+                style={[styles.categoryButton, item.category_id === categoryActive && styles.activeCategory]}
+                onPress={() => btnCategoryAction(item.category_id, item.category_name)}
             >
                 <Text
-                    style={[styles.categoryText, item.sub_category_id === categoryActive && styles.activeCategoryText]}>{item.sub_category_name}</Text>
+                    style={[styles.categoryText, item.category_id === categoryActive && styles.activeCategoryText]}>{item.category_name}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -196,7 +196,7 @@ function HomeScreen(props) {
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.horizontalListContainer}
                                 renderItem={renderCategoryList}
-                                keyExtractor={item => item.sub_category_id.toString()}
+                                keyExtractor={item => item.category_id.toString()}
                             />
                         );
 
