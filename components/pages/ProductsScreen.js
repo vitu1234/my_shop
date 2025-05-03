@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     },
     categoryText: {
         color: '#000',
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
     },
     productCardContainer: {
         flex: 1,
