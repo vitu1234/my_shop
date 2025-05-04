@@ -4,7 +4,6 @@ import { connectToDatabase, deleteProducts, deleteAllProducts } from "@/componen
 
 // require('dotenv/config');
 const base_url = "http://192.168.219.102:8000/api";
-const base_urlImages = "http://192.168.0.5/my_shop/my_shop_api/public/storage";
 
 //===================================================================
 //GET METHODS
@@ -169,12 +168,12 @@ const getSearchSuggestions = async (props) => {
     console.log(props)
     try {
         // console.log(props.categoryActive)
-        fetch(`${base_url}/product/search/suggestions/${searchQuery}`, {
+        fetch(`${base_url}/product/search/suggestions/${encodeURIComponent(searchQuery)}`, {
             method: "GET", // default, so we can ignore
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log("RESYKRS" )
+                console.log("RESYKRS")
                 console.log(data);
                 const products = data.searchSuggestions;
                 //delete old data
@@ -198,11 +197,82 @@ const getSearchSuggestions = async (props) => {
             })
             .catch((err) => {
                 props.productsSearchSuggestionsLoading(true, err.message);
-                
+
             });
 
     } catch (error) {
         props.productsSearchSuggestionsLoading(true, error.message);
+    }
+
+};
+
+//search 
+const getSearch = async (props) => {
+    searchQuery = props.searchText;
+    limit = props.limit;
+    offset = props.offset;
+    console.log("SEARCHING: " + searchQuery)
+    console.log(props)
+
+
+
+    url_params = '';
+    if (props.category_id != -1 && props.category_id != undefined) {
+        console.log("CATEGORY ID: " + props.category_id)
+        url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/${props.category_id}/-1/-1`
+    } else if (props.sub_category_id != -1 && props.sub_category_id != undefined) {
+        console.log("SUB CATEGORY ID: " + props.sub_category_id)
+        url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/${props.sub_category_id}/-1`
+    } else if (props.product_id != -1 && props.product_id != undefined) {
+        console.log("PRODUCT ID: " + props.product_id)
+         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/-1/${props.product_id}`
+    } else {
+        console.log("NO CATEGORY ID")
+        url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}`
+    }
+    console.log("URL PARAMS: " + url_params)
+
+    // all/{searchQuery}/{limit}/{offset}/{category_id?}/{sub_category_id?}/{product_id?}
+    try {
+        // console.log(props.categoryActive)
+        fetch(`${base_url}/product/search/all/${url_params}`, {
+            method: "GET", // default, so we can ignore
+        })
+            .then((response) => response.json())
+            .then(async (data) => {
+                console.log("RESYKRS")
+                console.log(data);
+                const products = data.search_results;
+                const totalResults = data.total_results;
+                console.log("TOTAL RESULTS: " + totalResults)
+                //delete old data
+                // const db = await connectToDatabase()
+                // await deleteAllProducts();
+
+                // //loop through all categories and insert into database
+                // data.categories.map(async (category) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+
+                // });
+
+                // data.products.map(async (product) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
+
+                // });
+                // props.productsScreenLoading(false, "Fetch data success");
+                props.productsSearchResultsLoading(false, "", products);
+            })
+            .catch((err) => {
+                console.log("ERROR: " + err.message)
+                props.productsSearchResultsLoading(true, err.message);
+
+            });
+
+    } catch (error) {
+        console.log("ERROR2: " + error.message)
+        props.productsSearchResultsLoading(true, error.message);
     }
 
 };
@@ -344,10 +414,10 @@ const userLogin = async (props) => {
 
 export {
     base_url,
-    base_urlImages,
+    // base_urlImages,
     getAllProducts,
     getAllProductsByCategory,
-
+    getSearch,
     getSearchSuggestions,
     getHomeScreen,
     getUserAccount,
