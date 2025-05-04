@@ -162,6 +162,51 @@ const getAllProductsByCategory = async (props) => {
 
 };
 
+//search suggestions
+const getSearchSuggestions = async (props) => {
+    searchQuery = props.searchText;
+    console.log("SEARCHING: " + searchQuery)
+    console.log(props)
+    try {
+        // console.log(props.categoryActive)
+        fetch(`${base_url}/product/search/suggestions/${searchQuery}`, {
+            method: "GET", // default, so we can ignore
+        })
+            .then((response) => response.json())
+            .then(async (data) => {
+                console.log("RESYKRS" )
+                console.log(data);
+                const products = data.searchSuggestions;
+                //delete old data
+                // const db = await connectToDatabase()
+                // await deleteAllProducts();
+
+                // //loop through all categories and insert into database
+                // data.categories.map(async (category) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+
+                // });
+
+                // data.products.map(async (product) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
+
+                // });
+                // props.productsScreenLoading(false, "Fetch data success");
+                props.productsSearchSuggestionsLoading(false, "", products);
+            })
+            .catch((err) => {
+                props.productsSearchSuggestionsLoading(true, err.message);
+                
+            });
+
+    } catch (error) {
+        props.productsSearchSuggestionsLoading(true, error.message);
+    }
+
+};
+
 
 //get registered user account | checks user token validity
 const getUserAccount = async (props) => {
@@ -302,6 +347,8 @@ export {
     base_urlImages,
     getAllProducts,
     getAllProductsByCategory,
+
+    getSearchSuggestions,
     getHomeScreen,
     getUserAccount,
     registerUserAccount,
