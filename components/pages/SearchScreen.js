@@ -70,11 +70,6 @@ const SearchScreen = (props) => {
         }
     }, [searchSuggestionItemName, isSearchButtonPressed]);
 
-    const handleSearchTextChange = useCallback((text) => {
-        setSearchText(text);
-        setIsTyping(text.length > 0);
-    }, []);
-
 
     if (isAppDataFetchLoading) {
         return (<SafeAreaView style={styles.container}>
