@@ -35,6 +35,7 @@ function ProductsByCategoryScreen(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const offsetRef = useRef(0); // for pagination
+    const isInitialLoadRef = useRef(true);
 
     const [limit, setLimit] = useState(20); //for pagination
 
@@ -73,12 +74,13 @@ function ProductsByCategoryScreen(props) {
         // setProducts([]);         // Clear old products
         // setPage(1);              // Reset page for pagination
         // setHasMore(true);        // Reset hasMore for new fetch
-
+        isInitialLoadRef.current = true;
         offsetRef.current = 0; // Reset offset for new fetch
         setLoading(true); // Set loading to true
         setProducts([]); // Clear old products
         setHasMoreProducts(true); // Reset hasMore for new fetch
         setIsAppDataFetchLoading(true); // Set loading to true
+        console.log(products.length, "PRODUCTS LENGTH")
         fetchData(); // Fetch new data
     };
 
@@ -100,13 +102,15 @@ function ProductsByCategoryScreen(props) {
             
         }
         offsetRef.current += limit; // Increment offset for next batch
-    }, [offsetRef, products, isAppDataFetchLoading, hasMoreProducts, loading, limit]);
+    }, [offsetRef, isAppDataFetchLoading, hasMoreProducts, loading, limit]);
 
     useFocusEffect(
         useCallback(() => {
             fetchData();
         }, [fetchData]),
     );
+
+
 
     const productsScreenLoading = async (isFetchingDataError, message, fetchedProducts) => {
         console.log("Loading products screen results...");
@@ -133,13 +137,22 @@ function ProductsByCategoryScreen(props) {
                     setSubCategories(subCategoriesFetch);
                 }
 
-
+               
                 if (fetchedProducts.length === 0) {
-                    setHasMoreProducts(false); // No more products
+                    if (isInitialLoadRef.current) {
+                        setProducts([]); // Explicitly reset to empty if it's a fresh load
+                    }
+                    setHasMoreProducts(false);
                 } else {
-                    setProducts(prev => [...prev, ...fetchedProducts]);
-                    setOffset(prev => prev + fetchedProducts.length);
+                    if (isInitialLoadRef.current) {
+                        setProducts(fetchedProducts); // Replace on initial load
+                        isInitialLoadRef.current = false;
+                    } else {
+                        setProducts(prev => [...prev, ...fetchedProducts]); // Append on scroll
+                    }
+                    offsetRef.current += fetchedProducts.length;
                 }
+                
 
                 setIsAppDataFetchError(false);
                 setIsAppDataFetchMsg(message);
