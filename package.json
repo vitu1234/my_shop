@@ -42,6 +42,7 @@
     "@gluestack-ui/toast": "^1.0.7",
     "@gluestack-ui/tooltip": "^0.1.32",
     "@legendapp/motion": "^2.3.0",
+    "@react-native/metro-config": "^0.79.2",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
@@ -67,6 +68,7 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
     "react-native-sqlite-storage": "^6.0.1",
+    "react-native-svg-transformer": "^1.5.1",
     "react-native-toast-message": "^2.2.1",
     "react-native-vector-icons": "^10.2.0"
   },

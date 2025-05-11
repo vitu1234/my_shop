@@ -3,7 +3,7 @@ import React from "react";
 import { connectToDatabase, deleteProducts, deleteAllProducts } from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.219.102:8000/api";
+const base_url = "http://192.168.3.200:8000/api";
 
 //===================================================================
 //GET METHODS
@@ -123,6 +123,8 @@ const getAllProductsByCategory = async (props) => {
     limit = props.limit;
     offset = props.offset;
     console.log(props)
+    console.log("CATEGORY ID: " + category_id)
+    console.log(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`)
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`, {
@@ -130,7 +132,7 @@ const getAllProductsByCategory = async (props) => {
         })
             .then((response) => response.json())
             .then(async (data) => {
-                // console.log(data.products);
+                console.log(products);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -160,6 +162,52 @@ const getAllProductsByCategory = async (props) => {
     }
 
 };
+
+//get all products by sub_category
+const getAllProductsBySubCategory = async (props) => {
+    category_id = props.category_id;
+    sub_category_id = props.sub_category_id;
+    limit = props.limit;
+    offset = props.offset;
+    console.log(props)
+    console.log("CATEGORY ID: " + category_id + " SUB CATEGORY ID: " + sub_category_id)
+    console.log(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`)
+    try {
+        // console.log(props.categoryActive)
+        fetch(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`, {
+            method: "GET", // default, so we can ignore
+        })
+            .then((response) => response.json())
+            .then(async (data) => {
+                console.log(data.products);
+                const products = data.products;
+                //delete old data
+                // const db = await connectToDatabase()
+                // await deleteAllProducts();
+
+                // //loop through all categories and insert into database
+                // data.categories.map(async (category) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO category (category_id, category_name) VALUES (?,?)", [category.category_id, category.category_name]);
+
+                // });
+
+                // data.products.map(async (product) => {
+                //     //insert in database
+                //     const result = await db.runAsync("INSERT INTO product(product_id,category_id,product_name,qty,price,img_url,product_description, category_name) VALUES (?,?,?,?,?,?,?,?);", [product.product_id, product.category_id, product.product_name, product.qty, product.price, product.img_url, product.product_description, product.category_name],);
+
+                // });
+                // props.productsScreenLoading(false, "Fetch data success");
+                props.productsScreenLoading(false, "", products);
+            })
+            .catch((err) => {
+                props.productsScreenLoading(true, err.message);
+            });
+
+    } catch (error) {
+        props.productsScreenLoading(true, error.message);
+    }
+}
 
 //search suggestions
 const getSearchSuggestions = async (props) => {
@@ -225,7 +273,7 @@ const getSearch = async (props) => {
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/${props.sub_category_id}/-1`
     } else if (props.product_id != -1 && props.product_id != undefined) {
         console.log("PRODUCT ID: " + props.product_id)
-         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/-1/${props.product_id}`
+        url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/-1/${props.product_id}`
     } else {
         console.log("NO CATEGORY ID")
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}`
@@ -417,6 +465,7 @@ export {
     // base_urlImages,
     getAllProducts,
     getAllProductsByCategory,
+    getAllProductsBySubCategory,
     getSearch,
     getSearchSuggestions,
     getHomeScreen,
