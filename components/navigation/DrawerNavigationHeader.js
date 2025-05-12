@@ -116,22 +116,22 @@ function DrawerNavigationHeader(props) {
     <View style={styles.headerContainer}>
     {route.name !== "Products" ? (
       <TouchableOpacity onPress={gotToSearch} style={styles.iconTouchable}>
-        <Search color="#000" size={24} />
+        <Search color="#000" size={26} />
       </TouchableOpacity>
     ) : (
       <View style={styles.row}>
         <TouchableOpacity onPress={gotToSearch} style={styles.iconTouchable}>
-          <Search color="#000" size={24} />
+          <Search color="#000" size={26} />
         </TouchableOpacity>
         <TouchableOpacity onPress={sortFilterAction} style={styles.iconTouchable}>
-          <ListFilter color="#000" size={24} />
+          <ListFilter color="#000" size={26} />
         </TouchableOpacity>
       </View>
     )}
   
     <TouchableOpacity onPress={gotToCart} style={styles.iconTouchable}>
       <Animated.View style={{ transform: [{ scale: bounceAnim }] }}>
-        <ShoppingCart color="#000" size={24} />
+        <ShoppingCart color="#000" size={26} />
         {cartItemsCount > 0 && (
           <View style={styles.cartBadge}>
             <Text style={styles.badgeText}>{cartItemsCount}</Text>
@@ -159,7 +159,7 @@ function DrawerNavigationHeader(props) {
       </View>
     ) : (
       <TouchableOpacity style={styles.iconTouchable} onPress={gotToLogin}>
-        <LogIn color="#000" size={24} />
+        <LogIn color="#000" size={26} />
       </TouchableOpacity>
     )}
   </View>
