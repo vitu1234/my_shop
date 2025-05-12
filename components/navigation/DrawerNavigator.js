@@ -46,7 +46,7 @@ function DrawerNavigator(props) {
       />
 
 
-      <Drawer.Screen name="Search" component={SearchScreen} options={
+      {/* <Drawer.Screen name="Search" component={SearchScreen} options={
         {
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
@@ -55,10 +55,11 @@ function DrawerNavigator(props) {
             <Search size={size} color={focused ? "#2780e3" : "#ccc"} />
           ),
         }
-      } />
+      } /> */}
 
       <Drawer.Screen name="Cart" component={CartScreen} options={
         {
+          headerTitle: '',
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
           }} />,
@@ -105,6 +106,7 @@ function DrawerNavigator(props) {
       } />
       <Drawer.Screen name="Products" component={Products} options={
         {
+          headerTitle: '',
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
           }} />,

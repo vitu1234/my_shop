@@ -7,14 +7,23 @@ import ToastComponent from "../pages/components/ToastComponent";
 import { Image } from "@/components/ui/image";
 import { Text } from "@/components/ui/text";
 import { useToast } from "@/components/ui/toast";
-import { Home, LogIn, Search, ShoppingCart } from "lucide-react-native";
+import { Home, ListFilter, LogIn, Search, ShoppingCart } from "lucide-react-native";
 import Icon2 from "react-native-vector-icons/MaterialCommunityIcons";
+
+import { Animated } from "react-native";
+import { useEffect, useRef } from "react";
+
+import { useRoute } from "@react-navigation/native";
 
 function StackNavigationHeader(props) {
   const toast = useToast();
+  const route = useRoute();
   const [cartItemsCount] = useContext(CartContext);
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
   const navigator = props.data.navigation;
+
+  const bounceAnim = useRef(new Animated.Value(1)).current;
+
 
   const goToCart = () => {
     if (navigator.getState().routes[1].name !== "Cart") {
@@ -56,64 +65,67 @@ function StackNavigationHeader(props) {
     });
   };
 
+  const sortFilterAction = () => {
+    // setIsModalVisibleProducts(true)
+    // console.log("Clicker sort clicke")
+    navigator.navigate("FilterScreen");
+  }
+
+
+  useEffect(() => {
+    if (cartItemsCount > 0) {
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: 1.3,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [cartItemsCount]);
+
 
   return (
 
-    <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-      {/*remove search icon from nav bar*/}
-
-      <TouchableOpacity onPress={goToSearch} style={{ margin: 12, marginEnd: 1 }}>
-
-        <Search color={"#000"} size={26} />
+    <View style={styles.headerContainer}>
+    {route.name !== "ProductsByCategoryScreen" ? (
+      <TouchableOpacity onPress={goToSearch} style={styles.iconTouchable}>
+        <Search color="#000" size={26} />
       </TouchableOpacity>
-
-      <TouchableOpacity onPress={goToHome} style={{ margin: 12, marginEnd: 10 }}>
-
-        <Home color={"#000"} size={26} />
-      </TouchableOpacity>
-
-
-
-      <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <TouchableOpacity onPress={goToCart}>
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-
-            <ShoppingCart name="shoppingcart" color={"#000"} size={26} />
-            {cartItemsCount > 0 ? (
-              <View
-                style={{
-
-                  position: "absolute",
-                  backgroundColor: "dodgerblue",
-                  width: 20,
-                  height: 20,
-                  borderRadius: 20 / 2,
-                  right: -8,
-                  top: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}>
-                <Text
-                  style={{
-                    color: "white",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    // color: "#FFFFFF",
-                    fontSize: 12,
-                  }}>
-                  {cartItemsCount}
-                </Text>
-              </View>
-            ) : null}
-            <View>
-
-            </View>
-          </View>
+    ) : (
+      <View style={styles.row}>
+        <TouchableOpacity onPress={goToSearch} style={styles.iconTouchable}>
+          <Search color="#000" size={26} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={ sortFilterAction} style={styles.iconTouchable}>
+          <ListFilter color="#000" size={26} />
         </TouchableOpacity>
       </View>
-
-
-    </View>
+    )}
+  
+    <TouchableOpacity onPress={goToHome} style={styles.iconTouchable}>
+      <Home color="#000" size={26} />
+    </TouchableOpacity>
+  
+    <TouchableOpacity onPress={goToCart} style={styles.iconTouchable}>
+      <View style={styles.iconContainer}>
+        <Animated.View style={{ transform: [{ scale: bounceAnim }] }}>
+          <ShoppingCart color="#000" size={26} />
+          {cartItemsCount > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.badgeText}>{cartItemsCount}</Text>
+            </View>
+          )}
+        </Animated.View>
+      </View>
+    </TouchableOpacity>
+  </View>
+  
   );
 
 
@@ -123,37 +135,37 @@ function StackNavigationHeader(props) {
 const styles = StyleSheet.create({
   headerContainer: {
     flexDirection: "row",
-  },
-  iconWrapper: {},
-  iconContainer: {
-    flex: 1,
+    justifyContent: "flex-end",
     alignItems: "center",
-    // justifyContent: "center",
-
+    // paddingHorizontal: ,
+    paddingVertical: 4,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconTouchable: {
+    marginHorizontal: 4,
+    padding: 4,
   },
   cartBadge: {
     position: "absolute",
-    backgroundColor: "blue",
+    backgroundColor: "dodgerblue",
     width: 16,
     height: 16,
     borderRadius: 8,
-    right: -8,
-    top: 5,
-    // alignItems: "center",
-    // justifyContent: "center",
+    right: -6,
+    top: -4,
+    alignItems: "center",
+    justifyContent: "center",
   },
   badgeText: {
-    color: "#FFFFFF",
-    fontSize: 8,
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "600",
     textAlign: "center",
   },
-  logoutIconWrapper: {
-    marginTop: 17,
-    marginRight: 16,
-  },
-  loginIconWrapper: {
-    // margin: 16,
-  },
 });
+
 
 export default StackNavigationHeader;
