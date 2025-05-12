@@ -13,11 +13,11 @@ import { Text } from "@/components/ui/text"
 import { useToast, Toast } from "@/components/ui/toast"
 import { Image } from "@/components/ui/image"
 import { LogIn, Search, ShoppingCart } from "lucide-react-native";
-
-
+import { Animated } from "react-native";
+import { useRef } from "react";
 
 function DrawerNavigationHeader(props) {
-  const toast = useToast();
+  // const toast = useToast();
   const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
   const [isModalVisibleProducts, setIsModalVisibleProducts] = useContext(ProductFilterModalContext);
   const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
@@ -65,14 +65,14 @@ function DrawerNavigationHeader(props) {
       status: "success",
       duration: 1000,
     };
-    toast.show({
-      render: () => {
-        return <ToastComponent {...ToastDetails} />;
-      },
-    });
+    // toast.show({
+    //   render: () => {
+    //     return <ToastComponent {...ToastDetails} />;
+    //   },
+    // });
   };
 
-  const sortFilterAction = () =>{
+  const sortFilterAction = () => {
     setIsModalVisibleProducts(true)
     console.log("Clicker sort clicke")
     navigator.navigate("FilterScreen");
@@ -90,6 +90,26 @@ function DrawerNavigationHeader(props) {
 
   }, [isLoggedIn]);
 
+  const bounceAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (cartItemsCount > 0) {
+      Animated.sequence([
+        Animated.timing(bounceAnim, {
+          toValue: 1.3,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bounceAnim, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [cartItemsCount]);
+
+
   return (
 
     <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
@@ -97,23 +117,24 @@ function DrawerNavigationHeader(props) {
       {
         (route.name !== "Products") ?
           <TouchableOpacity onPress={gotToSearch} style={{ margin: 12 }}>
-            {/* <Icon
-              name="search1"
-              color={"#000"}
-              size={20}
-              containerStyle={{ marginHorizontal: 15, position: "relative" }}
-            /> */}
-            <Search color={"#000"} size={26}/>
-          </TouchableOpacity> :
-
-          <TouchableOpacity onPress={() => sortFilterAction()} style={{ margin: 12 }}>
-            <Icon2
-              name="sort"
-              color={"#000"}
-              size={20}
-              containerStyle={{ marginHorizontal: 15, position: "relative" }}
-            />
+            <Search color={"#000"} size={26} />
           </TouchableOpacity>
+          
+          :
+
+          <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+            <TouchableOpacity onPress={gotToSearch} style={{ marginTop: 8 }}>
+              <Search color={"#000"} size={26} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => sortFilterAction()} style={{ margin: 12 }}>
+              <Icon2
+                name="sort"
+                color={"#000"}
+                size={20}
+                containerStyle={{ marginHorizontal: 15, position: "relative" }}
+              />
+            </TouchableOpacity>
+          </View>
       }
 
 
@@ -126,33 +147,33 @@ function DrawerNavigationHeader(props) {
               size={20}
               containerStyle={{ marginHorizontal: 15, position: "relative" }}
             /> */}
-            <ShoppingCart name="shoppingcart" color={"#000"} size={26}/>
+            <ShoppingCart name="shoppingcart" color={"#000"} size={26} />
             {cartItemsCount > 0 ? (
-              <View
+              <Animated.View
                 style={{
-
+                  transform: [{ scale: bounceAnim }],
                   position: "absolute",
                   backgroundColor: "dodgerblue",
                   width: 20,
                   height: 20,
-                  borderRadius: 20 / 2,
+                  borderRadius: 10,
                   right: -8,
                   top: 5,
                   alignItems: "center",
                   justifyContent: "center",
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     color: "white",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    // color: "#FFFFFF",
                     fontSize: 12,
-                  }}>
+                  }}
+                >
                   {cartItemsCount}
                 </Text>
-              </View>
+              </Animated.View>
             ) : null}
+
             <View>
 
             </View>
