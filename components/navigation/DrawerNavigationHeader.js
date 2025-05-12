@@ -8,6 +8,7 @@ import { navibar_profile_styles } from "@/styles/AllStyles";
 //import { deleteAllUserData } from "../config/sqlite_db_service";
 import ToastComponent from "../pages/components/ToastComponent";
 
+import {  ListFilter} from "lucide-react-native";
 
 import { Text } from "@/components/ui/text"
 import { useToast, Toast } from "@/components/ui/toast"
@@ -73,8 +74,8 @@ function DrawerNavigationHeader(props) {
   };
 
   const sortFilterAction = () => {
-    setIsModalVisibleProducts(true)
-    console.log("Clicker sort clicke")
+    // setIsModalVisibleProducts(true)
+    // console.log("Clicker sort clicke")
     navigator.navigate("FilterScreen");
   }
 
@@ -116,7 +117,7 @@ function DrawerNavigationHeader(props) {
       {/*remove search icon from nav bar*/}
       {
         (route.name !== "Products") ?
-          <TouchableOpacity onPress={gotToSearch} style={{ margin: 12 }}>
+          <TouchableOpacity onPress={gotToSearch} style={{ margin: 4 }}>
             <Search color={"#000"} size={26} />
           </TouchableOpacity>
           
@@ -126,13 +127,14 @@ function DrawerNavigationHeader(props) {
             <TouchableOpacity onPress={gotToSearch} style={{ marginTop: 8 }}>
               <Search color={"#000"} size={26} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => sortFilterAction()} style={{ margin: 12 }}>
-              <Icon2
+            <TouchableOpacity onPress={sortFilterAction} style={{ margin: 12 }}>
+              {/* <Icon2
                 name="sort"
                 color={"#000"}
                 size={20}
                 containerStyle={{ marginHorizontal: 15, position: "relative" }}
-              />
+              /> */}
+              <ListFilter color="#000" size={26} />
             </TouchableOpacity>
           </View>
       }

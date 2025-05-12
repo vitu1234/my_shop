@@ -65,6 +65,12 @@ function StackNavigationHeader(props) {
     });
   };
 
+  const sortFilterAction = () => {
+    // setIsModalVisibleProducts(true)
+    // console.log("Clicker sort clicke")
+    navigator.navigate("FilterScreen");
+  }
+
 
   useEffect(() => {
     if (cartItemsCount > 0) {
@@ -96,7 +102,7 @@ function StackNavigationHeader(props) {
         <TouchableOpacity onPress={goToSearch} style={styles.iconTouchable}>
           <Search color="#000" size={26} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => sortFilterAction()} style={styles.iconTouchable}>
+        <TouchableOpacity onPress={ sortFilterAction} style={styles.iconTouchable}>
           <ListFilter color="#000" size={26} />
         </TouchableOpacity>
       </View>

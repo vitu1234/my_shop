@@ -59,6 +59,7 @@ function DrawerNavigator(props) {
 
       <Drawer.Screen name="Cart" component={CartScreen} options={
         {
+          headerTitle: '',
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
           }} />,
@@ -105,6 +106,7 @@ function DrawerNavigator(props) {
       } />
       <Drawer.Screen name="Products" component={Products} options={
         {
+          headerTitle: '',
           headerRight: (props) => <DrawerNavigationHeader data={{
             navigator: navigationData,
           }} />,

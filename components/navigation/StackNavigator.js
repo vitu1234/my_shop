@@ -71,7 +71,7 @@ function StackNavigator(props) {
                         ),
                         headerShown: true,
                         headerBackTitle: 'Back',
-                        headerTitle: 'Browsing by Category',
+                        headerTitle: '',
                         headerTitleStyle: {
                             fontSize: 13,
                         },
@@ -105,6 +105,7 @@ function StackNavigator(props) {
                             <StackNavigationHeader data={{ navigation: navigation }} />
                         ),
                         headerBackTitle: 'Back',
+                        headerTitle: '',
                     })}
                 />
                 <Stack.Screen name="ProductDetails" component={ProductDetails}
