@@ -21,7 +21,7 @@ import { useToast, Toast } from "@/components/ui/toast"
 import { Heading } from "@/components/ui/heading"
 import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
 import { useSQLiteContext } from 'expo-sqlite';
-import { getAllProducts, getAllProductsByCategory } from "../config/API";
+import { getAllProducts, getAllProductsByCategory, getAllProductsBySubCategory } from "../config/API";
 import { useFocusEffect } from '@react-navigation/native';
 import { useRef } from "react";
 
@@ -35,6 +35,7 @@ function ProductsByCategoryScreen(props) {
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const offsetRef = useRef(0); // for pagination
+    const isInitialLoadRef = useRef(true);
 
     const [limit, setLimit] = useState(20); //for pagination
 
@@ -68,11 +69,16 @@ function ProductsByCategoryScreen(props) {
 
 
     const btnSubCategoryAction = (sub_category_id) => {
-        console.log(sub_category_id, "SU CATEGORY SELECTED")
+        // console.log(sub_category_id, "SUB CATEGORY SELECTED")
         setSubCategoryActive(sub_category_id);
-        // setProducts([]);         // Clear old products
-        // setPage(1);              // Reset page for pagination
-        // setHasMore(true);        // Reset hasMore for new fetch
+        isInitialLoadRef.current = true;
+        offsetRef.current = 0; // Reset offset for new fetch
+        setLoading(true); // Set loading to true
+        setProducts([]); // Clear old products
+        setHasMoreProducts(true); // Reset hasMore for new fetch
+        setIsAppDataFetchLoading(true); // Set loading to true
+        console.log(products.length, "PRODUCTS LENGTH")
+        // fetchData(); // Fetch new data
     };
 
 
@@ -82,9 +88,19 @@ function ProductsByCategoryScreen(props) {
 
 
     const fetchData = useCallback(async () => {
-        console.log("Fetching Products data... OFFSET:", offsetRef.current);
+        // console.log("Fetching Products data... OFFSET:", offsetRef.current);
         if (!loading || !hasMoreProducts) return;
-        await getAllProductsByCategory({ productsScreenLoading, category_id: category_id_selected, limit: limit, offset: offsetRef.current });
+        // if (isInitialLoadRef.current) {
+        //     setProducts([]); // Explicitly reset to empty if it's a fresh load
+        // }
+        if(subCategoryActive !== -1) {
+            // console.log("Fetching Products by subcategory...");
+            await getAllProductsBySubCategory({ productsScreenLoading, category_id: category_id_selected, sub_category_id: subCategoryActive, limit: limit, offset: offsetRef.current });
+        }else{
+            // console.log("Fetching Products by category...");
+            await getAllProductsByCategory({ productsScreenLoading, category_id: category_id_selected, limit: limit, offset: offsetRef.current });
+            
+        }
         offsetRef.current += limit; // Increment offset for next batch
     }, [offsetRef, isAppDataFetchLoading, hasMoreProducts, loading, limit]);
 
@@ -95,8 +111,9 @@ function ProductsByCategoryScreen(props) {
     );
 
     const productsScreenLoading = async (isFetchingDataError, message, fetchedProducts) => {
-        console.log("Loading products screen results...");
-        console.log("returned Productssss: " + fetchedProducts);
+        // console.log("Loading products screen results...");
+        // console.log("returned Productssss: " + fetchedProducts);
+        // console.log( fetchedProducts);
         setLoading(false);
         setIsAppDataFetchLoading(false);  // Stop loading
         if (isFetchingDataError) {
@@ -118,15 +135,22 @@ function ProductsByCategoryScreen(props) {
                     setSubCategories(subCategoriesFetch);
                 }
 
-
-                // setProducts(prev => [...prev, ...fetchedProducts]); // Append new products
-
+               
                 if (fetchedProducts.length === 0) {
-                    setHasMoreProducts(false); // No more products
+                    if (isInitialLoadRef.current) {
+                        setProducts([]); // Explicitly reset to empty if it's a fresh load
+                    }
+                    setHasMoreProducts(false);
                 } else {
-                    setProducts(prev => [...prev, ...fetchedProducts]);
-                    setOffset(prev => prev + fetchedProducts.length);
+                    if (isInitialLoadRef.current) {
+                        setProducts(fetchedProducts); // Replace on initial load
+                        isInitialLoadRef.current = false;
+                    } else {
+                        setProducts(prev => [...prev, ...fetchedProducts]); // Append on scroll
+                    }
+                    offsetRef.current += fetchedProducts.length;
                 }
+                
 
                 setIsAppDataFetchError(false);
                 setIsAppDataFetchMsg(message);
