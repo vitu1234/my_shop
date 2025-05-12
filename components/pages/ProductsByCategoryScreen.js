@@ -69,7 +69,7 @@ function ProductsByCategoryScreen(props) {
 
 
     const btnSubCategoryAction = (sub_category_id) => {
-        console.log(sub_category_id, "SUB CATEGORY SELECTED")
+        // console.log(sub_category_id, "SUB CATEGORY SELECTED")
         setSubCategoryActive(sub_category_id);
         isInitialLoadRef.current = true;
         offsetRef.current = 0; // Reset offset for new fetch
@@ -88,16 +88,16 @@ function ProductsByCategoryScreen(props) {
 
 
     const fetchData = useCallback(async () => {
-        console.log("Fetching Products data... OFFSET:", offsetRef.current);
+        // console.log("Fetching Products data... OFFSET:", offsetRef.current);
         if (!loading || !hasMoreProducts) return;
         // if (isInitialLoadRef.current) {
         //     setProducts([]); // Explicitly reset to empty if it's a fresh load
         // }
         if(subCategoryActive !== -1) {
-            console.log("Fetching Products by subcategory...");
+            // console.log("Fetching Products by subcategory...");
             await getAllProductsBySubCategory({ productsScreenLoading, category_id: category_id_selected, sub_category_id: subCategoryActive, limit: limit, offset: offsetRef.current });
         }else{
-            console.log("Fetching Products by category...");
+            // console.log("Fetching Products by category...");
             await getAllProductsByCategory({ productsScreenLoading, category_id: category_id_selected, limit: limit, offset: offsetRef.current });
             
         }
@@ -111,9 +111,9 @@ function ProductsByCategoryScreen(props) {
     );
 
     const productsScreenLoading = async (isFetchingDataError, message, fetchedProducts) => {
-        console.log("Loading products screen results...");
-        console.log("returned Productssss: " + fetchedProducts);
-        console.log( fetchedProducts);
+        // console.log("Loading products screen results...");
+        // console.log("returned Productssss: " + fetchedProducts);
+        // console.log( fetchedProducts);
         setLoading(false);
         setIsAppDataFetchLoading(false);  // Stop loading
         if (isFetchingDataError) {

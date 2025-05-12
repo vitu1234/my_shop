@@ -169,9 +169,9 @@ const getAllProductsBySubCategory = async (props) => {
     sub_category_id = props.sub_category_id;
     limit = props.limit;
     offset = props.offset;
-    console.log(props)
-    console.log("CATEGORY ID: " + category_id + " SUB CATEGORY ID: " + sub_category_id)
-    console.log(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`)
+    // console.log(props)
+    // console.log("CATEGORY ID: " + category_id + " SUB CATEGORY ID: " + sub_category_id)
+    // console.log(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`)
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`, {
