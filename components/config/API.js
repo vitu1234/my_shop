@@ -132,7 +132,7 @@ const getAllProductsByCategory = async (props) => {
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log(products);
+                // console.log(products);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -174,12 +174,12 @@ const getAllProductsBySubCategory = async (props) => {
     console.log(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`)
     try {
         // console.log(props.categoryActive)
-        fetch(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`, {
+        fetch(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`, {
             method: "GET", // default, so we can ignore
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log(data.products);
+                // console.log(data);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()

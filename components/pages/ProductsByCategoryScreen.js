@@ -71,9 +71,6 @@ function ProductsByCategoryScreen(props) {
     const btnSubCategoryAction = (sub_category_id) => {
         console.log(sub_category_id, "SUB CATEGORY SELECTED")
         setSubCategoryActive(sub_category_id);
-        // setProducts([]);         // Clear old products
-        // setPage(1);              // Reset page for pagination
-        // setHasMore(true);        // Reset hasMore for new fetch
         isInitialLoadRef.current = true;
         offsetRef.current = 0; // Reset offset for new fetch
         setLoading(true); // Set loading to true
@@ -81,7 +78,7 @@ function ProductsByCategoryScreen(props) {
         setHasMoreProducts(true); // Reset hasMore for new fetch
         setIsAppDataFetchLoading(true); // Set loading to true
         console.log(products.length, "PRODUCTS LENGTH")
-        fetchData(); // Fetch new data
+        // fetchData(); // Fetch new data
     };
 
 
@@ -93,6 +90,9 @@ function ProductsByCategoryScreen(props) {
     const fetchData = useCallback(async () => {
         console.log("Fetching Products data... OFFSET:", offsetRef.current);
         if (!loading || !hasMoreProducts) return;
+        // if (isInitialLoadRef.current) {
+        //     setProducts([]); // Explicitly reset to empty if it's a fresh load
+        // }
         if(subCategoryActive !== -1) {
             console.log("Fetching Products by subcategory...");
             await getAllProductsBySubCategory({ productsScreenLoading, category_id: category_id_selected, sub_category_id: subCategoryActive, limit: limit, offset: offsetRef.current });
@@ -109,8 +109,6 @@ function ProductsByCategoryScreen(props) {
             fetchData();
         }, [fetchData]),
     );
-
-
 
     const productsScreenLoading = async (isFetchingDataError, message, fetchedProducts) => {
         console.log("Loading products screen results...");
