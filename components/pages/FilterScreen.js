@@ -1,27 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 import { useRoute } from '@react-navigation/native';
-
+import { useSQLiteContext } from 'expo-sqlite';
 
 const FilterScreen = (props) => {
 
     const route = useRoute();
+    const db = useSQLiteContext();
+
     const categoryId = route.params?.category_id ?? -1;
     const screenName = route.params?.screenName
 
 
-    console.log("Received category_id in Filter screen:", categoryId);
-    console.log("Received screen name go back to:", screenName);
+
+    // console.log("Received category_id in Filter screen:", categoryId);
+    // console.log("Received screen name go back to:", screenName);
 
 
     const fetchFilters = async (categoryId) => {
         try {
-            const rows = await db.getAllAsync(
-                "SELECT filter_id, filter_name, filter_option_id, option_label FROM filters WHERE category_id = ?",
-                [categoryId]
-            );
+            let rows
+            if (categoryId !== -1) {
+                rows = await db.getAllAsync(
+                    "SELECT filter_id, filter_name, filter_option_id, option_label FROM filters WHERE category_id = ? GROUP BY filter_option_id",
+                    [categoryId]
+                );
+            } else {
+
+                rows = await db.getAllAsync(
+                    "SELECT * FROM filters WHERE is_default = 1 GROUP BY filter_option_id",
+                );
+            }
 
             // Group filters by filter_id
             const filterMap = new Map();
@@ -49,55 +60,13 @@ const FilterScreen = (props) => {
         }
     };
 
+    useEffect(() => {
+        fetchFilters(categoryId)
 
+    }, [categoryId]);
 
     const [filters, setFilters] = useState([
-        {
-            id: "1",
-            title: "🚀 Rocket",
-            options: [
-                { label: "Rocket WOW Only", selected: false },
-                { label: "Rocket Overseas Only", selected: false },
-                { label: "Free Delivery", selected: false },
-            ],
-        },
-        {
-            id: "2",
-            title: "Sort",
-            options: [
-                { label: "Our Ranking", selected: false },
-                { label: "Low Price", selected: false },
-                { label: "High Price", selected: false },
-                { label: "Most Recent", selected: false },
-            ],
-        },
-        {
-            id: "3",
-            title: "Discount",
-            options: [
-                { label: "Discounted Items", selected: false },
-                { label: "Instant Discount", selected: false },
-            ],
-        },
-        {
-            id: "4",
-            title: "Ship From",
-            options: [
-                { label: "US", selected: false },
-                { label: "China", selected: false },
-                { label: "Japan", selected: false },
-            ],
-        },
-        {
-            id: "5",
-            title: "Product Condition",
-            options: [
-                { label: "New", selected: false },
-                { label: "Used", selected: false },
-                { label: "Damaged Box", selected: false },
-                { label: "Returned", selected: false },
-            ],
-        },
+
     ]);
 
     const toggleOption = (filterId, optionIndex) => {

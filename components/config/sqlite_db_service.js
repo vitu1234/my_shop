@@ -99,6 +99,7 @@ export const createTables = async (db) => {
                 filter_id INTEGER NOT NULL,
                 category_id INTEGER NOT NULL,
                 filter_name TEXT NOT NULL,
+                is_default INTEGER NOT NULL DEFAULT 0,
                 filter_option_id INTEGER NOT NULL,
                 option_label TEXT NOT NULL
             );
@@ -174,6 +175,7 @@ const deleteProducts = async (db) => {
             "DELETE FROM product_sub_category",
             "DELETE FROM product",
             "DELETE FROM cart",
+            "DELETE FROM filters",
         ];
         for (const query of queries) {
             await db.execAsync(query);

@@ -46,7 +46,7 @@ function ProductsScreen(props) {
     const route = useRoute();
     // const [selectedFilters, setSelectedFilters] = useState([]);
     // useFocusEffect(
-       
+
     //     useCallback(() => {
     //         if (route.params?.selectedFilters) {
     //             setSelectedFilters(route.params.selectedFilters);
@@ -107,6 +107,37 @@ function ProductsScreen(props) {
         }, [fetchData]),
     );
 
+    useEffect(() => {
+        if (route.params?.selectedFilters) {
+            console.log("Triggered by selectedFilters:", route.params.selectedFilters);
+
+            // Reset screen data
+            offsetRef.current = 0;
+            setProducts([]);
+            setHasMoreProducts(true);
+            setLoading(true);
+
+            // Optionally store filters locally
+            // setSearchFilters(route.params.selectedFilters);
+
+            // Trigger fetch with filters
+            fetchDataWithFilters(route.params.selectedFilters);
+
+            // Optionally clear params to prevent re-triggering
+            props.navigation.setParams({ selectedFilters: undefined });
+        }
+    }, [route.params?.selectedFilters]);
+
+    const fetchDataWithFilters = useCallback(async (filters) => {
+        console.log("Fetching with filters:", filters);
+        await getAllProducts({
+            productsScreenLoading,
+            limit: limit,
+            offset: offsetRef.current,
+            filters: filters
+        });
+        offsetRef.current += limit;
+    }, [limit]);
 
 
 
