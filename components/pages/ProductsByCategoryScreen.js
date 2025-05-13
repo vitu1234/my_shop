@@ -22,7 +22,7 @@ import { Heading } from "@/components/ui/heading"
 import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
 import { useSQLiteContext } from 'expo-sqlite';
 import { getAllProducts, getAllProductsByCategory, getAllProductsBySubCategory } from "../config/API";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useRef } from "react";
 
 
@@ -30,6 +30,8 @@ function ProductsByCategoryScreen(props) {
 
     const category_id_selected = props.route.params.category_id
     const category_name_selected = props.route.params.category_name
+
+    const route = useRoute();
 
     const db = useSQLiteContext();
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
@@ -49,7 +51,7 @@ function ProductsByCategoryScreen(props) {
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
 
-
+    console.log("Received selectedFilters in ProductsCategory screen:", route.params?.selectedFilters);
 
     const initialSearchFilters = {
         price_asc: false,

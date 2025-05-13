@@ -2,8 +2,19 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
+import { useRoute } from '@react-navigation/native';
+
 
 const FilterScreen = (props) => {
+
+    const route = useRoute();
+    const categoryId = route.params?.category_id ?? -1;
+    const screenName = route.params?.screenName
+
+
+    console.log("Received category_id in Filter screen:", categoryId);
+    console.log("Received screen name go back to:", screenName);
+
 
     const fetchFilters = async (categoryId) => {
         try {
@@ -11,10 +22,10 @@ const FilterScreen = (props) => {
                 "SELECT filter_id, filter_name, filter_option_id, option_label FROM filters WHERE category_id = ?",
                 [categoryId]
             );
-    
+
             // Group filters by filter_id
             const filterMap = new Map();
-    
+
             for (const row of rows) {
                 if (!filterMap.has(row.filter_id)) {
                     filterMap.set(row.filter_id, {
@@ -23,21 +34,21 @@ const FilterScreen = (props) => {
                         options: []
                     });
                 }
-    
+
                 filterMap.get(row.filter_id).options.push({
                     label: row.option_label,
                     selected: false
                 });
             }
-    
+
             const structuredFilters = Array.from(filterMap.values());
-    
+
             setFilters(structuredFilters);
         } catch (error) {
             console.error("Error fetching filters:", error.message);
         }
     };
-    
+
 
 
     const [filters, setFilters] = useState([
@@ -87,28 +98,28 @@ const FilterScreen = (props) => {
                 { label: "Returned", selected: false },
             ],
         },
-    ]); 
+    ]);
 
     const toggleOption = (filterId, optionIndex) => {
         setFilters((prevFilters) =>
             prevFilters.map((filter) =>
                 filter.id === filterId
                     ? {
-                          ...filter,
-                          options: filter.options.map((option, index) => ({
-                              ...option,
-                              selected:
-                                  filterId === "3" || filterId === 4// For "Discount" section
-                                      ? index === optionIndex
-                                          ? !option.selected // Toggle selection
-                                          : option.selected
-                                      : filterId === "2" // For "Sort" section
-                                      ? index === optionIndex // Only allow one option to be selected
-                                      : index === optionIndex
-                                      ? !option.selected
-                                      : option.selected,
-                          })),
-                      }
+                        ...filter,
+                        options: filter.options.map((option, index) => ({
+                            ...option,
+                            selected:
+                                filterId === "3" || filterId === 4// For "Discount" section
+                                    ? index === optionIndex
+                                        ? !option.selected // Toggle selection
+                                        : option.selected
+                                    : filterId === "2" // For "Sort" section
+                                        ? index === optionIndex // Only allow one option to be selected
+                                        : index === optionIndex
+                                            ? !option.selected
+                                            : option.selected,
+                        })),
+                    }
                     : filter
             )
         );
@@ -191,9 +202,29 @@ const FilterScreen = (props) => {
                 >
                     <Text style={styles.buttonText}>Reset</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>props.navigation.goBack()} style={styles.applyButton}>
+                <TouchableOpacity
+                    onPress={() => {
+                        const selectedFilters = filters
+                            .map(f => ({
+                                id: f.id,
+                                title: f.title,
+                                options: f.options.filter(o => o.selected).map(o => o.label),
+                            }))
+                            .filter(f => f.options.length > 0);
+
+                        props.navigation.navigate({
+                            name: screenName,
+                            params: { selectedFilters },
+                            merge: true,
+                        });
+
+                        // props.navigation.goBack();
+                    }}
+                    style={styles.applyButton}
+                >
                     <Text style={styles.buttonText}>Apply</Text>
                 </TouchableOpacity>
+
             </View>
         </View>
     );
