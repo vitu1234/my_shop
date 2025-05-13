@@ -4,6 +4,42 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
 
 const FilterScreen = (props) => {
+
+    const fetchFilters = async (categoryId) => {
+        try {
+            const rows = await db.getAllAsync(
+                "SELECT filter_id, filter_name, filter_option_id, option_label FROM filters WHERE category_id = ?",
+                [categoryId]
+            );
+    
+            // Group filters by filter_id
+            const filterMap = new Map();
+    
+            for (const row of rows) {
+                if (!filterMap.has(row.filter_id)) {
+                    filterMap.set(row.filter_id, {
+                        id: String(row.filter_id),
+                        title: row.filter_name,
+                        options: []
+                    });
+                }
+    
+                filterMap.get(row.filter_id).options.push({
+                    label: row.option_label,
+                    selected: false
+                });
+            }
+    
+            const structuredFilters = Array.from(filterMap.values());
+    
+            setFilters(structuredFilters);
+        } catch (error) {
+            console.error("Error fetching filters:", error.message);
+        }
+    };
+    
+
+
     const [filters, setFilters] = useState([
         {
             id: "1",
@@ -51,7 +87,7 @@ const FilterScreen = (props) => {
                 { label: "Returned", selected: false },
             ],
         },
-    ]);
+    ]); 
 
     const toggleOption = (filterId, optionIndex) => {
         setFilters((prevFilters) =>

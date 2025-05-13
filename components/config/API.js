@@ -61,7 +61,17 @@ const getHomeScreen = async (props) => {
                 );
 
                 // console.log( product.product_shipping);
-            })
+            }),
+            ...data.categories.flatMap(category =>
+                category.filters.flatMap(filter =>
+                    filter.filter_options.map(filter_option =>
+                        db.runAsync(
+                            "INSERT INTO filters(filter_id, category_id, filter_name, filter_option_id, option_label) VALUES (?, ?, ?, ?, ?);",
+                            [filter.filter_id, category.category_id, filter.filter_name, filter_option.filter_option_id, filter_option.option_label]
+                        )
+                    )
+                )
+            ),
         ]);
 
         // Notify success

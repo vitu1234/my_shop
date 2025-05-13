@@ -92,6 +92,19 @@ export const createTables = async (db) => {
             );
         `);
 
+    await db.execAsync('DROP TABLE IF EXISTS filters;');
+    await db.execAsync(`
+            CREATE TABLE IF NOT EXISTS filters (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                filter_id INTEGER NOT NULL,
+                category_id INTEGER NOT NULL,
+                filter_name TEXT NOT NULL,
+                filter_option_id INTEGER NOT NULL,
+                option_label TEXT NOT NULL
+            );
+
+        `);
+
     // await db.execAsync(`
     //         CREATE TABLE IF NOT EXISTS shipping_company (
     //             shipping_company_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -152,7 +165,7 @@ export const createTables = async (db) => {
 const deleteProducts = async (db) => {
     try {
         const queries = [
-            
+
             "DELETE FROM category",
             "DELETE FROM product_shipping",
             "DELETE FROM sub_category",
