@@ -22,7 +22,7 @@ import { Heading } from "@/components/ui/heading"
 import SearchFilterScreen from "@/components/pages/components/search/SearchFilterScreen";
 import { useSQLiteContext } from 'expo-sqlite';
 import { getAllProducts } from "../config/API";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useRef } from "react";
 
 
@@ -43,8 +43,22 @@ function ProductsScreen(props) {
     const [loading, setLoading] = useState(true);  // To manage loading state
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
+    const route = useRoute();
+    // const [selectedFilters, setSelectedFilters] = useState([]);
+    // useFocusEffect(
 
+    //     useCallback(() => {
+    //         if (route.params?.selectedFilters) {
+    //             setSelectedFilters(route.params.selectedFilters);
+    //             // Optionally clear the params if you don’t want it to persist
+    //             navigation.setParams({ selectedFilters: undefined });
+    //         }
+    //     }, [route.params?.selectedFilters])
+    // );
 
+    // console.log(selectedFilters)
+
+    console.log("Received selectedFilters in Products screen:", route.params?.selectedFilters);
 
     const initialSearchFilters = {
         price_asc: false,
@@ -93,6 +107,37 @@ function ProductsScreen(props) {
         }, [fetchData]),
     );
 
+    useEffect(() => {
+        if (route.params?.selectedFilters) {
+            console.log("Triggered by selectedFilters:", route.params.selectedFilters);
+
+            // Reset screen data
+            offsetRef.current = 0;
+            setProducts([]);
+            setHasMoreProducts(true);
+            setLoading(true);
+
+            // Optionally store filters locally
+            // setSearchFilters(route.params.selectedFilters);
+
+            // Trigger fetch with filters
+            fetchDataWithFilters(route.params.selectedFilters);
+
+            // Optionally clear params to prevent re-triggering
+            props.navigation.setParams({ selectedFilters: undefined });
+        }
+    }, [route.params?.selectedFilters]);
+
+    const fetchDataWithFilters = useCallback(async (filters) => {
+        console.log("Fetching with filters:", filters);
+        await getAllProducts({
+            productsScreenLoading,
+            limit: limit,
+            offset: offsetRef.current,
+            filters: filters
+        });
+        offsetRef.current += limit;
+    }, [limit]);
 
 
 

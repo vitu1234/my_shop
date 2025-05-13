@@ -1,78 +1,93 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { X } from "lucide-react-native";
+import { useRoute } from '@react-navigation/native';
+import { useSQLiteContext } from 'expo-sqlite';
 
 const FilterScreen = (props) => {
-    const [filters, setFilters] = useState([
-        {
-            id: "1",
-            title: "🚀 Rocket",
-            options: [
-                { label: "Rocket WOW Only", selected: false },
-                { label: "Rocket Overseas Only", selected: false },
-                { label: "Free Delivery", selected: false },
-            ],
-        },
-        {
-            id: "2",
-            title: "Sort",
-            options: [
-                { label: "Our Ranking", selected: false },
-                { label: "Low Price", selected: false },
-                { label: "High Price", selected: false },
-                { label: "Most Recent", selected: false },
-            ],
-        },
-        {
-            id: "3",
-            title: "Discount",
-            options: [
-                { label: "Discounted Items", selected: false },
-                { label: "Instant Discount", selected: false },
-            ],
-        },
-        {
-            id: "4",
-            title: "Ship From",
-            options: [
-                { label: "US", selected: false },
-                { label: "China", selected: false },
-                { label: "Japan", selected: false },
-            ],
-        },
-        {
-            id: "5",
-            title: "Product Condition",
-            options: [
-                { label: "New", selected: false },
-                { label: "Used", selected: false },
-                { label: "Damaged Box", selected: false },
-                { label: "Returned", selected: false },
-            ],
-        },
-    ]);
+
+    const route = useRoute();
+    const db = useSQLiteContext();
+
+    const categoryId = route.params?.category_id ?? -1;
+    const screenName = route.params?.screenName
+    const [filters, setFilters] = useState([]);
+
+
+    // console.log("Received category_id in Filter screen:", categoryId);
+    // console.log("Received screen name go back to:", screenName);
+
+
+    const fetchFilters = async (categoryId) => {
+        try {
+            let rows
+            if (categoryId !== -1) {
+                rows = await db.getAllAsync(
+                    "SELECT filter_id, filter_name, filter_option_id, option_label FROM filters WHERE category_id = ? GROUP BY filter_option_id",
+                    [categoryId]
+                );
+            } else {
+
+                rows = await db.getAllAsync(
+                    "SELECT * FROM filters WHERE is_default = 1 GROUP BY filter_option_id",
+                );
+            }
+
+            // Group filters by filter_id
+            const filterMap = new Map();
+
+            for (const row of rows) {
+                if (!filterMap.has(row.filter_id)) {
+                    filterMap.set(row.filter_id, {
+                        filter_id: String(row.filter_id),
+                        filter_name: row.filter_name,
+                        filter_options: []
+                    });
+                }
+
+                filterMap.get(row.filter_id).filter_options.push({
+                    filter_option_id: row.filter_option_id,
+                    option_label: row.option_label,
+                    selected: false
+                });
+            }
+
+            const structuredFilters = Array.from(filterMap.values());
+
+            setFilters(structuredFilters);
+        } catch (error) {
+            console.error("Error fetching filters:", error.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchFilters(categoryId)
+
+    }, [categoryId]);
+
+
 
     const toggleOption = (filterId, optionIndex) => {
         setFilters((prevFilters) =>
             prevFilters.map((filter) =>
-                filter.id === filterId
+                filter.filter_id === filterId
                     ? {
-                          ...filter,
-                          options: filter.options.map((option, index) => ({
-                              ...option,
-                              selected:
-                                  filterId === "3" || filterId === 4// For "Discount" section
-                                      ? index === optionIndex
-                                          ? !option.selected // Toggle selection
-                                          : option.selected
-                                      : filterId === "2" // For "Sort" section
-                                      ? index === optionIndex // Only allow one option to be selected
-                                      : index === optionIndex
-                                      ? !option.selected
-                                      : option.selected,
-                          })),
-                      }
+                        ...filter,
+                        filter_options: filter.filter_options.map((option, index) => ({
+                            ...option,
+                            selected:
+                                filterId === "3" || filterId === 4// For "Discount" section
+                                    ? index === optionIndex
+                                        ? !option.selected // Toggle selection
+                                        : option.selected
+                                    : filterId === "2" // For "Sort" section
+                                        ? index === optionIndex // Only allow one option to be selected
+                                        : index === optionIndex
+                                            ? !option.selected
+                                            : option.selected,
+                        })),
+                    }
                     : filter
             )
         );
@@ -81,19 +96,19 @@ const FilterScreen = (props) => {
     const renderFilterItem = ({ item }) => (
         <View>
             {/* Section Header */}
-            <Text style={styles.sectionHeaderText}>{item.title}</Text>
+            <Text style={styles.sectionHeaderText}>{item.filter_name}</Text>
 
             {/* Section Content */}
             <View style={styles.sectionContent}>
                 <View style={styles.horizontalWrap}>
-                    {item.options.map((option, index) => (
+                    {item.filter_options.map((option, index) => (
                         <TouchableOpacity
                             key={index}
                             style={[
                                 styles.option,
                                 option.selected && styles.optionSelected,
                             ]}
-                            onPress={() => toggleOption(item.id, index)}
+                            onPress={() => toggleOption(item.filter_id, index)}
                         >
                             <View style={styles.optionRow}>
                                 <Text
@@ -102,12 +117,12 @@ const FilterScreen = (props) => {
                                         option.selected && styles.optionTextSelected,
                                     ]}
                                 >
-                                    {option.label}
+                                    {option.option_label}
                                 </Text>
                                 {/* Add "X" for deselecting if the option is selected and it's in the "Discount" section */}
-                                {item.id !== "2" && option.selected && (
+                                {item.filter_id !== "2" && option.selected && (
                                     <TouchableOpacity
-                                        onPress={() => toggleOption(item.id, index)}
+                                        onPress={() => toggleOption(item.filter_id, index)}
                                     >
                                         <Text style={styles.deselectText}> X</Text>
                                     </TouchableOpacity>
@@ -132,7 +147,7 @@ const FilterScreen = (props) => {
             {/* FlatList for Filters */}
             <FlatList
                 data={filters}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.filter_id}
                 renderItem={renderFilterItem}
                 contentContainerStyle={styles.listContainer}
             />
@@ -145,7 +160,7 @@ const FilterScreen = (props) => {
                         setFilters((prevFilters) =>
                             prevFilters.map((filter) => ({
                                 ...filter,
-                                options: filter.options.map((option) => ({
+                                filter_options: filter.filter_options.map((option) => ({
                                     ...option,
                                     selected: false,
                                 })),
@@ -155,9 +170,32 @@ const FilterScreen = (props) => {
                 >
                     <Text style={styles.buttonText}>Reset</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>props.navigation.goBack()} style={styles.applyButton}>
+                <TouchableOpacity
+                    onPress={() => {
+                        const selectedFilters = filters
+                            .map(f => ({
+                                filter_id: f.filter_id,
+                                filter_name: f.filter_name,
+                                filter_options: f.filter_options.filter(o => o.selected).map(o => ({
+                                    filter_option_id: o.filter_option_id,
+                                    option_label: o.option_label,
+                                })),
+                            }))
+                            .filter(f => f.filter_options.length > 0);
+
+                        props.navigation.navigate({
+                            name: screenName,
+                            params: { selectedFilters },
+                            merge: true,
+                        });
+
+                        // props.navigation.goBack();
+                    }}
+                    style={styles.applyButton}
+                >
                     <Text style={styles.buttonText}>Apply</Text>
                 </TouchableOpacity>
+
             </View>
         </View>
     );

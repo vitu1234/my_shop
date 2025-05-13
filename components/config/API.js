@@ -61,7 +61,17 @@ const getHomeScreen = async (props) => {
                 );
 
                 // console.log( product.product_shipping);
-            })
+            }),
+            ...data.categories.flatMap(category =>
+                category.filters.flatMap(filter =>
+                    filter.filter_options.map(filter_option =>
+                        db.runAsync(
+                            "INSERT INTO filters(filter_id, category_id, filter_name, is_default, filter_option_id, option_label) VALUES (?, ?, ?, ?, ?, ?);",
+                            [filter.filter_id, category.category_id, filter.filter_name, filter.is_default, filter_option.filter_option_id, filter_option.option_label]
+                        )
+                    )
+                )
+            ),
         ]);
 
         // Notify success
@@ -78,11 +88,26 @@ const getHomeScreen = async (props) => {
 const getAllProducts = async (props) => {
     limit = props.limit;
     offset = props.offset;
-    console.log(props)
+    filters = props.filters;
+    console.log("SENDING..............")
+
+    console.log(JSON.stringify({
+        filters: filters || {}, // Only include if filters are passed
+    }))
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/${limit}/${offset}`, {
-            method: "GET", // default, so we can ignore
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+            }, redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify({
+                filters: filters || {}, // Only include if filters are passed
+            }), // body data type must match "Content-Type" header
         })
             .then((response) => response.json())
             .then(async (data) => {

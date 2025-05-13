@@ -72,9 +72,9 @@ const styles = StyleSheet.create({
     infoContainer: {
         padding: 16,
     }, name: {
-        color: "#424242", fontSize: 11, fontWeight: "bold",
+        color: "#424242", fontSize: 12,
     }, price: {
-        color: "black", fontSize: 13, fontWeight: "900", marginBottom: 8,
+        color: "black", fontSize: 13, fontWeight: "bold", marginBottom: 8,
 
     }, likesSize: {}, likeStarsContainer: {
         justifyContent: 'space-between', flexDirection: 'row',

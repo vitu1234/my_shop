@@ -68,7 +68,15 @@ function StackNavigationHeader(props) {
   const sortFilterAction = () => {
     // setIsModalVisibleProducts(true)
     // console.log("Clicker sort clicke")
-    navigator.navigate("FilterScreen");
+    // navigator.navigate("FilterScreen");
+    navigator.navigate("FilterScreen", {
+      category_id: route.params?.category_id, // forward the param
+      screenName: route.name,
+      // onApplyFilters: (selectedFilters) => {
+      //   // Handle filters here (e.g., update state or refetch products)
+      //   // console.log("Selected Filters:", selectedFilters);
+      // },
+    });
   }
 
 
