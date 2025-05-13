@@ -12,7 +12,7 @@ const FilterScreen = (props) => {
 
     const categoryId = route.params?.category_id ?? -1;
     const screenName = route.params?.screenName
-
+    const [filters, setFilters] = useState([]);
 
 
     // console.log("Received category_id in Filter screen:", categoryId);
@@ -40,14 +40,15 @@ const FilterScreen = (props) => {
             for (const row of rows) {
                 if (!filterMap.has(row.filter_id)) {
                     filterMap.set(row.filter_id, {
-                        id: String(row.filter_id),
-                        title: row.filter_name,
-                        options: []
+                        filter_id: String(row.filter_id),
+                        filter_name: row.filter_name,
+                        filter_options: []
                     });
                 }
 
-                filterMap.get(row.filter_id).options.push({
-                    label: row.option_label,
+                filterMap.get(row.filter_id).filter_options.push({
+                    filter_option_id: row.filter_option_id,
+                    option_label: row.option_label,
                     selected: false
                 });
             }
@@ -65,17 +66,15 @@ const FilterScreen = (props) => {
 
     }, [categoryId]);
 
-    const [filters, setFilters] = useState([
 
-    ]);
 
     const toggleOption = (filterId, optionIndex) => {
         setFilters((prevFilters) =>
             prevFilters.map((filter) =>
-                filter.id === filterId
+                filter.filter_id === filterId
                     ? {
                         ...filter,
-                        options: filter.options.map((option, index) => ({
+                        filter_options: filter.filter_options.map((option, index) => ({
                             ...option,
                             selected:
                                 filterId === "3" || filterId === 4// For "Discount" section
@@ -97,19 +96,19 @@ const FilterScreen = (props) => {
     const renderFilterItem = ({ item }) => (
         <View>
             {/* Section Header */}
-            <Text style={styles.sectionHeaderText}>{item.title}</Text>
+            <Text style={styles.sectionHeaderText}>{item.filter_name}</Text>
 
             {/* Section Content */}
             <View style={styles.sectionContent}>
                 <View style={styles.horizontalWrap}>
-                    {item.options.map((option, index) => (
+                    {item.filter_options.map((option, index) => (
                         <TouchableOpacity
                             key={index}
                             style={[
                                 styles.option,
                                 option.selected && styles.optionSelected,
                             ]}
-                            onPress={() => toggleOption(item.id, index)}
+                            onPress={() => toggleOption(item.filter_id, index)}
                         >
                             <View style={styles.optionRow}>
                                 <Text
@@ -118,12 +117,12 @@ const FilterScreen = (props) => {
                                         option.selected && styles.optionTextSelected,
                                     ]}
                                 >
-                                    {option.label}
+                                    {option.option_label}
                                 </Text>
                                 {/* Add "X" for deselecting if the option is selected and it's in the "Discount" section */}
-                                {item.id !== "2" && option.selected && (
+                                {item.filter_id !== "2" && option.selected && (
                                     <TouchableOpacity
-                                        onPress={() => toggleOption(item.id, index)}
+                                        onPress={() => toggleOption(item.filter_id, index)}
                                     >
                                         <Text style={styles.deselectText}> X</Text>
                                     </TouchableOpacity>
@@ -148,7 +147,7 @@ const FilterScreen = (props) => {
             {/* FlatList for Filters */}
             <FlatList
                 data={filters}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item.filter_id}
                 renderItem={renderFilterItem}
                 contentContainerStyle={styles.listContainer}
             />
@@ -161,7 +160,7 @@ const FilterScreen = (props) => {
                         setFilters((prevFilters) =>
                             prevFilters.map((filter) => ({
                                 ...filter,
-                                options: filter.options.map((option) => ({
+                                filter_options: filter.filter_options.map((option) => ({
                                     ...option,
                                     selected: false,
                                 })),
@@ -175,11 +174,14 @@ const FilterScreen = (props) => {
                     onPress={() => {
                         const selectedFilters = filters
                             .map(f => ({
-                                id: f.id,
-                                title: f.title,
-                                options: f.options.filter(o => o.selected).map(o => o.label),
+                                filter_id: f.filter_id,
+                                filter_name: f.filter_name,
+                                filter_options: f.filter_options.filter(o => o.selected).map(o => ({
+                                    filter_option_id: o.filter_option_id,
+                                    option_label: o.option_label,
+                                })),
                             }))
-                            .filter(f => f.options.length > 0);
+                            .filter(f => f.filter_options.length > 0);
 
                         props.navigation.navigate({
                             name: screenName,
