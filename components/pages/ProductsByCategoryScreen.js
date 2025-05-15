@@ -51,7 +51,7 @@ function ProductsByCategoryScreen(props) {
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
 
-    console.log("Received selectedFilters in ProductsCategory screen:", route.params?.selectedFilters);
+    // console.log("Received selectedFilters in ProductsCategory screen:", route.params?.selectedFilters);
 
     const initialSearchFilters = {
         price_asc: false,
@@ -95,13 +95,13 @@ function ProductsByCategoryScreen(props) {
         // if (isInitialLoadRef.current) {
         //     setProducts([]); // Explicitly reset to empty if it's a fresh load
         // }
-        if(subCategoryActive !== -1) {
+        if (subCategoryActive !== -1) {
             // console.log("Fetching Products by subcategory...");
             await getAllProductsBySubCategory({ productsScreenLoading, category_id: category_id_selected, sub_category_id: subCategoryActive, limit: limit, offset: offsetRef.current });
-        }else{
+        } else {
             // console.log("Fetching Products by category...");
             await getAllProductsByCategory({ productsScreenLoading, category_id: category_id_selected, limit: limit, offset: offsetRef.current });
-            
+
         }
         offsetRef.current += limit; // Increment offset for next batch
     }, [offsetRef, isAppDataFetchLoading, hasMoreProducts, loading, limit]);
@@ -111,6 +111,41 @@ function ProductsByCategoryScreen(props) {
             fetchData();
         }, [fetchData]),
     );
+
+    useEffect(() => {
+        if (route.params?.selectedFilters) {
+            console.log("Triggered by selectedFilters by categorroro:", route.params.selectedFilters);
+            console.log(JSON.stringify({
+                filters: route.params.selectedFilters || {}, // Only include if filters are passed
+            }))
+            console.log("-------------...");
+            // Reset screen data
+            offsetRef.current = 0;
+            setProducts([]);
+            setHasMoreProducts(true);
+            setLoading(true);
+
+            // Optionally store filters locally
+            // setSearchFilters(route.params.selectedFilters);
+
+            // Trigger fetch with filters
+            fetchDataWithFilters(route.params.selectedFilters);
+
+            // Optionally clear params to prevent re-triggering
+            props.navigation.setParams({ selectedFilters: undefined });
+        }
+    }, [route.params?.selectedFilters]);
+
+    const fetchDataWithFilters = useCallback(async (filters) => {
+        console.log("Fetching with filters:", filters);
+        await getAllProductsByCategory({
+            productsScreenLoading,
+            limit: limit,
+            offset: offsetRef.current,
+            filters: filters
+        });
+        offsetRef.current += limit;
+    }, [limit]);
 
     const productsScreenLoading = async (isFetchingDataError, message, fetchedProducts) => {
         // console.log("Loading products screen results...");
@@ -137,7 +172,7 @@ function ProductsByCategoryScreen(props) {
                     setSubCategories(subCategoriesFetch);
                 }
 
-               
+
                 if (fetchedProducts.length === 0) {
                     if (isInitialLoadRef.current) {
                         setProducts([]); // Explicitly reset to empty if it's a fresh load
@@ -152,7 +187,7 @@ function ProductsByCategoryScreen(props) {
                     }
                     offsetRef.current += fetchedProducts.length;
                 }
-                
+
 
                 setIsAppDataFetchError(false);
                 setIsAppDataFetchMsg(message);
