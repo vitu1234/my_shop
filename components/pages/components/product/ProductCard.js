@@ -16,7 +16,7 @@ function ProductCard(props) {
 
     if (data !== undefined) {
         const product = data.product;
-        const product_price = "K" + numbro(parseInt(product.product_attributes_price)).format({
+        const product_price = "K" + numbro(parseInt(product.price)).format({
             thousandSeparated: true, mantissa: 2,
         });
         return (<TouchableOpacity key={product.product_id} onPress={() => data.action(product)} style={styles.card}>
