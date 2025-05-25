@@ -3,7 +3,7 @@ import React from "react";
 import { connectToDatabase, deleteProducts, deleteAllProducts } from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.219.105:8000/api";
+const base_url = "http://192.168.219.108:8000/api";
 
 //===================================================================
 //GET METHODS
@@ -85,6 +85,7 @@ const getHomeScreen = async (props) => {
     }
 };
 
+
 const getAllProducts = async (props) => {
     limit = props.limit;
     offset = props.offset;
@@ -142,25 +143,38 @@ const getAllProducts = async (props) => {
 
 };
 
-
+//get all products by category
 const getAllProductsByCategory = async (props) => {
-    category_id = props.category_id;
     limit = props.limit;
+    category_id = props.category_id;
     offset = props.offset;
-    // console.log(props)
-    console.log("CATEGORY ID222: " + category_id)
-    // console.log(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`)
-    // console.log(JSON.stringify({
-    //     filters: filters || {}, // Only include if filters are passed
-    // }))
+    filters = props.filters;
+    console.log("SENDING BY CATEGORY..............")
+    if ( category_id == undefined) {
+        category_id = -1; // Default to -1 if no category is selected
+    }
+
+    console.log(JSON.stringify({
+        filters: filters || {}, // Only include if filters are passed
+    }))
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`, {
-            method: "GET", // default, so we can ignore
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+            }, redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify({
+                filters: filters || {}, // Only include if filters are passed
+            }), // body data type must match "Content-Type" header
         })
             .then((response) => response.json())
             .then(async (data) => {
-                // console.log(products);
+                // console.log(data.products);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -191,26 +205,45 @@ const getAllProductsByCategory = async (props) => {
 
 };
 
+
 //get all products by sub_category
 const getAllProductsBySubCategory = async (props) => {
     category_id = props.category_id;
     sub_category_id = props.sub_category_id;
+
+    if ( category_id == undefined) {
+        category_id = -1; // Default to -1 if no category is selected
+    }
+    if ( sub_category_id == undefined) {
+        sub_category_id = -1; // Default to -1 if no category is selected
+    }
+
     limit = props.limit;
     offset = props.offset;
-    // console.log(props)
-    // console.log("CATEGORY ID: " + category_id + " SUB CATEGORY ID: " + sub_category_id)
-    // console.log(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`)
-    // console.log(JSON.stringify({
-    //     filters: filters || {}, // Only include if filters are passed
-    // }))
+    filters = props.filters;
+    console.log("SENDING BY SUBCATEGORY..............")
+
+    console.log(JSON.stringify({
+        filters: filters || {}, // Only include if filters are passed
+    }))
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`, {
-            method: "GET", // default, so we can ignore
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+            }, redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify({
+                filters: filters || {}, // Only include if filters are passed
+            }), // body data type must match "Content-Type" header
         })
             .then((response) => response.json())
             .then(async (data) => {
-                // console.log(data);
+                // console.log(data.products);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -238,7 +271,10 @@ const getAllProductsBySubCategory = async (props) => {
     } catch (error) {
         props.productsScreenLoading(true, error.message);
     }
-}
+
+};
+
+
 
 //search suggestions
 const getSearchSuggestions = async (props) => {
