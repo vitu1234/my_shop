@@ -50,24 +50,17 @@ function ProductsByCategoryScreen(props) {
     const [loading, setLoading] = useState(true);  // To manage loading state
     const [hasMoreProducts, setHasMoreProducts] = useState(true);
 
-
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        offsetRef.current = 0;
+        setProducts([]);
+        setHasMoreProducts(true);
+        isInitialLoadRef.current = true;
+        await fetchData();
+        setIsRefreshing(false);
+    };
     // console.log("Received selectedFilters in ProductsCategory screen:", route.params?.selectedFilters);
-
-    const initialSearchFilters = {
-        price_asc: false,
-        price_desc: false,
-        newest_first: false,
-        oldest_first: false,
-        name_asc: false,
-        name_desc: false,
-    };
-
-    const setFilters1 = (filters) => {
-        setSearchFilters(filters);
-        console.log(filters);
-        console.log("filter products here");
-    };
-    const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
 
 
     const btnSubCategoryAction = (sub_category_id) => {
@@ -79,7 +72,7 @@ function ProductsByCategoryScreen(props) {
         setProducts([]); // Clear old products
         setHasMoreProducts(true); // Reset hasMore for new fetch
         setIsAppDataFetchLoading(true); // Set loading to true
-        console.log(products.length, "PRODUCTS LENGTH")
+        //console.log(products.length, "PRODUCTS LENGTH")
         // fetchData(); // Fetch new data
     };
 
@@ -92,9 +85,7 @@ function ProductsByCategoryScreen(props) {
     const fetchData = useCallback(async () => {
         // console.log("Fetching Products data... OFFSET:", offsetRef.current);
         if (!loading || !hasMoreProducts) return;
-        // if (isInitialLoadRef.current) {
-        //     setProducts([]); // Explicitly reset to empty if it's a fresh load
-        // }
+
         if (subCategoryActive !== -1) {
             // console.log("Fetching Products by subcategory...");
             await getAllProductsBySubCategory({ productsScreenLoading, category_id: category_id_selected, sub_category_id: subCategoryActive, limit: limit, offset: offsetRef.current });
@@ -108,7 +99,10 @@ function ProductsByCategoryScreen(props) {
 
     useFocusEffect(
         useCallback(() => {
-            fetchData();
+            if (isAppDataFetchLoading) {
+                fetchData();
+            }
+
         }, [fetchData]),
     );
 
@@ -138,12 +132,27 @@ function ProductsByCategoryScreen(props) {
 
     const fetchDataWithFilters = useCallback(async (filters) => {
         console.log("Fetching with filters:", filters);
-        await getAllProductsByCategory({
-            productsScreenLoading,
-            limit: limit,
-            offset: offsetRef.current,
-            filters: filters
-        });
+        console.log("Fetching Products data with filters... OFFSET:", offsetRef.current);
+        console.log("category_id_selected:", category_id_selected);
+        console.log("subCategoryActive:", subCategoryActive);
+        if (subCategoryActive !== -1) {
+            await getAllProductsByCategory({
+                productsScreenLoading,
+                limit: limit,
+                offset: offsetRef.current,
+                filters: filters
+            });
+        } else {
+            await getAllProductsBySubCategory({
+                productsScreenLoading,
+                category_id: category_id_selected,
+                sub_category_id: subCategoryActive,
+                limit: limit,
+                offset: offsetRef.current,
+                filters: filters
+            });
+        }
+
         offsetRef.current += limit;
     }, [limit]);
 
@@ -154,7 +163,6 @@ function ProductsByCategoryScreen(props) {
         setLoading(false);
         setIsAppDataFetchLoading(false);  // Stop loading
         if (isFetchingDataError) {
-            setLoading(false);  // Stop loading
             setIsAppDataFetchError(true);
             setIsAppDataFetchMsg(message);
             Toast.show({
@@ -165,12 +173,7 @@ function ProductsByCategoryScreen(props) {
             });
         } else {
             if (db) {
-                if (subCategories.length === 0) {
-                    const subCategoriesFetch = await db.getAllAsync(
-                        `SELECT * FROM sub_category WHERE category_id = ${category_id_selected} LIMIT 20`
-                    );
-                    setSubCategories(subCategoriesFetch);
-                }
+
 
 
                 if (fetchedProducts.length === 0) {
@@ -188,6 +191,12 @@ function ProductsByCategoryScreen(props) {
                     offsetRef.current += fetchedProducts.length;
                 }
 
+                if (subCategories.length === 0) {
+                    const subCategoriesFetch = await db.getAllAsync(
+                        `SELECT * FROM sub_category WHERE category_id = ${category_id_selected} LIMIT 20`
+                    );
+                    setSubCategories(subCategoriesFetch);
+                }
 
                 setIsAppDataFetchError(false);
                 setIsAppDataFetchMsg(message);
@@ -296,20 +305,15 @@ function ProductsByCategoryScreen(props) {
             }
             // ListFooterComponent={renderFooter}
             onEndReachedThreshold={0.3}
-            onRefresh={() => {
-                offsetRef.current = 0;
-                setProducts([]);
-                setLoading(true);
-                fetchData();
-                setHasMoreProducts(true);
-            }}
+
             onEndReached={() => {
                 if (loading || !hasMoreProducts) return;
                 setLoading(true);
                 fetchData();
             }}
-            refreshing={loading}
-            ListEmptyComponent={loading ? "" : <Text style={{ textAlign: "center", fontSize: 16 }}>No products found.</Text>}
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            ListEmptyComponent={loading ? null : <Text style={{ textAlign: "center", fontSize: 16 }}>No products found.</Text>}
         />
     );
 
