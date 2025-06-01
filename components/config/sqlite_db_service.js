@@ -12,7 +12,14 @@ export const createTables = async (db) => {
                 product_name TEXT NOT NULL,
                 likes INTEGER NOT NULL,
                 cover TEXT NOT NULL,
-                product_description TEXT
+                product_description TEXT,
+
+                product_variant_id INTEGER NOT NULL,
+                is_default INTEGER NOT NULL,
+                
+                sku TEXT NOT NULL,
+                price TEXT NOT NULL,
+                stock_qty INTEGER NOT NULL    
             );
         `);
 
@@ -50,19 +57,21 @@ export const createTables = async (db) => {
             );
         `);
 
-    await db.execAsync('DROP TABLE IF EXISTS product_attributes;');
+    await db.execAsync('DROP TABLE IF EXISTS product_variants;');
     await db.execAsync(`
-            CREATE TABLE IF NOT EXISTS product_attributes (
-                product_attributes_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+            CREATE TABLE IF NOT EXISTS product_variants (
+                variant_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                product_variant_id INTEGER NOT NULL,
                 product_id INTEGER NOT NULL,
-                product_attributes_default INTEGER NOT NULL,
-                product_attributes_name TEXT NOT NULL,
-                product_attributes_value TEXT NOT NULL,
-                product_attributes_price TEXT NOT NULL,
-                product_attributes_stock_qty INTEGER NOT NULL,
-                product_attributes_summary TEXT           
+                is_default INTEGER NOT NULL,
+                
+                sku TEXT NOT NULL,
+                price TEXT NOT NULL,
+                stock_qty INTEGER NOT NULL         
             );
         `);
+
+        
 
     await db.execAsync('DROP TABLE IF EXISTS product_images;');
     await db.execAsync(`

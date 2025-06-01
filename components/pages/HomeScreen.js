@@ -80,8 +80,8 @@ function HomeScreen(props) {
             });
         } else {
             const categories = await db.getAllAsync("SELECT * FROM category ORDER BY RANDOM() LIMIT 10");
-            const productsFirstRow = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
-            const productsHome = await db.getAllAsync("SELECT * FROM product INNER JOIN product_attributes ON product.product_id = product_attributes.product_id WHERE product_attributes.product_attributes_default = 1 ORDER BY RANDOM() ");
+            const productsFirstRow = await db.getAllAsync("SELECT * FROM product WHERE is_default = 1 ORDER BY RANDOM() ");
+            const productsHome = await db.getAllAsync("SELECT * FROM product WHERE is_default = 1 ORDER BY RANDOM() ");
 
             setCategories(categories);
             setProducts(productsFirstRow);
@@ -231,7 +231,7 @@ function HomeScreen(props) {
                                     columnWrapperStyle={styles.columnWrapperStyle}
                                     contentContainerStyle={styles.flashProductsListContainer}
                                     renderItem={renderFlashProduct}
-                                    keyExtractor={item => `${item.product_id}-${item.product_attributes_id}${+Math.floor(Math.random() * 1000)}`}
+                                    keyExtractor={item => `${item.product_id}-${item.product_variant_id}${+Math.floor(Math.random() * 1000)}`}
 
                                     removeClippedSubviews={true}
                                     maxToRenderPerBatch={10}

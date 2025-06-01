@@ -3,7 +3,7 @@ import React from "react";
 import { connectToDatabase, deleteProducts, deleteAllProducts } from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.3.200:8000/api";
+const base_url = "http://192.168.219.108:8000/api";
 
 //===================================================================
 //GET METHODS
@@ -22,14 +22,14 @@ const getHomeScreen = async (props) => {
         await deleteProducts(db);
 
         // console.log("HERE2")
-        const results = await db.getAllAsync("PRAGMA table_info(category);")
+        // const results = await db.getAllAsync("PRAGMA table_info(category);")
         // console.log(data)
         // Use Promise.all to wait for all insert operations to complete
         await Promise.all([
             ...data.categories.map(category => db.runAsync("INSERT INTO category(category_id,category_name,category_icon,category_description) VALUES (?,?,?,?);", [category.category_id, category.category_name, category.category_icon, category.category_description])),
             ...data.sub_categories.map(sub_category => db.runAsync("INSERT INTO sub_category(sub_category_id,category_id,sub_category_name,sub_category_description) VALUES (?,?,?,?);", [sub_category.sub_category_id, sub_category.category_id, sub_category.sub_category_name, sub_category.sub_category_description])),
             ...data.products.map(async (product) => {
-                await db.runAsync("INSERT INTO product(product_id,product_name,likes,cover,product_description) VALUES (?,?,?,?,?);", [product.product_id, product.product_name, product.likes, product.cover, product.product_description]);
+                await db.runAsync("INSERT INTO product(product_id,product_name,likes,cover,product_description, product_variant_id,is_default, sku, price,stock_qty ) VALUES (?,?,?,?,?,?,?,?,?,?);", [product.product_id, product.product_name, product.likes, product.cover, product.product_description, product.product_variant_id, product.is_default, product.sku, product.price, product.stock_qty]);
 
                 // Insert product subcategories
                 await Promise.all(
@@ -38,12 +38,12 @@ const getHomeScreen = async (props) => {
                     )
                 );
 
-                // Insert product attributes
-                await Promise.all(
-                    product.product_attributes.map(product_attribute =>
-                        db.runAsync("INSERT INTO product_attributes(product_attributes_id,product_id,product_attributes_default,product_attributes_name,product_attributes_value,product_attributes_price,product_attributes_stock_qty,product_attributes_summary) VALUES (?,?,?,?,?,?,?,?);", [product_attribute.product_attributes_id, product_attribute.product_id, product_attribute.product_attributes_default, product_attribute.product_attributes_name, product_attribute.product_attributes_value, product_attribute.product_attributes_price, product_attribute.product_attributes_stock_qty, product_attribute.product_attributes_summary])
-                    )
-                );
+                // // Insert product attributes
+                // await Promise.all(
+                //     product.product_attributes.map(product_attribute =>
+                //         db.runAsync("INSERT INTO product_attributes(product_attributes_id,product_id,product_attributes_default,product_attributes_name,product_attributes_value,product_attributes_price,product_attributes_stock_qty,product_attributes_summary) VALUES (?,?,?,?,?,?,?,?);", [product_attribute.product_attributes_id, product_attribute.product_id, product_attribute.product_attributes_default, product_attribute.product_attributes_name, product_attribute.product_attributes_value, product_attribute.product_attributes_price, product_attribute.product_attributes_stock_qty, product_attribute.product_attributes_summary])
+                //     )
+                // );
 
                 // Insert product images
                 await Promise.all(
@@ -53,12 +53,12 @@ const getHomeScreen = async (props) => {
                 );
 
                 // // Shipping information
-                await Promise.all(
-                    product.product_shipping.map(shipping =>
-                        db.runAsync("INSERT INTO product_shipping(product_shipping_id,product_id,shipping_company_id,shipping_type,shipping_amount,shipping_company_name,shipping_company_address) VALUES (?,?,?,?,?,?,?);",
-                            [shipping.product_shipping_id, shipping.product_id, shipping.shipping_company_id, shipping.shipping_type, shipping.shipping_amount, shipping.shipping_company_name, shipping.shipping_company_address])
-                    )
-                );
+                // await Promise.all(
+                //     product.product_shipping.map(shipping =>
+                //         db.runAsync("INSERT INTO product_shipping(product_shipping_id,product_id,shipping_company_id,shipping_type,shipping_amount,shipping_company_name,shipping_company_address) VALUES (?,?,?,?,?,?,?);",
+                //             [shipping.product_shipping_id, shipping.product_id, shipping.shipping_company_id, shipping.shipping_type, shipping.shipping_amount, shipping.shipping_company_name, shipping.shipping_company_address])
+                //     )
+                // );
 
                 // console.log( product.product_shipping);
             }),
@@ -75,7 +75,7 @@ const getHomeScreen = async (props) => {
         ]);
 
         // Notify success
-        console.log("before props push")
+        // console.log("before props push")
         await props.homeScreenLoading(false, "Fetch data success");
 
     } catch (error) {
@@ -84,6 +84,7 @@ const getHomeScreen = async (props) => {
         // console.error(error.message)
     }
 };
+
 
 const getAllProducts = async (props) => {
     limit = props.limit;
@@ -142,25 +143,38 @@ const getAllProducts = async (props) => {
 
 };
 
-
+//get all products by category
 const getAllProductsByCategory = async (props) => {
-    category_id = props.category_id;
     limit = props.limit;
+    category_id = props.category_id;
     offset = props.offset;
-    // console.log(props)
-    console.log("CATEGORY ID222: " + category_id)
-    // console.log(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`)
-    // console.log(JSON.stringify({
-    //     filters: filters || {}, // Only include if filters are passed
-    // }))
+    filters = props.filters;
+    console.log("SENDING BY CATEGORY..............")
+    if ( category_id == undefined) {
+        category_id = -1; // Default to -1 if no category is selected
+    }
+
+    console.log(JSON.stringify({
+        filters: filters || {}, // Only include if filters are passed
+    }))
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`, {
-            method: "GET", // default, so we can ignore
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+            }, redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify({
+                filters: filters || {}, // Only include if filters are passed
+            }), // body data type must match "Content-Type" header
         })
             .then((response) => response.json())
             .then(async (data) => {
-                // console.log(products);
+                // console.log(data.products);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -191,26 +205,45 @@ const getAllProductsByCategory = async (props) => {
 
 };
 
+
 //get all products by sub_category
 const getAllProductsBySubCategory = async (props) => {
     category_id = props.category_id;
     sub_category_id = props.sub_category_id;
+
+    if ( category_id == undefined) {
+        category_id = -1; // Default to -1 if no category is selected
+    }
+    if ( sub_category_id == undefined) {
+        sub_category_id = -1; // Default to -1 if no category is selected
+    }
+
     limit = props.limit;
     offset = props.offset;
-    // console.log(props)
-    // console.log("CATEGORY ID: " + category_id + " SUB CATEGORY ID: " + sub_category_id)
-    // console.log(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`)
-    // console.log(JSON.stringify({
-    //     filters: filters || {}, // Only include if filters are passed
-    // }))
+    filters = props.filters;
+    console.log("SENDING BY SUBCATEGORY..............")
+
+    console.log(JSON.stringify({
+        filters: filters || {}, // Only include if filters are passed
+    }))
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`, {
-            method: "GET", // default, so we can ignore
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+                "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
+            }, redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify({
+                filters: filters || {}, // Only include if filters are passed
+            }), // body data type must match "Content-Type" header
         })
             .then((response) => response.json())
             .then(async (data) => {
-                // console.log(data);
+                // console.log(data.products);
                 const products = data.products;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -238,7 +271,10 @@ const getAllProductsBySubCategory = async (props) => {
     } catch (error) {
         props.productsScreenLoading(true, error.message);
     }
-}
+
+};
+
+
 
 //search suggestions
 const getSearchSuggestions = async (props) => {
