@@ -180,7 +180,7 @@ const deleteProducts = async (db) => {
             "DELETE FROM product_shipping",
             "DELETE FROM sub_category",
             "DELETE FROM product_images",
-            "DELETE FROM product_attributes",
+            "DELETE FROM product_variants",
             "DELETE FROM product_sub_category",
             "DELETE FROM product",
             "DELETE FROM cart",
