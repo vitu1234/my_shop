@@ -3,7 +3,7 @@ import React from "react";
 import { connectToDatabase, deleteProducts, deleteAllProducts } from "@/components/config/sqlite_db_service";
 
 // require('dotenv/config');
-const base_url = "http://192.168.219.104:8000/api";
+const base_url = "http://192.168.3.200:8000/api";
 
 //===================================================================
 //GET METHODS
@@ -149,14 +149,18 @@ const getAllProductsByCategory = async (props) => {
     category_id = props.category_id;
     offset = props.offset;
     filters = props.filters;
-    console.log("SENDING BY CATEGORY..............")
-    if ( category_id == undefined) {
+    // console.log("SENDING BYd CATEGORY..............")
+    if (category_id == undefined) {
         category_id = -1; // Default to -1 if no category is selected
     }
 
-    console.log(JSON.stringify({
-        filters: filters || {}, // Only include if filters are passed
-    }))
+    // console.log(JSON.stringify({
+    //     filters: filters || {}, // Only include if filters are passed
+    // }))
+
+    // console.log("CATEGORY ID: " + category_id)
+
+
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_category/${category_id}/${limit}/${offset}`, {
@@ -208,24 +212,27 @@ const getAllProductsByCategory = async (props) => {
 
 //get all products by sub_category
 const getAllProductsBySubCategory = async (props) => {
+    
     category_id = props.category_id;
     sub_category_id = props.sub_category_id;
 
-    if ( category_id == undefined) {
+    if (category_id == undefined) {
         category_id = -1; // Default to -1 if no category is selected
     }
-    if ( sub_category_id == undefined) {
+    if (sub_category_id == undefined) {
         sub_category_id = -1; // Default to -1 if no category is selected
     }
 
     limit = props.limit;
     offset = props.offset;
     filters = props.filters;
-    console.log("SENDING BY SUBCATEGORY..............")
+    // console.log("SENDING BY SUBCATEGORY..............")
+    // console.log("CATEGORY ID: " + category_id)
+    // console.log("SUB CATEGORY ID: " + sub_category_id)  
 
-    console.log(JSON.stringify({
-        filters: filters || {}, // Only include if filters are passed
-    }))
+    // console.log(JSON.stringify({
+    //     filters: filters || {}, // Only include if filters are passed
+    // }))
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/product_by_sub_category/${category_id}/${sub_category_id}/${limit}/${offset}`, {

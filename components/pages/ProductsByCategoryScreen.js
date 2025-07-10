@@ -74,6 +74,8 @@ function ProductsByCategoryScreen(props) {
         setIsAppDataFetchLoading(true); // Set loading to true
         //console.log(products.length, "PRODUCTS LENGTH")
         // fetchData(); // Fetch new data
+        props.navigation.setParams({ sub_category_id: sub_category_id }); // Update params for navigation
+
     };
 
 
@@ -108,11 +110,7 @@ function ProductsByCategoryScreen(props) {
 
     useEffect(() => {
         if (route.params?.selectedFilters) {
-            console.log("Triggered by selectedFilters by categorroro:", route.params.selectedFilters);
-            console.log(JSON.stringify({
-                filters: route.params.selectedFilters || {}, // Only include if filters are passed
-            }))
-            console.log("-------------...");
+    
             // Reset screen data
             offsetRef.current = 0;
             setProducts([]);
@@ -121,21 +119,18 @@ function ProductsByCategoryScreen(props) {
 
             // Optionally store filters locally
             // setSearchFilters(route.params.selectedFilters);
-
+            // setSubCategoryActive(route.params.sub_category_id ?? -1); // Set subCategoryActive from params or default to -1
             // Trigger fetch with filters
-            fetchDataWithFilters(route.params.selectedFilters);
+            fetchDataWithFilters(route.params.selectedFilters, subCategoryActive);
 
             // Optionally clear params to prevent re-triggering
             props.navigation.setParams({ selectedFilters: undefined });
         }
     }, [route.params?.selectedFilters]);
 
-    const fetchDataWithFilters = useCallback(async (filters) => {
-        console.log("Fetching with filters:", filters);
-        console.log("Fetching Products data with filters... OFFSET:", offsetRef.current);
-        console.log("category_id_selected:", category_id_selected);
-        console.log("subCategoryActive:", subCategoryActive);
-        if (subCategoryActive !== -1) {
+    const fetchDataWithFilters = useCallback(async (filters, subCategoryId) => {
+       
+        if (subCategoryId === -1) {
             await getAllProductsByCategory({
                 productsScreenLoading,
                 limit: limit,
@@ -146,7 +141,7 @@ function ProductsByCategoryScreen(props) {
             await getAllProductsBySubCategory({
                 productsScreenLoading,
                 category_id: category_id_selected,
-                sub_category_id: subCategoryActive,
+                sub_category_id: subCategoryId,
                 limit: limit,
                 offset: offsetRef.current,
                 filters: filters

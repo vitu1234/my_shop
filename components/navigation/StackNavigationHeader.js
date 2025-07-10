@@ -71,6 +71,7 @@ function StackNavigationHeader(props) {
     // navigator.navigate("FilterScreen");
     navigator.navigate("FilterScreen", {
       category_id: route.params?.category_id, // forward the param
+      sub_category_id: route.params?.sub_category_id, // forward the param
       screenName: route.name,
       // onApplyFilters: (selectedFilters) => {
       //   // Handle filters here (e.g., update state or refetch products)

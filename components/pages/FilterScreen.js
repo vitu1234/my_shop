@@ -11,6 +11,7 @@ const FilterScreen = (props) => {
     const db = useSQLiteContext();
 
     const categoryId = route.params?.category_id ?? -1;
+    const subCategoryId = route.params?.sub_category_id ?? -1;
     const screenName = route.params?.screenName
     const [filters, setFilters] = useState([]);
 
@@ -18,6 +19,8 @@ const FilterScreen = (props) => {
     // console.log("Received category_id in Filter screen:", categoryId);
     // console.log("Received screen name go back to:", screenName);
 
+    console.log("Category ID in FilterScreen:", categoryId);
+    console.log("Sub Category ID in FilterScreen:", subCategoryId);
 
     const fetchFilters = async (categoryId) => {
         try {
@@ -185,7 +188,7 @@ const FilterScreen = (props) => {
 
                         props.navigation.navigate({
                             name: screenName,
-                            params: { selectedFilters },
+                            params: { selectedFilters, sub_category_id: subCategoryId },
                             merge: true,
                         });
 
