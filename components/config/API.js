@@ -285,9 +285,8 @@ const getAllProductsBySubCategory = async (props) => {
 
 //search suggestions
 const getSearchSuggestions = async (props) => {
-    searchQuery = props.searchText;
-    console.log("SEARCHING: " + searchQuery)
-    console.log(props)
+
+    const searchQuery = props.searchText;
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/search/suggestions/${encodeURIComponent(searchQuery)}`, {
@@ -295,8 +294,8 @@ const getSearchSuggestions = async (props) => {
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log("RESYKRS")
-                console.log(data);
+                // console.log("RESYKRS")
+                // console.log(data);
                 const products = data.searchSuggestions;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -330,29 +329,30 @@ const getSearchSuggestions = async (props) => {
 
 //search 
 const getSearch = async (props) => {
-    searchQuery = props.searchText;
-    limit = props.limit;
-    offset = props.offset;
-    console.log("SEARCHING: " + searchQuery)
-    console.log(props)
+
+    const searchQuery = props.searchText;
+    const limit = props.limit;
+    const offset = props.offset;
 
 
+    let url_params = '';
 
-    url_params = '';
     if (props.category_id != -1 && props.category_id != undefined) {
-        console.log("CATEGORY ID: " + props.category_id)
+        // console.log("CATEGORY ID: " + props.category_id)
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/${props.category_id}/-1/-1`
     } else if (props.sub_category_id != -1 && props.sub_category_id != undefined) {
-        console.log("SUB CATEGORY ID: " + props.sub_category_id)
+        // console.log("SUB CATEGORY ID: " + props.sub_category_id)
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/${props.sub_category_id}/-1`
     } else if (props.product_id != -1 && props.product_id != undefined) {
-        console.log("PRODUCT ID: " + props.product_id)
+        // console.log("PRODUCT ID: " + props.product_id)
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/-1/${props.product_id}`
     } else {
-        console.log("NO CATEGORY ID")
+        // console.log("NO CATEGORY ID")
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}`
     }
-    console.log("URL PARAMS: " + url_params)
+    // console.log("URL PARAMS: " + url_params)
+
+    // console.log("SEARCH URL: " + `${base_url}/product/search/all/${url_params}`)
 
     // all/{searchQuery}/{limit}/{offset}/{category_id?}/{sub_category_id?}/{product_id?}
     try {
@@ -362,11 +362,11 @@ const getSearch = async (props) => {
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log("RESYKRS")
-                console.log(data);
+                // console.log("RESYKRS")
+                // console.log(data);
                 const products = data.search_results;
                 const totalResults = data.total_results;
-                console.log("TOTAL RESULTS: " + totalResults)
+                // console.log("TOTAL RESULTS: " + totalResults)
                 //delete old data
                 // const db = await connectToDatabase()
                 // await deleteAllProducts();
@@ -387,13 +387,13 @@ const getSearch = async (props) => {
                 props.productsSearchResultsLoading(false, "", products);
             })
             .catch((err) => {
-                console.log("ERROR: " + err.message)
+                // console.log("ERROR: " + err.message)
                 props.productsSearchResultsLoading(true, err.message);
 
             });
 
     } catch (error) {
-        console.log("ERROR2: " + error.message)
+        // console.log("ERROR2: " + error.message)
         props.productsSearchResultsLoading(true, error.message);
     }
 
