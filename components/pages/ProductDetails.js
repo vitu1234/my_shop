@@ -252,6 +252,9 @@ function ProductDetails(props) {
         });
 
     const productVariantCardAction = (product_variant_selected) => {
+
+        console.log("Selected Product Variant:", product_variant_selected);
+
         let selectedVariantArray = []
         selectedVariantArray.push(product_variant_selected)
         setProductVariantDefault(selectedVariantArray)
