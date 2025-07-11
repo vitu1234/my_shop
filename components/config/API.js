@@ -400,103 +400,30 @@ const getSearch = async (props) => {
 };
 
 
-//get registered user account | checks user token validity
-const getUserAccount = async (props) => {
-    // console.log(`${props.access_token}:ACCESS TOKEN`)
-    // Default options are marked with *
-    const response = await fetch(`${base_url}/auth/profile`, {
-        method: "GET", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${props.access_token}`, // 'Content-Type': 'application/x-www-form-urlencoded',
-        }, redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        // body: JSON.stringify(props), // body data type must match "Content-Type" header
-    }).then((response) => response.json())
-        .then((data) => {
-            console.log("data ACCESS");
-            console.log(data);
-            // console.log("data");
-            props.setIsTokenError(data.isError, data.message);
-        })
-        .catch((err) => {
-            // console.log(err);
-            props.setIsTokenError(true, err.message);
-        });
+//get product details by product_id
+const getProductDetailsByProductID = async ({ product_id, productDetailsLoading }) => {
+    console.log("GETTING PRODUCT DETAILS FOR PRODUCT ID: " + product_id);
+    try {
+        const response = await fetch(`${base_url}/product/details/${product_id}`, { method: "GET" });
 
+        if (!response.ok) {
+            console.error("Error fetching product details:", response.statusText);
+            await productDetailsLoading(true, `Error fetching product details: ${response.statusText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const product_details = data.product_details;
+
+        console.log("Product Details:", product_details);
+
+        await productDetailsLoading(false,"", product_details);
+    } catch (error) {
+        console.error("Error fetching product details:", error);
+        await productDetailsLoading(true,"", error.message);
+    }
 };
 
-//=======================================================================
-//POST METHODS
-//=======================================================================
-//register user account
-const registerUserAccount = async (props) => {
-    // console.log(props);
-    // Example POST method implementation:
-
-    // Default options are marked with *
-    const response = await fetch(`${base_url}/user`, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
-        }, redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(props), // body data type must match "Content-Type" header
-    }).then((response) => response.json())
-        .then((data) => {
-            // console.log("data");
-            // console.log(data);
-            // console.log("data");
-            props.setIsSignUpError(data.isError, data.message);
-        })
-        .catch((err) => {
-            // console.log(err);
-            props.setIsSignUpError(true, err.message);
-        });
-
-    // return response.json(); // parses JSON response into native JavaScript objects
-
-
-};
-
-//verify code sent to user after register
-const registerVerifyCodeUserAccount = async (props) => {
-    // console.log(props);
-    // Example POST method implementation:
-
-    // Default options are marked with *
-    const response = await fetch(`${base_url}/user/verify_email_phone_code`, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
-        }, redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(props), // body data type must match "Content-Type" header
-    }).then((response) => response.json())
-        .then((data) => {
-            // console.log("data");
-            // console.log(data);
-            // console.log("data");
-            props.setIsVerifyAccountError(data.isError, data.message);
-        })
-        .catch((err) => {
-            // console.log(err);
-            props.setIsVerifyAccountError(true, err.message);
-        });
-
-    // return response.json(); // parses JSON response into native JavaScript objects
-
-
-};
 
 //login user account
 const userLogin = async (props) => {
@@ -543,8 +470,9 @@ export {
     getSearch,
     getSearchSuggestions,
     getHomeScreen,
-    getUserAccount,
-    registerUserAccount,
-    registerVerifyCodeUserAccount,
+    getProductDetailsByProductID,
+    // getUserAccount,
+    // registerUserAccount,
+    // registerVerifyCodeUserAccount,
     userLogin, // userLogout,
 };

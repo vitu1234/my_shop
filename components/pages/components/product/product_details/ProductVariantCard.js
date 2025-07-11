@@ -5,39 +5,52 @@ import numbro from "numbro";
 
 let dataG = [];
 
-function ProductAttributeCard(props) {
+function ProductVariantCard(props) {
+
+
+    // console.log("ProductVariantCard Rendered");
+    // console.log("ProductVariantCard Props");
+    // console.log(props.data); 
+    // const productAttribute = props.data.productVariant;
+    // const activeAttribute = props.data.activeVariant[0];
+
     const data = props.data;
     
-    
+    // console.log("ProductVariantCard");
+    // console.log(data);
+    // let data = undefined;
 
     if (data !== undefined) {
-        const productAttribute = data.productAttribute;
-        const activeAttribute = data.activeAttribute[0]
+        const productVariant = data.productVariant;
+        // const activeVariant = data.activeVariant[0]
+
+        console.log("ProductVariantCard Attributes");
+        console.log(productVariant.attributes);
     
         // console.log(productAttribute)
         // console.log("PRODUCT ATTRIBUTE")
         // console.log(data.activeAttribute)
         // console.log("1 IRT")
-        // console.log(activeAttribute)
+        // console.log(activeVariant)
 
-        const product_price = "K" + numbro(parseInt(productAttribute.product_attributes_price)).format({
+        const product_price = "K" + numbro(parseInt(productVariant.price)).format({
             thousandSeparated: true, mantissa: 2,
         });
         return (
             // <View>
             //     <Text>Test</Text>
             // </View>
-        <TouchableOpacity key={productAttribute.product_attributes_id} onPress={() => data.action(productAttribute)} style={[
+        <TouchableOpacity key={productVariant.product_variant_id} onPress={() => data.action(productVariant)} style={[
             styles.card, 
-            (activeAttribute.product_attributes_id == productAttribute.product_attributes_id) ? styles.highlightedContainer : null
+            (productVariant.is_default == 1) ? styles.highlightedContainer : null   
         ]}>
 
             <View style={styles.infoContainer}>
                 <Text numberOfLines={3}  style={[styles.name,
-                    (activeAttribute.product_attributes_id == productAttribute.product_attributes_id) ? styles.highlightedTextColor : null
-                ]}>{productAttribute.product_attributes_name} | {productAttribute.product_attributes_value} X 1 QTY</Text>
+                    (productVariant.is_default == 1) ? styles.highlightedTextColor : null
+                ]}>{productVariant.product_attributes_name} | {productVariant.product_attributes_value} X 1 QTY</Text>
                 <Text style={[styles.price, 
-                    (activeAttribute.product_attributes_id == productAttribute.product_attributes_id) ? styles.highlightedTextColor : null
+                    (productVariant.is_default == 1) ? styles.highlightedTextColor : null
                 ]}>{product_price}</Text>
             </View>
         </TouchableOpacity>
@@ -89,4 +102,4 @@ const styles = StyleSheet.create({
         color:'#fff'
     }
 });
-export default ProductAttributeCard;
+export default ProductVariantCard;

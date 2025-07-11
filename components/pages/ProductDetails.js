@@ -10,12 +10,15 @@ import { useSQLiteContext } from 'expo-sqlite';
 
 import { Heart, Share, Star, StarHalf } from "lucide-react-native";
 import { FlatList } from "react-native-actions-sheet";
-import ProductAttributeCard from "./components/product/product_details/ProductAttributeCard";
+import ProductVariantCard from "./components/product/product_details/ProductVariantCard";
 import ShippingDetails from "@/components/pages/components/product/product_details/ShippingDetails";
 import {
     configureReanimatedLogger,
     ReanimatedLogLevel,
 } from 'react-native-reanimated';
+
+import { getProductDetailsByProductID } from "../config/API";
+
 const { width } = Dimensions.get("window");
 
 const PAGE_WIDTH = window.width;
@@ -31,8 +34,8 @@ function ProductDetails(props) {
     const [carouselImageIndex, setCarouselImageIndex] = useState(1);
 
     const [product, setProduct] = useState([])
-    const [productAttributes, setProductAttributes] = useState([])
-    const [productAttributeDefault, setProductAttributeDefault] = useState([])
+    const [productVariants, setProductVariants] = useState([])
+    const [productVariantDefault, setProductVariantDefault] = useState([])
     const [productImages, setProductImages] = useState([])
     const [productShipping, setProductShipping] = useState([])
 
@@ -78,38 +81,53 @@ function ProductDetails(props) {
 
     const fetchProductData = useCallback(async () => {
         if (db) {
-            await getProduct(product_id)
+            // await getProduct(product_id)
+            await getProductDetailsByProductID({ product_id, productDetailsLoading: getProduct });
         }
     }, [product]);
 
-    const getProduct = async (product_id) => {
-        // await Promise.all([F
-        // 1. A new transaction begins
+    const getProduct = async (isFetchingDataError, message, fetchedProducts) => {
 
-        const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
-        const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
-        const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
-        // const product_shipping = await db.getAllAsync('SELECT * FROM product_shipping INNER JOIN shipping_company ON product_shipping.shipping_company_id = shipping_company.shipping_company_id WHERE product_id =' + product_id);
-
-        const product_images = [];
-        for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
-            product_images.push(row.img_url);
+        if (isFetchingDataError) {
+            console.error("Error fetching product details:", message);
+            return;
         }
-        const product_attribute_default = [];
-        for (let i = 0; i < product_attributes.length; i++) {
+
+        console.log("Fetched Product Details:", fetchedProducts);
+        setProduct(fetchedProducts.product);
+        setProductVariants(fetchedProducts.product_variants);
+        setProductShipping(fetchedProducts.product_shipping);
+        // setProductAttributes(fetchedProducts.product_attributes);
+        // setProductShipping(fetchedProducts.product_shipping);
+        setProductImages(fetchedProducts.product_images.map(image => image.img_url));
+        // setProductAttributeDefault(fetchedProducts.product_attributes.filter(attr => attr.product_attributes_default === 1));
+
+
+        // const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
+        // const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
+        // const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
+        // // const product_shipping = await db.getAllAsync('SELECT * FROM product_shipping INNER JOIN shipping_company ON product_shipping.shipping_company_id = shipping_company.shipping_company_id WHERE product_id =' + product_id);
+
+        // const product_images = [];
+        // for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
+        //     product_images.push(row.img_url);
+        // }
+
+        const product_variants = [];
+        for (let i = 0; i < product_variants.length; i++) {
             try {
-                if (product_attributes[i].product_attributes_default == 1) {
-                    product_attribute_default.push(product_attributes[i])
+                if (product_variants[i].is_default == 1 && product_variants[i].is_active == 1) {
+                    product_variants.push(product_variants[i])
                 }
             } catch (error) {
-                console.log("failed to read property of product attribute", error)
+                console.log("failed to read property of product variant", error)
             }
         }
 
-        setProduct(ProductDetails)
-        setProductImages(product_images)
-        setProductAttributeDefault(product_attribute_default)
-        setProductAttributes(product_attributes)
+        // setProduct(ProductDetails)
+        // setProductImages(product_images)
+        // setProductAttributeDefault(product_attribute_default)
+        // setProductAttributes(product_attributes)
         // setProductShipping(product_shipping)
 
     }
@@ -127,14 +145,14 @@ function ProductDetails(props) {
         // setProductPrice(productQty * (parseFloat(0)));
         setCartCounterNumber();
 
-    }, [productQty, cartItemsCount, productsTotalAmount, productAttributeDefault]);
+    }, [productQty, cartItemsCount, productsTotalAmount, productVariantDefault]);
 
 
     const addToCart = async () => {
         console.log("adding to cart");
-        console.log(productAttributeDefault);
+        console.log(productVariantDefault);
 
-        const productAttributesId = productAttributeDefault[0].product_attributes_id;
+        const productVariantId = productVariantDefault[0].product_variant_id;
 
         try {
             // Fetch existing cart items
@@ -144,10 +162,10 @@ function ProductDetails(props) {
             let isUpdated = false;
 
             for (const row of cartItemsList) {
-                console.log("Looping: ", row.id, row.product_attributes_id, row.qty);
+                console.log("Looping: ", row.id, row.product_variant_id, row.qty);
 
                 // Check if the item already exists in the cart
-                if (productAttributesId === row.product_attributes_id) {
+                if (productVariantId === row.product_variant_id) {
                     const qtyNow = row.qty + 1;
                     console.log("Updating Quantity to:", qtyNow);
 
@@ -166,8 +184,8 @@ function ProductDetails(props) {
             // If the item is not found in the cart, insert it
             if (!isUpdated) {
                 const insertResult = await db.runAsync(
-                    'INSERT INTO cart (product_attributes_id, qty) VALUES (?, ?)',
-                    productAttributesId,
+                    'INSERT INTO cart (product_variant_id, qty) VALUES (?, ?)',
+                    productVariantId,
                     1
                 );
                 console.log("Insert Result:", insertResult.lastInsertRowId, insertResult.changes);
@@ -233,19 +251,19 @@ function ProductDetails(props) {
             // height: PAGE_WIDTH / 2,
         });
 
-    const productAttributeCardAction = (product_attribute_selected) => {
-        let selectedAttributeArray = []
-        selectedAttributeArray.push(product_attribute_selected)
-        setProductAttributeDefault(selectedAttributeArray)
+    const productVariantCardAction = (product_variant_selected) => {
+        let selectedVariantArray = []
+        selectedVariantArray.push(product_variant_selected)
+        setProductVariantDefault(selectedVariantArray)
     };
 
-    const renderProductAttributeList = ({ item }) => (
+    const renderProductVariantList = ({ item }) => (
 
-        <View key={item.product_attributes_id} style={styles.productCardContainer}>
-            <ProductAttributeCard data={{
-                productAttribute: item,
-                action: productAttributeCardAction,
-                activeAttribute: productAttributeDefault
+        <View key={item.product_variant_id} style={styles.productCardContainer}>
+            <ProductVariantCard data={{
+                productVariant: item,
+                action: productVariantCardAction,
+                activeVariant: productVariantDefault
             }} />
         </View>
     );
@@ -372,12 +390,12 @@ function ProductDetails(props) {
 
                                 <FlatList
                                     style={styles.container}
-                                    data={productAttributes}
+                                    data={productVariants}
                                     horizontal
                                     showsHorizontalScrollIndicator={false}
                                     contentContainerStyle={styles.horizontalListContainer}
-                                    renderItem={renderProductAttributeList}
-                                    keyExtractor={item => item.product_attributes_id.toString()}
+                                    renderItem={renderProductVariantList}
+                                    keyExtractor={item => item.product_variant_id.toString()}
                                 />
                                 {/* <Text>HAHAHAHAHA </Text>
                                 <Text>HAHAHAHAHA </Text>
