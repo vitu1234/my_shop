@@ -18,6 +18,7 @@ import {
 } from 'react-native-reanimated';
 
 import { getProductDetailsByProductID } from "../config/API";
+import { ChevronDown, ChevronUp } from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
 
@@ -45,6 +46,16 @@ function ProductDetails(props) {
     const [isAddingToCartBtn, setIsAddingToCartBtn] = useState(false);
     const [isPlusToCartBtnDisabled, setIsPlusToCartBtnDisabled] = useState(false);
     const [isMinusToCartBtnDisabled, setIsMinusToCartBtnDisabled] = useState(false);
+
+    const windowWidth = useWindowDimensions().width;
+    const scrollOffsetValue = useSharedValue(0);
+    const [isVertical, setIsVertical] = React.useState(false);
+    const [isFast, setIsFast] = React.useState(false);
+    const [isAutoPlay, setIsAutoPlay] = React.useState(true);
+    const [isPagingEnabled, setIsPagingEnabled] = React.useState(true);
+    const ref = React.useRef(null);
+    const [showVariantAttributes, setShowVariantAttributes] = useState(true);
+
 
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
     // This is the default configuration
@@ -93,38 +104,12 @@ function ProductDetails(props) {
             return;
         }
 
-        // console.log("Fetched Product Details:", fetchedProducts);
-        setProduct(fetchedProducts.product);
-        setProductVariants(fetchedProducts.product_variants);
-        setProductShipping(fetchedProducts.product_shipping);
-        // setProductAttributes(fetchedProducts.product_attributes);
-        // setProductShipping(fetchedProducts.product_shipping);
-        setProductImages(fetchedProducts.product_images.map(image => image.img_url));
-        // setProductAttributeDefault(fetchedProducts.product_attributes.filter(attr => attr.product_attributes_default === 1));
-
-
-        // const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
-        // const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
-        // const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
-        // // const product_shipping = await db.getAllAsync('SELECT * FROM product_shipping INNER JOIN shipping_company ON product_shipping.shipping_company_id = shipping_company.shipping_company_id WHERE product_id =' + product_id);
-
-        // const product_images = [];
-        // for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
-        //     product_images.push(row.img_url);
-        // }
-
         const product_variants = [];
         for (let i = 0; i < fetchedProducts.product_variants.length; i++) {
-
-            console.log("Product Variant:", fetchedProducts.product_variants[i]);
-            console.log("Product Variant ID:", fetchedProducts.product_variants[i].product_variant_id);
-            console.log("Product Variant is Default:", fetchedProducts.product_variants[i].is_default);
-            console.log("-------------------------------");
-
             try {
                 if (fetchedProducts.product_variants[i].is_default == 1 && fetchedProducts.product_variants[i].is_active == 1) {
                     console.log("Setting Default Product Variant:", fetchedProducts.product_variants[i]);
-                    setProductVariantDefault([fetchedProducts.product_variants[i]]);
+                    setProductVariantDefault(fetchedProducts.product_variants[i]);
                     product_variants.push(fetchedProducts.product_variants[i])
                 }
             } catch (error) {
@@ -132,11 +117,11 @@ function ProductDetails(props) {
             }
         }
 
-        // setProduct(ProductDetails)
-        // setProductImages(product_images)
-        // setProductAttributeDefault(product_attribute_default)
-        // setProductAttributes(product_attributes)
-        // setProductShipping(product_shipping)
+        // console.log("Fetched Product Details:", fetchedProducts);
+        setProduct(fetchedProducts.product);
+        setProductVariants(fetchedProducts.product_variants);
+        setProductShipping(fetchedProducts.product_shipping);
+        setProductImages(fetchedProducts.product_images.map(image => image.img_url));
 
     }
 
@@ -204,33 +189,9 @@ function ProductDetails(props) {
             console.log("Total Items in Cart After Operation:", countResult.totalItems);
 
             setCartItemsCount(countResult.totalItems)
-            
+
         } catch (error) {
             console.error("Error adding to cart:", error);
-        }
-    };
-
-
-    const addProductQty = () => {
-        //amount should not exit the qty in inventory
-        const before_add = productQty + 1;
-        if (before_add <= product.qty) {
-            setProductQty(productQty + 1);
-            setIsPlusToCartBtnDisabled(false);
-            setIsMinusToCartBtnDisabled(false);
-        } else {
-            setIsPlusToCartBtnDisabled(true);
-        }
-    };
-
-    const minusProductQty = () => {
-        if (productQty === 1) {
-            setProductQty(1);
-            setIsMinusToCartBtnDisabled(true);
-        } else {
-            setProductQty(productQty - 1);
-            setIsPlusToCartBtnDisabled(false);
-            setIsMinusToCartBtnDisabled(false);
         }
     };
 
@@ -239,13 +200,7 @@ function ProductDetails(props) {
     };
 
 
-    const windowWidth = useWindowDimensions().width;
-    const scrollOffsetValue = useSharedValue(0);
-    const [isVertical, setIsVertical] = React.useState(false);
-    const [isFast, setIsFast] = React.useState(false);
-    const [isAutoPlay, setIsAutoPlay] = React.useState(true);
-    const [isPagingEnabled, setIsPagingEnabled] = React.useState(true);
-    const ref = React.useRef(null);
+
 
     const baseOptions = isVertical
         ? ({
@@ -261,12 +216,14 @@ function ProductDetails(props) {
 
     const productVariantCardAction = (product_variant_selected) => {
 
-        console.log("Selected Product Variant:", product_variant_selected);
+        // console.log("Selected Product Variant:", product_variant_selected);
 
 
         // let selectedVariantArray = []
         // selectedVariantArray.push(product_variant_selected)
         setProductVariantDefault(product_variant_selected);
+        setShowVariantAttributes(true);
+
     };
 
     const renderProductVariantList = ({ item }) => (
@@ -289,6 +246,8 @@ function ProductDetails(props) {
                 data={[
                     { type: 'carousel' },
                     { type: 'productDetails' },
+                    ...(productVariantDefault && productVariantDefault.product_variant_id ? [{ type: 'selectedVariantAttributes' }] : []),
+
                     { type: 'shippingDetails' }
                 ]}
                 renderItem={({ item }) => {
@@ -409,19 +368,107 @@ function ProductDetails(props) {
                                     renderItem={renderProductVariantList}
                                     keyExtractor={item => item.product_variant_id.toString()}
                                 />
-                                {/* <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text> */}
+
                             </View>
 
                         );
-                    } else if (item.type === 'shippingDetails') {
+                    } else if (item.type === 'selectedVariantAttributes') {
+                        const attributes = productVariantDefault?.attributes || [];
+
+                        return (
+                            <View style={[styles.detailsContainer, {
+                                backgroundColor: '#ffffff',
+                                borderRadius: 12,
+                                padding: 16,
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 4,
+                                elevation: 3,
+                                marginHorizontal: 12,
+                                marginBottom: 16,
+                            }]}>
+                                <TouchableOpacity
+                                    onPress={() => setShowVariantAttributes(!showVariantAttributes)}
+                                    style={{
+                                        marginBottom: 12,
+                                        alignSelf: 'flex-start',
+                                        backgroundColor: '#f0f4f8',
+                                        paddingVertical: 8,
+                                        paddingHorizontal: 14,
+                                        borderRadius: 20,
+                                        borderWidth: 1,
+                                        borderColor: '#d0d7de',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 14, color: '#0366d6', fontWeight: '600', marginRight: 6 }}>
+                                        {showVariantAttributes ? 'Hide More Details' : 'Show More Details'}
+                                    </Text>
+                                    {showVariantAttributes ? (
+                                        <ChevronUp size={16} color="#0366d6" />
+                                    ) : (
+                                        <ChevronDown size={16} color="#0366d6" />
+                                    )}
+                                </TouchableOpacity>
+
+
+                                {showVariantAttributes && (
+                                    <>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 16,
+                                            marginBottom: 10,
+                                            color: '#1f2937',
+                                            textAlign: 'center',
+                                        }}>
+                                            Details
+                                        </Text>
+
+                                        {attributes.map((attr, index) => (
+                                            <View key={index} style={{ marginBottom: 12 }}>
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '600',
+                                                    color: '#4e46e5c2',
+                                                    marginBottom: 6,
+                                                }}>
+                                                    {attr.filter_name}
+                                                </Text>
+
+                                                <View style={{
+                                                    flexDirection: 'row',
+                                                    flexWrap: 'wrap',
+                                                    gap: 6,
+                                                }}>
+                                                    {attr.option_labels.map((label, i) => (
+                                                        <Text
+                                                            key={i}
+                                                            style={{
+                                                                backgroundColor: "#e5e7eb88",
+                                                                paddingVertical: 6,
+                                                                paddingHorizontal: 12,
+                                                                borderRadius: 8,
+                                                                fontSize: 13,
+                                                                color: "#111827",
+                                                                marginRight: 6,
+                                                                marginBottom: 6,
+                                                            }}
+                                                        >
+                                                            {label.option_label}
+                                                        </Text>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        ))}
+                                    </>
+                                )}
+                            </View>
+                        );
+                    }
+
+                    else if (item.type === 'shippingDetails') {
                         return (
                             <View style={styles.detailsContainer}>
                                 <ShippingDetails data={product_id} />

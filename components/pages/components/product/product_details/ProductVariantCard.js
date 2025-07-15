@@ -7,8 +7,6 @@ function ProductVariantCard(props) {
 
     if (!data) return <View />;
 
-    console.log("ProductVariantCard data:", data.activeVariant);
-
     const productVariant = data.productVariant;
     const activeProductVariant = data.activeVariant;
     const attributes = productVariant.attributes || [];
@@ -59,7 +57,7 @@ function ProductVariantCard(props) {
                     {product_price}
                 </Text>
 
-                {attributes.map((attr, index) => (
+                {/* {attributes.map((attr, index) => (
                     <View key={index} style={styles.attributeGroup}>
                         <Text style={styles.filterName}>{attr.filter_name}:</Text>
                         <View style={styles.optionLabelsContainer}>
@@ -70,7 +68,7 @@ function ProductVariantCard(props) {
                             ))}
                         </View>
                     </View>
-                ))}
+                ))} */}
             </View>
         </TouchableOpacity>
     );
@@ -91,7 +89,7 @@ const styles = StyleSheet.create({
     },
     highlightedContainer: {
         backgroundColor: "#007bff20", // light blue background
-        borderColor: "#007bff",
+        borderColor: "#007bff38",
         borderWidth: 1,
     },
     infoContainer: {
