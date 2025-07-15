@@ -1,5 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
+import {
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View
+} from "react-native";
 import { AppContext, CartContext } from "@/app_contexts/AppContext";
 import Carousel from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,98 +14,50 @@ import { SBItem } from "@/components/carousel/SBItem";
 import { window } from "@/components/carousel/constants";
 import { useSharedValue } from "react-native-reanimated";
 import { useSQLiteContext } from 'expo-sqlite';
-
-import { Heart, Share, Star, StarHalf } from "lucide-react-native";
+import { Heart, Share, Star, StarHalf, ChevronDown, ChevronUp } from "lucide-react-native";
 import { FlatList } from "react-native-actions-sheet";
 import ProductVariantCard from "./components/product/product_details/ProductVariantCard";
 import ShippingDetails from "@/components/pages/components/product/product_details/ShippingDetails";
-import {
-    configureReanimatedLogger,
-    ReanimatedLogLevel,
-} from 'react-native-reanimated';
-
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 import { getProductDetailsByProductID } from "../config/API";
-import { ChevronDown, ChevronUp } from "lucide-react-native";
 
 const { width } = Dimensions.get("window");
-
 const PAGE_WIDTH = window.width;
 
-
 function ProductDetails(props) {
-    // console.log(props.route.params.db)
-
     const db = useSQLiteContext();
-
     const product_id = props.route.params.product_id;
     const [productQty, setProductQty] = useState(1);
     const [carouselImageIndex, setCarouselImageIndex] = useState(1);
-
-    const [product, setProduct] = useState([])
-    const [productVariants, setProductVariants] = useState([])
-    const [productVariantDefault, setProductVariantDefault] = useState([])
-    const [productImages, setProductImages] = useState([])
-    const [productShipping, setProductShipping] = useState([])
-
+    const [product, setProduct] = useState([]);
+    const [productVariants, setProductVariants] = useState([]);
+    const [productVariantDefault, setProductVariantDefault] = useState([]);
+    const [productImages, setProductImages] = useState([]);
+    const [productShipping, setProductShipping] = useState([]);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
-    const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
     const [isAddingToCartBtn, setIsAddingToCartBtn] = useState(false);
     const [isPlusToCartBtnDisabled, setIsPlusToCartBtnDisabled] = useState(false);
     const [isMinusToCartBtnDisabled, setIsMinusToCartBtnDisabled] = useState(false);
-
     const windowWidth = useWindowDimensions().width;
     const scrollOffsetValue = useSharedValue(0);
-    const [isVertical, setIsVertical] = React.useState(false);
-    const [isFast, setIsFast] = React.useState(false);
-    const [isAutoPlay, setIsAutoPlay] = React.useState(true);
-    const [isPagingEnabled, setIsPagingEnabled] = React.useState(true);
-    const ref = React.useRef(null);
+    const [isVertical] = useState(false);
+    const [isFast] = useState(false);
+    const [isAutoPlay] = useState(true);
+    const [isPagingEnabled] = useState(true);
+    const ref = useRef(null);
     const [showVariantAttributes, setShowVariantAttributes] = useState(true);
-
-
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
-    // This is the default configuration
-    configureReanimatedLogger({
-        level: ReanimatedLogLevel.warn,
-        strict: false, // Reanimated runs in strict mode by default
-    });
-    const setCartCounterNumber = () => {
-        //update cart counter
-        /*db.transaction((tx) => {
-          tx.executeSql(
-            "SELECT * FROM cart",
-            [],
-            (tx, results) => {
-              const len = results.rows.length;
-              let amountTotal = 0;
-              const temp = [];
 
-              for (let i = 0; i < results.rows.length; ++i) {
-                temp.push(results.rows.item(i));
-
-                amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-              }
-
-
-              setProductsTotalAmount(amountTotal);
-              setCartItemsCount(len);
-
-              // console.log("COUNTING");
-            },
-          );
-        });*/
-    };
+    configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 
     const fetchProductData = useCallback(async () => {
         if (db) {
-            // await getProduct(product_id)
             await getProductDetailsByProductID({ product_id, productDetailsLoading: getProduct });
         }
     }, [product]);
 
     const getProduct = async (isFetchingDataError, message, fetchedProducts) => {
-
         if (isFetchingDataError) {
             console.error("Error fetching product details:", message);
             return;
@@ -108,132 +67,69 @@ function ProductDetails(props) {
         for (let i = 0; i < fetchedProducts.product_variants.length; i++) {
             try {
                 if (fetchedProducts.product_variants[i].is_default == 1 && fetchedProducts.product_variants[i].is_active == 1) {
-                    console.log("Setting Default Product Variant:", fetchedProducts.product_variants[i]);
                     setProductVariantDefault(fetchedProducts.product_variants[i]);
-                    product_variants.push(fetchedProducts.product_variants[i])
+                    product_variants.push(fetchedProducts.product_variants[i]);
                 }
             } catch (error) {
-                console.log("failed to read property of product variant", error)
+                console.log("failed to read property of product variant", error);
             }
         }
 
-        // console.log("Fetched Product Details:", fetchedProducts);
         setProduct(fetchedProducts.product);
         setProductVariants(fetchedProducts.product_variants);
         setProductShipping(fetchedProducts.product_shipping);
         setProductImages(fetchedProducts.product_images.map(image => image.img_url));
-
-    }
-
+    };
 
     useEffect(() => {
         fetchProductData();
     }, []);
 
-
     useEffect(() => {
         if (productQty === 1) {
             setIsMinusToCartBtnDisabled(true);
         }
-        // setProductPrice(productQty * (parseFloat(0)));
-        setCartCounterNumber();
-
     }, [productQty, cartItemsCount, productsTotalAmount, productVariantDefault]);
 
-
     const addToCart = async () => {
-        console.log("adding to cart");
-        console.log(productVariantDefault);
-
         const productVariantId = productVariantDefault[0].product_variant_id;
 
         try {
-            // Fetch existing cart items
             const cartItemsList = await db.getAllAsync("SELECT * FROM cart");
-            console.log("Cart Items Count:", cartItemsList.length);
-
             let isUpdated = false;
 
             for (const row of cartItemsList) {
-                console.log("Looping: ", row.id, row.product_variant_id, row.qty);
-
-                // Check if the item already exists in the cart
                 if (productVariantId === row.product_variant_id) {
                     const qtyNow = row.qty + 1;
-                    console.log("Updating Quantity to:", qtyNow);
-
-                    // Update the quantity
-                    const updateResult = await db.runAsync(
-                        'UPDATE cart SET qty = ? WHERE id = ?',
-                        qtyNow,
-                        row.id
-                    );
-                    console.log("Cart Update Result:", updateResult);
+                    await db.runAsync('UPDATE cart SET qty = ? WHERE id = ?', qtyNow, row.id);
                     isUpdated = true;
-                    break; // No need to continue looping if item is found
+                    break;
                 }
             }
 
-            // If the item is not found in the cart, insert it
             if (!isUpdated) {
-                const insertResult = await db.runAsync(
-                    'INSERT INTO cart (product_variant_id, qty) VALUES (?, ?)',
-                    productVariantId,
-                    1
-                );
-                console.log("Insert Result:", insertResult.lastInsertRowId, insertResult.changes);
+                await db.runAsync('INSERT INTO cart (product_variant_id, qty) VALUES (?, ?)', productVariantId, 1);
             }
 
-            // Count the total number of items in the cart
             const countResult = await db.getFirstAsync("SELECT COUNT(*) as totalItems FROM cart");
-            console.log("Total Items in Cart After Operation:", countResult.totalItems);
-
-            setCartItemsCount(countResult.totalItems)
-
+            setCartItemsCount(countResult.totalItems);
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
     };
 
-    const openCart = () => {
-        props.navigation.navigate("Cart");
-    };
-
-
-
-
     const baseOptions = isVertical
-        ? ({
-            vertical: true,
-            width: windowWidth,
-            height: PAGE_WIDTH / 2,
-        })
-        : ({
-            vertical: false,
-            width: windowWidth,
-            // height: PAGE_WIDTH / 2,
-        });
+        ? { vertical: true, width: windowWidth, height: PAGE_WIDTH / 2 }
+        : { vertical: false, width: windowWidth };
 
     const productVariantCardAction = (product_variant_selected) => {
-
-        // console.log("Selected Product Variant:", product_variant_selected);
-
-
-        // let selectedVariantArray = []
-        // selectedVariantArray.push(product_variant_selected)
         setProductVariantDefault(product_variant_selected);
         setShowVariantAttributes(true);
-
     };
 
     const renderProductVariantList = ({ item }) => (
-
         <View key={item.product_variant_id} style={styles.productCardContainer}>
-            <ProductVariantCard data={{
-                productVariant: item,
-                action: productVariantCardAction,
-                activeVariant: productVariantDefault
-            }} />
+            <ProductVariantCard data={{ productVariant: item, action: productVariantCardAction, activeVariant: productVariantDefault }} />
         </View>
     );
 
