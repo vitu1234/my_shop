@@ -93,7 +93,7 @@ function ProductDetails(props) {
             return;
         }
 
-        console.log("Fetched Product Details:", fetchedProducts);
+        // console.log("Fetched Product Details:", fetchedProducts);
         setProduct(fetchedProducts.product);
         setProductVariants(fetchedProducts.product_variants);
         setProductShipping(fetchedProducts.product_shipping);
@@ -114,10 +114,18 @@ function ProductDetails(props) {
         // }
 
         const product_variants = [];
-        for (let i = 0; i < product_variants.length; i++) {
+        for (let i = 0; i < fetchedProducts.product_variants.length; i++) {
+
+            console.log("Product Variant:", fetchedProducts.product_variants[i]);
+            console.log("Product Variant ID:", fetchedProducts.product_variants[i].product_variant_id);
+            console.log("Product Variant is Default:", fetchedProducts.product_variants[i].is_default);
+            console.log("-------------------------------");
+
             try {
-                if (product_variants[i].is_default == 1 && product_variants[i].is_active == 1) {
-                    product_variants.push(product_variants[i])
+                if (fetchedProducts.product_variants[i].is_default == 1 && fetchedProducts.product_variants[i].is_active == 1) {
+                    console.log("Setting Default Product Variant:", fetchedProducts.product_variants[i]);
+                    setProductVariantDefault([fetchedProducts.product_variants[i]]);
+                    product_variants.push(fetchedProducts.product_variants[i])
                 }
             } catch (error) {
                 console.log("failed to read property of product variant", error)
@@ -255,9 +263,10 @@ function ProductDetails(props) {
 
         console.log("Selected Product Variant:", product_variant_selected);
 
-        let selectedVariantArray = []
-        selectedVariantArray.push(product_variant_selected)
-        setProductVariantDefault(selectedVariantArray)
+
+        // let selectedVariantArray = []
+        // selectedVariantArray.push(product_variant_selected)
+        setProductVariantDefault(product_variant_selected);
     };
 
     const renderProductVariantList = ({ item }) => (

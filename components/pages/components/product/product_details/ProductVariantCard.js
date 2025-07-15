@@ -7,7 +7,10 @@ function ProductVariantCard(props) {
 
     if (!data) return <View />;
 
+    console.log("ProductVariantCard data:", data.activeVariant);
+
     const productVariant = data.productVariant;
+    const activeProductVariant = data.activeVariant;
     const attributes = productVariant.attributes || [];
 
     const product_price = "K" + numbro(parseInt(productVariant.price)).format({
@@ -24,14 +27,14 @@ function ProductVariantCard(props) {
             onPress={() => data.action(productVariant)}
             style={[
                 styles.card,
-                productVariant.is_default === 1 && styles.highlightedContainer
+                (productVariant.product_variant_id === activeProductVariant?.product_variant_id) && styles.highlightedContainer
             ]}
         >
             <View style={styles.infoContainer}>
                 <Text
                     style={[
                         styles.sku,
-                        productVariant.is_default === 1 && styles.highlightedTextColor
+                        (productVariant.product_variant_id === activeProductVariant?.product_variant_id) && styles.highlightedTextColor
                     ]}
                 >
                     {productVariant.sku}
@@ -41,7 +44,7 @@ function ProductVariantCard(props) {
                     style={[
                         styles.stock,
                         isOutOfStock ? styles.outOfStock : null,
-                        productVariant.is_default === 1 && styles.highlightedTextColor
+                        (productVariant.product_variant_id === activeProductVariant?.product_variant_id) && styles.highlightedTextColor
                     ]}
                 >
                     {remaining}
@@ -50,7 +53,7 @@ function ProductVariantCard(props) {
                 <Text
                     style={[
                         styles.price,
-                        productVariant.is_default === 1 && styles.highlightedTextColor
+                        (productVariant.product_variant_id === activeProductVariant?.product_variant_id) && styles.highlightedTextColor
                     ]}
                 >
                     {product_price}
