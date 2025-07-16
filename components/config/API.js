@@ -212,7 +212,7 @@ const getAllProductsByCategory = async (props) => {
 
 //get all products by sub_category
 const getAllProductsBySubCategory = async (props) => {
-    
+
     category_id = props.category_id;
     sub_category_id = props.sub_category_id;
 
@@ -417,13 +417,44 @@ const getProductDetailsByProductID = async ({ product_id, productDetailsLoading 
 
         console.log("Product Details:", product_details);
 
-        await productDetailsLoading(false,"", product_details);
+        await productDetailsLoading(false, "", product_details);
     } catch (error) {
         console.error("Error fetching product details:", error);
-        await productDetailsLoading(true,"", error.message);
+        await productDetailsLoading(true, "", error.message);
     }
 };
 
+//push post request cart online
+const SyncCartOnline = async (props) => {
+
+    const cartItems = props.cartItems || [];
+
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+        console.warn("No cart items to push online.");
+        return;
+    }
+
+    console.log("Cart items to push online:", cartItems);
+
+    try {
+        const response = await fetch(`${base_url}/cart/push`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(cartItems), // Ensure cartItems is an array of objects
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Cart pushed online successfully:", data);
+    } catch (error) {
+        console.error("Error pushing cart online:", error);
+    }
+};
 
 //login user account
 const userLogin = async (props) => {
@@ -471,6 +502,7 @@ export {
     getSearchSuggestions,
     getHomeScreen,
     getProductDetailsByProductID,
+    SyncCartOnline,
     // getUserAccount,
     // registerUserAccount,
     // registerVerifyCodeUserAccount,

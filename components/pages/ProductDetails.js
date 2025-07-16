@@ -19,7 +19,7 @@ import { FlatList } from "react-native-actions-sheet";
 import ProductVariantCard from "./components/product/product_details/ProductVariantCard";
 import ShippingDetails from "@/components/pages/components/product/product_details/ShippingDetails";
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
-import { getProductDetailsByProductID } from "../config/API";
+import { getProductDetailsByProductID, SyncCartOnline } from "../config/API";
 
 const { width } = Dimensions.get("window");
 const PAGE_WIDTH = window.width;
@@ -93,7 +93,6 @@ function ProductDetails(props) {
 
     const addToCart = async () => {
         const productVariantId = productVariantDefault.product_variant_id;
-        console.log("Adding to cart productVariantId:", productVariantDefault);
 
         try {
             const cartItemsList = await db.getAllAsync("SELECT * FROM cart");
@@ -115,8 +114,23 @@ function ProductDetails(props) {
 
             const countResult = await db.getFirstAsync("SELECT COUNT(*) as totalItems FROM cart");
             setCartItemsCount(countResult.totalItems);
+
+            pushCartOnline();
         } catch (error) {
             console.error("Error adding to cart:", error);
+        }
+    };
+
+    const pushCartOnline = async () => {
+        try {
+            const localCartItems = await db.getAllAsync("SELECT * FROM cart");
+            // Replace this with your actual API call
+            console.log("Pushing cart online:", localCartItems);
+            await SyncCartOnline({ cartItems: localCartItems });
+
+            // Example: await sendCartToServer(localCartItems);
+        } catch (err) {
+            console.error("Failed to sync cart online:", err);
         }
     };
 
