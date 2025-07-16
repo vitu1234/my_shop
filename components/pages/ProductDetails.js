@@ -19,7 +19,7 @@ import { FlatList } from "react-native-actions-sheet";
 import ProductVariantCard from "./components/product/product_details/ProductVariantCard";
 import ShippingDetails from "@/components/pages/components/product/product_details/ShippingDetails";
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
-import { getProductDetailsByProductID, SyncCartOnline } from "../config/API";
+import { getProductDetailsByProductID, SyncPushCartOnline } from "../config/API";
 
 const { width } = Dimensions.get("window");
 const PAGE_WIDTH = window.width;
@@ -27,6 +27,8 @@ const PAGE_WIDTH = window.width;
 function ProductDetails(props) {
     const db = useSQLiteContext();
     const product_id = props.route.params.product_id;
+
+    
     const [productQty, setProductQty] = useState(1);
     const [carouselImageIndex, setCarouselImageIndex] = useState(1);
     const [product, setProduct] = useState([]);
@@ -94,6 +96,8 @@ function ProductDetails(props) {
     const addToCart = async () => {
         const productVariantId = productVariantDefault.product_variant_id;
 
+
+
         try {
             const cartItemsList = await db.getAllAsync("SELECT * FROM cart");
             let isUpdated = false;
@@ -108,14 +112,14 @@ function ProductDetails(props) {
             }
 
             if (!isUpdated) {
-                await db.runAsync('INSERT INTO cart (product_id,product_variant_id, qty) VALUES (?, ?, ?)',
-                    product_id, productVariantId, 1);
+                await db.runAsync('INSERT INTO cart (product_id,product_variant_id,product_variant_price, qty, stock_qty, cover, product_name) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    product_id, productVariantId, productVariantDefault.price, 1, productVariantDefault.stock_qty, product.cover, product.product_name);
             }
 
             const countResult = await db.getFirstAsync("SELECT COUNT(*) as totalItems FROM cart");
             setCartItemsCount(countResult.totalItems);
 
-            pushCartOnline();
+            // pushCartOnline();
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
@@ -126,7 +130,7 @@ function ProductDetails(props) {
             const localCartItems = await db.getAllAsync("SELECT * FROM cart");
             // Replace this with your actual API call
             console.log("Pushing cart online:", localCartItems);
-            await SyncCartOnline({ cartItems: localCartItems });
+            await SyncPushCartOnline({ cartItems: localCartItems });
 
             // Example: await sendCartToServer(localCartItems);
         } catch (err) {
@@ -511,7 +515,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     buyNowButton: {
-        backgroundColor: "#FF5722",
+        backgroundColor: "#0366d6",
     },
     buttonText: {
         color: "#fff",

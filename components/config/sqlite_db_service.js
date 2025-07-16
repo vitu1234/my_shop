@@ -97,8 +97,12 @@ export const createTables = async (db) => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 product_id INTEGER NOT NULL,
                 product_variant_id INTEGER NOT NULL,
+                product_variant_price TEXT NOT NULL,
                 qty INTEGER NOT NULL,
-                isChecked INTEGER DEFAULT 0 NOT NULL
+                stock_qty INTEGER NOT NULL,
+                isChecked INTEGER DEFAULT 0 NOT NULL,
+                cover TEXT NOT NULL,
+                product_name TEXT NOT NULL
             );
         `);
 

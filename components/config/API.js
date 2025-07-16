@@ -425,7 +425,7 @@ const getProductDetailsByProductID = async ({ product_id, productDetailsLoading 
 };
 
 //push post request cart online
-const SyncCartOnline = async (props) => {
+const SyncPushCartOnline = async (props) => {
 
     const cartItems = props.cartItems || [];
 
@@ -455,6 +455,44 @@ const SyncCartOnline = async (props) => {
         console.error("Error pushing cart online:", error);
     }
 };
+
+// two way sync cart online
+
+const syncCartData = async () => {
+    try {
+        const localCart = await db.getAllAsync("SELECT * FROM cart");
+
+        // Step 1: Push local items to remote
+        await fetch('https://yourapi.com/sync-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cartItems: localCart, userId: yourUserId }),
+        });
+
+        // Step 2: Pull latest cart data from remote
+        const response = await fetch(`https://yourapi.com/get-cart?userId=${yourUserId}`);
+        const remoteCart = await response.json();
+
+        // Step 3: Clear local and replace with remote
+        await db.runAsync('DELETE FROM cart');
+        for (const item of remoteCart) {
+            await db.runAsync(
+                'INSERT INTO cart (product_id, product_variant_id, qty, isChecked) VALUES (?, ?, ?, ?)',
+                item.product_id,
+                item.product_variant_id,
+                item.qty,
+                item.isChecked ?? 0
+            );
+        }
+
+        console.log("Cart sync complete.");
+    } catch (err) {
+        console.error("Cart sync failed:", err);
+    }
+};
+
 
 //login user account
 const userLogin = async (props) => {
@@ -502,7 +540,8 @@ export {
     getSearchSuggestions,
     getHomeScreen,
     getProductDetailsByProductID,
-    SyncCartOnline,
+    SyncPushCartOnline,
+    syncCartData,
     // getUserAccount,
     // registerUserAccount,
     // registerVerifyCodeUserAccount,

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { HStack } from "@/components/ui/hstack"
 import { Text } from "@/components/ui/text"
 import Checkbox from 'expo-checkbox';
-import { SquareX, SquareCheckBig, Leaf } from "lucide-react-native";
+import { Heart, Share, Star, StarHalf, ChevronDown, Trash } from "lucide-react-native";
 
 import CartRow from './components/cart/CartRow';
 import { Dimensions, ScrollView, useWindowDimensions, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
@@ -46,22 +46,17 @@ function CartScreen(props) {
         const cartList = await db.getAllAsync("SELECT * FROM cart ORDER BY id DESC");
         for (let i = 0; i < cartList.length; i++) {
 
-            const productAttributeDetails = await db.getFirstAsync('SELECT * FROM product_attributes WHERE product_attributes_id = ' + cartList[i].product_attributes_id);
-            const productDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + productAttributeDetails.product_id);
             const cartItem = {
                 "id": cartList[i].id,
-                "product_attributes_id": cartList[i].product_attributes_id,
+                "product_variant_id ": cartList[i].product_attributes_id,
                 "qty": cartList[i].qty,
-                "product_id": productDetails.product_id,
-                "cover": productDetails.cover,
-                "product_description": productDetails.product_description,
-                "product_name": productDetails.product_name,
-                "product_attributes_default": productAttributeDetails.product_attributes_default,
-                "product_attributes_name": productAttributeDetails.product_attributes_name,
-                "product_attributes_value": productAttributeDetails.product_attributes_value,
-                "product_attributes_price": productAttributeDetails.product_attributes_price,
-                "product_attributes_stock_qty": productAttributeDetails.product_attributes_stock_qty,
-                "product_attributes_summary": productAttributeDetails.product_attributes_summary,
+                "product_id": cartList[i].product_id,
+                "cover": cartList[i].cover,
+                "product_variant_price": cartList[i].product_variant_price,
+
+                "product_name": cartList[i].product_name,
+
+                "stock_qty": cartList[i].stock_qty,
                 "isChecked": Boolean(cartList[i].isChecked),
             }
 
@@ -198,8 +193,7 @@ function CartScreen(props) {
         let total = 0;
         for (let i = 0; i < cartListItems.length; i++) {
             const qty = cartListItems[i].qty;
-            const productAttributeDetails = await db.getFirstAsync('SELECT * FROM product_attributes WHERE product_attributes_id = ' + cartListItems[i].product_attributes_id);
-            const price = productAttributeDetails.product_attributes_price
+            const price = cartListItems[i].product_variant_price;
 
             total += (price * qty)
         }
@@ -230,7 +224,12 @@ function CartScreen(props) {
                         </View>
 
                         <TouchableOpacity onPress={removeSelectedItems} style={styles.deleteSelected}>
-                            <Text style={{ fontSize: 18 }}>Delete selected items</Text>
+                            {/* <Text style={{ fontSize: 18 }}>Delete </Text> */}
+
+                            <Text style={{ fontSize: 14, color: '#d60303ff', fontWeight: '600', marginRight: 6 }}>
+                                Delete
+                            </Text>
+                            <Trash size={16} color="#d60303ff"/>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -282,8 +281,8 @@ function CartScreen(props) {
 
     } else {
         return (
-            <View style={{ justifyContent: 'center', backgroundColor: '#F5FCFF', marginTop: 2, padding: 70 }}>
-                <Text style={{ color: 'red', textAlign: 'center', fontSize: 18 }}>Your cart is empty</Text>
+            <View style={{ justifyContent: 'center', marginTop: 2, padding: 70 }}>
+                <Text style={{ color: 'red', textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>Your cart is empty!</Text>
             </View>
         );
 
@@ -330,8 +329,15 @@ const styles = StyleSheet.create({
     },
 
     deleteSelected: {
-        flex: 1,
-        alignItems: "flex-end"
+        alignItems: "flex-end",
+
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#d0d7de',
+        flexDirection: 'row',
+        alignItems: 'flex-end',
     },
 
 
