@@ -11,15 +11,16 @@ import { Text } from "@/components/ui/text";
 function CartRow({ data }) {
     if (!data) return <View />;
 
+
     const product = data.product;
     const [productQty, setProductQty] = useState(product.qty);
-    const [productPrice, setProductPrice] = useState(product.qty * parseFloat(product.product_attributes_price));
+    const [productPrice, setProductPrice] = useState(product.qty * parseFloat(product.product_variant_price));
     const [isLoading, setIsLoading] = useState({ add: false, minus: false, remove: false });
 
     const [isChecked, setChecked] = useState(Boolean(product.isChecked));
 
     useEffect(() => {
-        setProductPrice(productQty * parseFloat(product.product_attributes_price));
+        setProductPrice(productQty * parseFloat(product.product_variant_price));
     }, []);
 
     const updateQuantity = (change) => {

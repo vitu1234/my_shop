@@ -1,5 +1,12 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
+import {
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View
+} from "react-native";
 import { AppContext, CartContext } from "@/app_contexts/AppContext";
 import Carousel from "react-native-reanimated-carousel";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,246 +14,142 @@ import { SBItem } from "@/components/carousel/SBItem";
 import { window } from "@/components/carousel/constants";
 import { useSharedValue } from "react-native-reanimated";
 import { useSQLiteContext } from 'expo-sqlite';
-
-import { Heart, Share, Star, StarHalf } from "lucide-react-native";
+import { Heart, Share, Star, StarHalf, ChevronDown, ChevronUp } from "lucide-react-native";
 import { FlatList } from "react-native-actions-sheet";
-import ProductAttributeCard from "./components/product/product_details/ProductAttributeCard";
+import ProductVariantCard from "./components/product/product_details/ProductVariantCard";
 import ShippingDetails from "@/components/pages/components/product/product_details/ShippingDetails";
-import {
-    configureReanimatedLogger,
-    ReanimatedLogLevel,
-} from 'react-native-reanimated';
-const { width } = Dimensions.get("window");
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+import { getProductDetailsByProductID, SyncPushCartOnline } from "../config/API";
 
+const { width } = Dimensions.get("window");
 const PAGE_WIDTH = window.width;
 
-
 function ProductDetails(props) {
-    // console.log(props.route.params.db)
-
     const db = useSQLiteContext();
-
     const product_id = props.route.params.product_id;
+
+    
     const [productQty, setProductQty] = useState(1);
     const [carouselImageIndex, setCarouselImageIndex] = useState(1);
-
-    const [product, setProduct] = useState([])
-    const [productAttributes, setProductAttributes] = useState([])
-    const [productAttributeDefault, setProductAttributeDefault] = useState([])
-    const [productImages, setProductImages] = useState([])
-    const [productShipping, setProductShipping] = useState([])
-
+    const [product, setProduct] = useState([]);
+    const [productVariants, setProductVariants] = useState([]);
+    const [productVariantDefault, setProductVariantDefault] = useState([]);
+    const [productImages, setProductImages] = useState([]);
+    const [productShipping, setProductShipping] = useState([]);
     const [isLoggedIn, setLoggedInStatus] = useContext(AppContext);
     const [cartItemsCount, setCartItemsCount] = useContext(CartContext);
-    const [isBottomSheetOpen, setBottomSheetOpen] = useState(false);
     const [isAddingToCartBtn, setIsAddingToCartBtn] = useState(false);
     const [isPlusToCartBtnDisabled, setIsPlusToCartBtnDisabled] = useState(false);
     const [isMinusToCartBtnDisabled, setIsMinusToCartBtnDisabled] = useState(false);
-
+    const windowWidth = useWindowDimensions().width;
+    const scrollOffsetValue = useSharedValue(0);
+    const [isVertical] = useState(false);
+    const [isFast] = useState(false);
+    const [isAutoPlay] = useState(true);
+    const [isPagingEnabled] = useState(true);
+    const ref = useRef(null);
+    const [showVariantAttributes, setShowVariantAttributes] = useState(true);
     const [productsTotalAmount, setProductsTotalAmount] = useState(0);
-    // This is the default configuration
-    configureReanimatedLogger({
-        level: ReanimatedLogLevel.warn,
-        strict: false, // Reanimated runs in strict mode by default
-    });
-    const setCartCounterNumber = () => {
-        //update cart counter
-        /*db.transaction((tx) => {
-          tx.executeSql(
-            "SELECT * FROM cart",
-            [],
-            (tx, results) => {
-              const len = results.rows.length;
-              let amountTotal = 0;
-              const temp = [];
 
-              for (let i = 0; i < results.rows.length; ++i) {
-                temp.push(results.rows.item(i));
-
-                amountTotal += (results.rows.item(i).qty * results.rows.item(i).product_price);
-              }
-
-
-              setProductsTotalAmount(amountTotal);
-              setCartItemsCount(len);
-
-              // console.log("COUNTING");
-            },
-          );
-        });*/
-    };
+    configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 
     const fetchProductData = useCallback(async () => {
         if (db) {
-            await getProduct(product_id)
+            await getProductDetailsByProductID({ product_id, productDetailsLoading: getProduct });
         }
     }, [product]);
 
-    const getProduct = async (product_id) => {
-        // await Promise.all([F
-        // 1. A new transaction begins
-
-        const ProductDetails = await db.getFirstAsync('SELECT * FROM product WHERE product_id = ' + product_id);
-        const product_attributes = await db.getAllAsync('SELECT * FROM product_attributes WHERE product_id =' + product_id);
-        const product_sub_category = await db.getAllAsync('SELECT * FROM product_sub_category WHERE product_id =' + product_id);
-        // const product_shipping = await db.getAllAsync('SELECT * FROM product_shipping INNER JOIN shipping_company ON product_shipping.shipping_company_id = shipping_company.shipping_company_id WHERE product_id =' + product_id);
-
-        const product_images = [];
-        for await (const row of db.getEachAsync('SELECT * FROM product_images WHERE product_id = ' + product_id)) {
-            product_images.push(row.img_url);
+    const getProduct = async (isFetchingDataError, message, fetchedProducts) => {
+        if (isFetchingDataError) {
+            console.error("Error fetching product details:", message);
+            return;
         }
-        const product_attribute_default = [];
-        for (let i = 0; i < product_attributes.length; i++) {
+
+        const product_variants = [];
+        for (let i = 0; i < fetchedProducts.product_variants.length; i++) {
             try {
-                if (product_attributes[i].product_attributes_default == 1) {
-                    product_attribute_default.push(product_attributes[i])
+                if (fetchedProducts.product_variants[i].is_default == 1 && fetchedProducts.product_variants[i].is_active == 1) {
+                    setProductVariantDefault(fetchedProducts.product_variants[i]);
+                    product_variants.push(fetchedProducts.product_variants[i]);
                 }
             } catch (error) {
-                console.log("failed to read property of product attribute", error)
+                console.log("failed to read property of product variant", error);
             }
         }
 
-        setProduct(ProductDetails)
-        setProductImages(product_images)
-        setProductAttributeDefault(product_attribute_default)
-        setProductAttributes(product_attributes)
-        // setProductShipping(product_shipping)
-
-    }
-
+        setProduct(fetchedProducts.product);
+        setProductVariants(fetchedProducts.product_variants);
+        setProductShipping(fetchedProducts.product_shipping);
+        setProductImages(fetchedProducts.product_images.map(image => image.img_url));
+    };
 
     useEffect(() => {
         fetchProductData();
     }, []);
 
-
     useEffect(() => {
         if (productQty === 1) {
             setIsMinusToCartBtnDisabled(true);
         }
-        // setProductPrice(productQty * (parseFloat(0)));
-        setCartCounterNumber();
-
-    }, [productQty, cartItemsCount, productsTotalAmount, productAttributeDefault]);
-
+    }, [productQty, cartItemsCount, productsTotalAmount, productVariantDefault]);
 
     const addToCart = async () => {
-        console.log("adding to cart");
-        console.log(productAttributeDefault);
+        const productVariantId = productVariantDefault.product_variant_id;
 
-        const productAttributesId = productAttributeDefault[0].product_attributes_id;
+
 
         try {
-            // Fetch existing cart items
             const cartItemsList = await db.getAllAsync("SELECT * FROM cart");
-            console.log("Cart Items Count:", cartItemsList.length);
-
             let isUpdated = false;
 
             for (const row of cartItemsList) {
-                console.log("Looping: ", row.id, row.product_attributes_id, row.qty);
-
-                // Check if the item already exists in the cart
-                if (productAttributesId === row.product_attributes_id) {
+                if (productVariantId === row.product_variant_id) {
                     const qtyNow = row.qty + 1;
-                    console.log("Updating Quantity to:", qtyNow);
-
-                    // Update the quantity
-                    const updateResult = await db.runAsync(
-                        'UPDATE cart SET qty = ? WHERE id = ?',
-                        qtyNow,
-                        row.id
-                    );
-                    console.log("Cart Update Result:", updateResult);
+                    await db.runAsync('UPDATE cart SET qty = ? WHERE id = ?', qtyNow, row.id);
                     isUpdated = true;
-                    break; // No need to continue looping if item is found
+                    break;
                 }
             }
 
-            // If the item is not found in the cart, insert it
             if (!isUpdated) {
-                const insertResult = await db.runAsync(
-                    'INSERT INTO cart (product_attributes_id, qty) VALUES (?, ?)',
-                    productAttributesId,
-                    1
-                );
-                console.log("Insert Result:", insertResult.lastInsertRowId, insertResult.changes);
+                await db.runAsync('INSERT INTO cart (product_id,product_variant_id,product_variant_price, qty, stock_qty, cover, product_name) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    product_id, productVariantId, productVariantDefault.price, 1, productVariantDefault.stock_qty, product.cover, product.product_name);
             }
 
-            // Count the total number of items in the cart
             const countResult = await db.getFirstAsync("SELECT COUNT(*) as totalItems FROM cart");
-            console.log("Total Items in Cart After Operation:", countResult.totalItems);
+            setCartItemsCount(countResult.totalItems);
 
-            setCartItemsCount(countResult.totalItems)
-            
+            // pushCartOnline();
         } catch (error) {
             console.error("Error adding to cart:", error);
         }
     };
 
+    const pushCartOnline = async () => {
+        try {
+            const localCartItems = await db.getAllAsync("SELECT * FROM cart");
+            // Replace this with your actual API call
+            console.log("Pushing cart online:", localCartItems);
+            await SyncPushCartOnline({ cartItems: localCartItems });
 
-    const addProductQty = () => {
-        //amount should not exit the qty in inventory
-        const before_add = productQty + 1;
-        if (before_add <= product.qty) {
-            setProductQty(productQty + 1);
-            setIsPlusToCartBtnDisabled(false);
-            setIsMinusToCartBtnDisabled(false);
-        } else {
-            setIsPlusToCartBtnDisabled(true);
+            // Example: await sendCartToServer(localCartItems);
+        } catch (err) {
+            console.error("Failed to sync cart online:", err);
         }
     };
-
-    const minusProductQty = () => {
-        if (productQty === 1) {
-            setProductQty(1);
-            setIsMinusToCartBtnDisabled(true);
-        } else {
-            setProductQty(productQty - 1);
-            setIsPlusToCartBtnDisabled(false);
-            setIsMinusToCartBtnDisabled(false);
-        }
-    };
-
-    const openCart = () => {
-        props.navigation.navigate("Cart");
-    };
-
-
-    const windowWidth = useWindowDimensions().width;
-    const scrollOffsetValue = useSharedValue(0);
-    const [isVertical, setIsVertical] = React.useState(false);
-    const [isFast, setIsFast] = React.useState(false);
-    const [isAutoPlay, setIsAutoPlay] = React.useState(true);
-    const [isPagingEnabled, setIsPagingEnabled] = React.useState(true);
-    const ref = React.useRef(null);
 
     const baseOptions = isVertical
-        ? ({
-            vertical: true,
-            width: windowWidth,
-            height: PAGE_WIDTH / 2,
-        })
-        : ({
-            vertical: false,
-            width: windowWidth,
-            // height: PAGE_WIDTH / 2,
-        });
+        ? { vertical: true, width: windowWidth, height: PAGE_WIDTH / 2 }
+        : { vertical: false, width: windowWidth };
 
-    const productAttributeCardAction = (product_attribute_selected) => {
-        let selectedAttributeArray = []
-        selectedAttributeArray.push(product_attribute_selected)
-        setProductAttributeDefault(selectedAttributeArray)
+    const productVariantCardAction = (product_variant_selected) => {
+        setProductVariantDefault(product_variant_selected);
+        setShowVariantAttributes(true);
     };
 
-    const renderProductAttributeList = ({ item }) => (
-
-        <View key={item.product_attributes_id} style={styles.productCardContainer}>
-            <ProductAttributeCard data={{
-                productAttribute: item,
-                action: productAttributeCardAction,
-                activeAttribute: productAttributeDefault
-            }} />
+    const renderProductVariantList = ({ item }) => (
+        <View key={item.product_variant_id} style={styles.productCardContainer}>
+            <ProductVariantCard data={{ productVariant: item, action: productVariantCardAction, activeVariant: productVariantDefault }} />
         </View>
     );
 
@@ -259,6 +162,8 @@ function ProductDetails(props) {
                 data={[
                     { type: 'carousel' },
                     { type: 'productDetails' },
+                    ...(productVariantDefault && productVariantDefault.product_variant_id ? [{ type: 'selectedVariantAttributes' }] : []),
+
                     { type: 'shippingDetails' }
                 ]}
                 renderItem={({ item }) => {
@@ -372,26 +277,117 @@ function ProductDetails(props) {
 
                                 <FlatList
                                     style={styles.container}
-                                    data={productAttributes}
+                                    data={productVariants}
                                     horizontal
                                     showsHorizontalScrollIndicator={false}
                                     contentContainerStyle={styles.horizontalListContainer}
-                                    renderItem={renderProductAttributeList}
-                                    keyExtractor={item => item.product_attributes_id.toString()}
+                                    renderItem={renderProductVariantList}
+                                    keyExtractor={item => item.product_variant_id.toString()}
                                 />
-                                {/* <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text>
-                                <Text>HAHAHAHAHA </Text> */}
+
                             </View>
 
                         );
-                    } else if (item.type === 'shippingDetails') {
+                    } else if (item.type === 'selectedVariantAttributes') {
+                        const attributes = productVariantDefault?.attributes || [];
+                        if (attributes.length === 0) {
+                            return null; // No attributes to display
+                        }
+
+                        return (
+                            <View style={[styles.detailsContainer, {
+                                backgroundColor: '#ffffff',
+                                borderRadius: 12,
+                                padding: 16,
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 4,
+                                elevation: 3,
+                                marginHorizontal: 12,
+                                marginBottom: 16,
+                            }]}>
+                                <TouchableOpacity
+                                    onPress={() => setShowVariantAttributes(!showVariantAttributes)}
+                                    style={{
+                                        marginBottom: 12,
+                                        alignSelf: 'flex-start',
+                                        backgroundColor: '#f0f4f8',
+                                        paddingVertical: 8,
+                                        paddingHorizontal: 14,
+                                        borderRadius: 20,
+                                        borderWidth: 1,
+                                        borderColor: '#d0d7de',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 14, color: '#0366d6', fontWeight: '600', marginRight: 6 }}>
+                                        {showVariantAttributes ? 'Hide More Details' : 'Show More Details'}
+                                    </Text>
+                                    {showVariantAttributes ? (
+                                        <ChevronUp size={16} color="#0366d6" />
+                                    ) : (
+                                        <ChevronDown size={16} color="#0366d6" />
+                                    )}
+                                </TouchableOpacity>
+
+
+                                {showVariantAttributes && (
+                                    <>
+                                        <Text style={{
+                                            fontWeight: '700',
+                                            fontSize: 16,
+                                            marginBottom: 10,
+                                            color: '#1f2937',
+                                            textAlign: 'center',
+                                        }}>
+                                            Details
+                                        </Text>
+
+                                        {attributes.map((attr, index) => (
+                                            <View key={index} style={{ marginBottom: 12 }}>
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    fontWeight: '600',
+                                                    color: '#4e46e5c2',
+                                                    marginBottom: 6,
+                                                }}>
+                                                    {attr.filter_name}
+                                                </Text>
+
+                                                <View style={{
+                                                    flexDirection: 'row',
+                                                    flexWrap: 'wrap',
+                                                    gap: 6,
+                                                }}>
+                                                    {attr.option_labels.map((label, i) => (
+                                                        <Text
+                                                            key={i}
+                                                            style={{
+                                                                backgroundColor: "#e5e7eb88",
+                                                                paddingVertical: 6,
+                                                                paddingHorizontal: 12,
+                                                                borderRadius: 8,
+                                                                fontSize: 13,
+                                                                color: "#111827",
+                                                                marginRight: 6,
+                                                                marginBottom: 6,
+                                                            }}
+                                                        >
+                                                            {label.option_label}
+                                                        </Text>
+                                                    ))}
+                                                </View>
+                                            </View>
+                                        ))}
+                                    </>
+                                )}
+                            </View>
+                        );
+                    }
+
+                    else if (item.type === 'shippingDetails') {
                         return (
                             <View style={styles.detailsContainer}>
                                 <ShippingDetails data={product_id} />
@@ -519,7 +515,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     buyNowButton: {
-        backgroundColor: "#FF5722",
+        backgroundColor: "#0366d6",
     },
     buttonText: {
         color: "#fff",

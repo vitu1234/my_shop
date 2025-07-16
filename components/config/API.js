@@ -212,7 +212,7 @@ const getAllProductsByCategory = async (props) => {
 
 //get all products by sub_category
 const getAllProductsBySubCategory = async (props) => {
-    
+
     category_id = props.category_id;
     sub_category_id = props.sub_category_id;
 
@@ -285,9 +285,8 @@ const getAllProductsBySubCategory = async (props) => {
 
 //search suggestions
 const getSearchSuggestions = async (props) => {
-    searchQuery = props.searchText;
-    console.log("SEARCHING: " + searchQuery)
-    console.log(props)
+
+    const searchQuery = props.searchText;
     try {
         // console.log(props.categoryActive)
         fetch(`${base_url}/product/search/suggestions/${encodeURIComponent(searchQuery)}`, {
@@ -295,8 +294,8 @@ const getSearchSuggestions = async (props) => {
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log("RESYKRS")
-                console.log(data);
+                // console.log("RESYKRS")
+                // console.log(data);
                 const products = data.searchSuggestions;
                 //delete old data
                 // const db = await connectToDatabase()
@@ -330,29 +329,30 @@ const getSearchSuggestions = async (props) => {
 
 //search 
 const getSearch = async (props) => {
-    searchQuery = props.searchText;
-    limit = props.limit;
-    offset = props.offset;
-    console.log("SEARCHING: " + searchQuery)
-    console.log(props)
+
+    const searchQuery = props.searchText;
+    const limit = props.limit;
+    const offset = props.offset;
 
 
+    let url_params = '';
 
-    url_params = '';
     if (props.category_id != -1 && props.category_id != undefined) {
-        console.log("CATEGORY ID: " + props.category_id)
+        // console.log("CATEGORY ID: " + props.category_id)
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/${props.category_id}/-1/-1`
     } else if (props.sub_category_id != -1 && props.sub_category_id != undefined) {
-        console.log("SUB CATEGORY ID: " + props.sub_category_id)
+        // console.log("SUB CATEGORY ID: " + props.sub_category_id)
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/${props.sub_category_id}/-1`
     } else if (props.product_id != -1 && props.product_id != undefined) {
-        console.log("PRODUCT ID: " + props.product_id)
+        // console.log("PRODUCT ID: " + props.product_id)
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}/-1/-1/${props.product_id}`
     } else {
-        console.log("NO CATEGORY ID")
+        // console.log("NO CATEGORY ID")
         url_params = `${encodeURIComponent(searchQuery)}/${limit}/${offset}`
     }
-    console.log("URL PARAMS: " + url_params)
+    // console.log("URL PARAMS: " + url_params)
+
+    // console.log("SEARCH URL: " + `${base_url}/product/search/all/${url_params}`)
 
     // all/{searchQuery}/{limit}/{offset}/{category_id?}/{sub_category_id?}/{product_id?}
     try {
@@ -362,11 +362,11 @@ const getSearch = async (props) => {
         })
             .then((response) => response.json())
             .then(async (data) => {
-                console.log("RESYKRS")
-                console.log(data);
+                // console.log("RESYKRS")
+                // console.log(data);
                 const products = data.search_results;
                 const totalResults = data.total_results;
-                console.log("TOTAL RESULTS: " + totalResults)
+                // console.log("TOTAL RESULTS: " + totalResults)
                 //delete old data
                 // const db = await connectToDatabase()
                 // await deleteAllProducts();
@@ -387,116 +387,112 @@ const getSearch = async (props) => {
                 props.productsSearchResultsLoading(false, "", products);
             })
             .catch((err) => {
-                console.log("ERROR: " + err.message)
+                // console.log("ERROR: " + err.message)
                 props.productsSearchResultsLoading(true, err.message);
 
             });
 
     } catch (error) {
-        console.log("ERROR2: " + error.message)
+        // console.log("ERROR2: " + error.message)
         props.productsSearchResultsLoading(true, error.message);
     }
 
 };
 
 
-//get registered user account | checks user token validity
-const getUserAccount = async (props) => {
-    // console.log(`${props.access_token}:ACCESS TOKEN`)
-    // Default options are marked with *
-    const response = await fetch(`${base_url}/auth/profile`, {
-        method: "GET", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${props.access_token}`, // 'Content-Type': 'application/x-www-form-urlencoded',
-        }, redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        // body: JSON.stringify(props), // body data type must match "Content-Type" header
-    }).then((response) => response.json())
-        .then((data) => {
-            console.log("data ACCESS");
-            console.log(data);
-            // console.log("data");
-            props.setIsTokenError(data.isError, data.message);
-        })
-        .catch((err) => {
-            // console.log(err);
-            props.setIsTokenError(true, err.message);
-        });
+//get product details by product_id
+const getProductDetailsByProductID = async ({ product_id, productDetailsLoading }) => {
+    console.log("GETTING PRODUCT DETAILS FOR PRODUCT ID: " + product_id);
+    try {
+        const response = await fetch(`${base_url}/product/details/${product_id}`, { method: "GET" });
 
+        if (!response.ok) {
+            console.error("Error fetching product details:", response.statusText);
+            await productDetailsLoading(true, `Error fetching product details: ${response.statusText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const product_details = data.product_details;
+
+        console.log("Product Details:", product_details);
+
+        await productDetailsLoading(false, "", product_details);
+    } catch (error) {
+        console.error("Error fetching product details:", error);
+        await productDetailsLoading(true, "", error.message);
+    }
 };
 
-//=======================================================================
-//POST METHODS
-//=======================================================================
-//register user account
-const registerUserAccount = async (props) => {
-    // console.log(props);
-    // Example POST method implementation:
+//push post request cart online
+const SyncPushCartOnline = async (props) => {
 
-    // Default options are marked with *
-    const response = await fetch(`${base_url}/user`, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
-        }, redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(props), // body data type must match "Content-Type" header
-    }).then((response) => response.json())
-        .then((data) => {
-            // console.log("data");
-            // console.log(data);
-            // console.log("data");
-            props.setIsSignUpError(data.isError, data.message);
-        })
-        .catch((err) => {
-            // console.log(err);
-            props.setIsSignUpError(true, err.message);
+    const cartItems = props.cartItems || [];
+
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+        console.warn("No cart items to push online.");
+        return;
+    }
+
+    console.log("Cart items to push online:", cartItems);
+
+    try {
+        const response = await fetch(`${base_url}/cart/push`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(cartItems), // Ensure cartItems is an array of objects
         });
 
-    // return response.json(); // parses JSON response into native JavaScript objects
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-
+        const data = await response.json();
+        console.log("Cart pushed online successfully:", data);
+    } catch (error) {
+        console.error("Error pushing cart online:", error);
+    }
 };
 
-//verify code sent to user after register
-const registerVerifyCodeUserAccount = async (props) => {
-    // console.log(props);
-    // Example POST method implementation:
+// two way sync cart online
 
-    // Default options are marked with *
-    const response = await fetch(`${base_url}/user/verify_email_phone_code`, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        mode: "cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-            "Content-Type": "application/json", // 'Content-Type': 'application/x-www-form-urlencoded',
-        }, redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: JSON.stringify(props), // body data type must match "Content-Type" header
-    }).then((response) => response.json())
-        .then((data) => {
-            // console.log("data");
-            // console.log(data);
-            // console.log("data");
-            props.setIsVerifyAccountError(data.isError, data.message);
-        })
-        .catch((err) => {
-            // console.log(err);
-            props.setIsVerifyAccountError(true, err.message);
+const syncCartData = async () => {
+    try {
+        const localCart = await db.getAllAsync("SELECT * FROM cart");
+
+        // Step 1: Push local items to remote
+        await fetch('https://yourapi.com/sync-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cartItems: localCart, userId: yourUserId }),
         });
 
-    // return response.json(); // parses JSON response into native JavaScript objects
+        // Step 2: Pull latest cart data from remote
+        const response = await fetch(`https://yourapi.com/get-cart?userId=${yourUserId}`);
+        const remoteCart = await response.json();
 
+        // Step 3: Clear local and replace with remote
+        await db.runAsync('DELETE FROM cart');
+        for (const item of remoteCart) {
+            await db.runAsync(
+                'INSERT INTO cart (product_id, product_variant_id, qty, isChecked) VALUES (?, ?, ?, ?)',
+                item.product_id,
+                item.product_variant_id,
+                item.qty,
+                item.isChecked ?? 0
+            );
+        }
 
+        console.log("Cart sync complete.");
+    } catch (err) {
+        console.error("Cart sync failed:", err);
+    }
 };
+
 
 //login user account
 const userLogin = async (props) => {
@@ -543,8 +539,11 @@ export {
     getSearch,
     getSearchSuggestions,
     getHomeScreen,
-    getUserAccount,
-    registerUserAccount,
-    registerVerifyCodeUserAccount,
+    getProductDetailsByProductID,
+    SyncPushCartOnline,
+    syncCartData,
+    // getUserAccount,
+    // registerUserAccount,
+    // registerVerifyCodeUserAccount,
     userLogin, // userLogout,
 };
