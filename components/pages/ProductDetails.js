@@ -92,7 +92,8 @@ function ProductDetails(props) {
     }, [productQty, cartItemsCount, productsTotalAmount, productVariantDefault]);
 
     const addToCart = async () => {
-        const productVariantId = productVariantDefault[0].product_variant_id;
+        const productVariantId = productVariantDefault.product_variant_id;
+        console.log("Adding to cart productVariantId:", productVariantDefault);
 
         try {
             const cartItemsList = await db.getAllAsync("SELECT * FROM cart");
@@ -108,7 +109,8 @@ function ProductDetails(props) {
             }
 
             if (!isUpdated) {
-                await db.runAsync('INSERT INTO cart (product_variant_id, qty) VALUES (?, ?)', productVariantId, 1);
+                await db.runAsync('INSERT INTO cart (product_id,product_variant_id, qty) VALUES (?, ?, ?)',
+                    product_id, productVariantId, 1);
             }
 
             const countResult = await db.getFirstAsync("SELECT COUNT(*) as totalItems FROM cart");
@@ -270,6 +272,9 @@ function ProductDetails(props) {
                         );
                     } else if (item.type === 'selectedVariantAttributes') {
                         const attributes = productVariantDefault?.attributes || [];
+                        if (attributes.length === 0) {
+                            return null; // No attributes to display
+                        }
 
                         return (
                             <View style={[styles.detailsContainer, {
